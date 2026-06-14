@@ -8,13 +8,13 @@
 - 运行时间：2026-06-14 CST
 - 仓库：`/Users/mdiven/Code/Projects/rag-agent-platform`
 - Conda 环境：`AI_DEV`
-- RAG 服务：`http://127.0.0.1:8002`
-- Agent 服务：`http://127.0.0.1:8001`
+- RAG 服务：`http://127.0.0.1:8001`
+- Agent 服务：`http://127.0.0.1:8002`
 - LLM：Kimi（OpenAI 兼容接口）
 - 向量库：Qdrant，collection `documents`
 - 入库示例文件：`rag/data/raw/qdrant-docs.md`
 
-端口约定：Agent API 用 `8001`，RAG API 用 `8002`。
+端口约定：Agent API 用 `8002`，RAG API 用 `8001`。
 
 ## 前置条件
 
@@ -31,7 +31,7 @@ conda run -n AI_DEV python -m rag_app.scripts.build_index
 
 ```bash
 cd /Users/mdiven/Code/Projects/rag-agent-platform/rag
-conda run -n AI_DEV uvicorn rag_app.app.main:app --host 127.0.0.1 --port 8002
+conda run -n AI_DEV uvicorn rag_app.app.main:app --host 127.0.0.1 --port 8001
 ```
 
 启动 Agent 服务：
@@ -39,14 +39,14 @@ conda run -n AI_DEV uvicorn rag_app.app.main:app --host 127.0.0.1 --port 8002
 ```bash
 cd /Users/mdiven/Code/Projects/rag-agent-platform/agent
 PYTHONPATH=/Users/mdiven/Code/Projects/rag-agent-platform/agent/src:/Users/mdiven/Code/Projects/rag-agent-platform/rag/src \
-  conda run -n AI_DEV uvicorn agent_app.app.main:app --host 127.0.0.1 --port 8001
+  conda run -n AI_DEV uvicorn agent_app.app.main:app --host 127.0.0.1 --port 8002
 ```
 
 健康检查：
 
 ```bash
-curl -sS http://127.0.0.1:8002/health
 curl -sS http://127.0.0.1:8001/health
+curl -sS http://127.0.0.1:8002/health
 ```
 
 实测响应：
@@ -65,7 +65,7 @@ curl -sS http://127.0.0.1:8001/health
 
 ```bash
 cd /Users/mdiven/Code/Projects/rag-agent-platform
-curl -sS -X POST http://127.0.0.1:8002/documents/upload \
+curl -sS -X POST http://127.0.0.1:8001/documents/upload \
   -F "file=@rag/data/raw/qdrant-docs.md;type=text/markdown"
 ```
 
@@ -84,7 +84,7 @@ curl -sS -X POST http://127.0.0.1:8002/documents/upload \
 命令：
 
 ```bash
-curl -sS -X POST http://127.0.0.1:8002/documents/ingest \
+curl -sS -X POST http://127.0.0.1:8001/documents/ingest \
   -H "Content-Type: application/json" \
   -d '{"filename":"qdrant-docs.md"}'
 ```
@@ -105,7 +105,7 @@ curl -sS -X POST http://127.0.0.1:8002/documents/ingest \
 命令：
 
 ```bash
-curl -sS -X POST http://127.0.0.1:8002/ask \
+curl -sS -X POST http://127.0.0.1:8001/ask \
   -H "Content-Type: application/json" \
   -d '{"question":"Qdrant 在向量检索中有什么用途？"}'
 ```
@@ -146,7 +146,7 @@ curl -sS -X POST http://127.0.0.1:8002/ask \
 命令：
 
 ```bash
-curl -sS -X POST http://127.0.0.1:8001/agent/run \
+curl -sS -X POST http://127.0.0.1:8002/agent/run \
   -H "Content-Type: application/json" \
   -d '{"question":"LangChain 和 LlamaIndex 有什么区别？"}'
 ```

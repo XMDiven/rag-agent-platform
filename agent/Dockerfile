@@ -13,6 +13,6 @@ RUN pip install --no-cache-dir ./rag --no-deps
 COPY agent ./agent
 RUN pip install --no-cache-dir ./agent
 
-EXPOSE 8001
+EXPOSE 8002
 
-CMD ["uvicorn", "agent_app.app.main:app", "--host", "0.0.0.0", "--port", "8001"]
+CMD ["uvicorn", "agent_app.app.main:app", "--host", "0.0.0.0", "--port", "8002"]

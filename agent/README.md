@@ -237,13 +237,13 @@ conda run -n AI_DEV python -m agent_app.scripts.run_agent "请总结 LangChain �
 
 ```bash
 cd agent
-conda run -n AI_DEV uvicorn agent_app.app.main:app --host 127.0.0.1 --port 8001 --reload
+conda run -n AI_DEV uvicorn agent_app.app.main:app --host 127.0.0.1 --port 8002 --reload
 ```
 
 调用 `POST /agent/run`：
 
 ```bash
-curl -X POST http://127.0.0.1:8001/agent/run \
+curl -X POST http://127.0.0.1:8002/agent/run \
   -H "Content-Type: application/json" \
   -d '{"question": ""}'
 ```
@@ -253,7 +253,7 @@ curl -X POST http://127.0.0.1:8001/agent/run \
 调用总结工具：
 
 ```bash
-curl -X POST http://127.0.0.1:8001/agent/run \
+curl -X POST http://127.0.0.1:8002/agent/run \
   -H "Content-Type: application/json" \
   -d '{"question": "请总结 LangChain 的用途"}'
 ```
@@ -261,7 +261,7 @@ curl -X POST http://127.0.0.1:8001/agent/run \
 调用问题拆解工具：
 
 ```bash
-curl -X POST http://127.0.0.1:8001/agent/run \
+curl -X POST http://127.0.0.1:8002/agent/run \
   -H "Content-Type: application/json" \
   -d '{"question": "LangChain 和 LlamaIndex 分别适合做什么？"}'
 ```
@@ -269,7 +269,7 @@ curl -X POST http://127.0.0.1:8001/agent/run \
 查询 Agent 工具能力：
 
 ```bash
-curl http://127.0.0.1:8001/agent/tools
+curl http://127.0.0.1:8002/agent/tools
 ```
 
 `GET /agent/tools` 返回当前已注册工具的 `name`、`description`、`input_schema` 和 `output_schema`。该接口只做能力发现，不执行工具、不调用 RAG，也不代表已经接入 LLM Function Calling。
@@ -512,7 +512,7 @@ API 层返回的是给前端或调用方使用的结构，不直接暴露 servic
 健康检查接口：
 
 ```bash
-curl http://127.0.0.1:8001/health
+curl http://127.0.0.1:8002/health
 ```
 
 返回：

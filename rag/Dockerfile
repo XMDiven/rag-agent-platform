@@ -10,6 +10,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY src ./src
 
-EXPOSE 8002
+EXPOSE 8001
 
-CMD ["uvicorn", "rag_app.app.main:app", "--host", "0.0.0.0", "--port", "8002"]
+CMD ["uvicorn", "rag_app.app.main:app", "--host", "0.0.0.0", "--port", "8001"]

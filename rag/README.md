@@ -88,7 +88,7 @@ docker build -t rag-app .
 docker run --rm --env-file .env \
   -e QDRANT_URL=http://host.docker.internal:6333 \
   -e EMBEDDING_BASE_URL=http://host.docker.internal:11434 \
-  -p 8002:8002 \
+  -p 8001:8001 \
   rag-app
 ```
 
@@ -126,14 +126,14 @@ data/raw/
 也可以在 API 启动后通过上传接口保存文件：
 
 ```bash
-curl -X POST http://127.0.0.1:8002/documents/upload \
+curl -X POST http://127.0.0.1:8001/documents/upload \
   -F "file=@data/raw/example.md;type=text/markdown"
 ```
 
 批量上传多个文件：
 
 ```bash
-curl -X POST http://127.0.0.1:8002/documents/upload/batch \
+curl -X POST http://127.0.0.1:8001/documents/upload/batch \
   -F "files=@data/raw/example.md;type=text/markdown" \
   -F "files=@data/raw/example.pdf;type=application/pdf"
 ```
@@ -149,7 +149,7 @@ python -m rag_app.scripts.build_index
 如果你已经通过 API 上传了单个文件，也可以只入库这个文件：
 
 ```bash
-curl -X POST http://127.0.0.1:8002/documents/ingest \
+curl -X POST http://127.0.0.1:8001/documents/ingest \
   -H "Content-Type: application/json" \
   -d '{"filename":"example.md"}'
 ```
@@ -157,11 +157,11 @@ curl -X POST http://127.0.0.1:8002/documents/ingest \
 5. 启动 API 并提问：
 
 ```bash
-uvicorn rag_app.app.main:app --host 127.0.0.1 --port 8002 --reload
+uvicorn rag_app.app.main:app --host 127.0.0.1 --port 8001 --reload
 ```
 
 ```bash
-curl -X POST http://127.0.0.1:8002/ask \
+curl -X POST http://127.0.0.1:8001/ask \
   -H "Content-Type: application/json" \
   -d '{"question":"What does retrieval augmented generation combine?"}'
 ```
@@ -194,13 +194,13 @@ conda run -n AI_DEV python -m rag_app.scripts.build_index
 启动 FastAPI：
 
 ```bash
-conda run -n AI_DEV uvicorn rag_app.app.main:app --host 127.0.0.1 --port 8002 --reload
+conda run -n AI_DEV uvicorn rag_app.app.main:app --host 127.0.0.1 --port 8001 --reload
 ```
 
 上传 Markdown 或 PDF 文件：
 
 ```bash
-curl -X POST http://127.0.0.1:8002/documents/upload \
+curl -X POST http://127.0.0.1:8001/documents/upload \
   -F "file=@data/raw/example.pdf;type=application/pdf"
 ```
 
@@ -217,7 +217,7 @@ curl -X POST http://127.0.0.1:8002/documents/upload \
 批量上传 Markdown 或 PDF 文件：
 
 ```bash
-curl -X POST http://127.0.0.1:8002/documents/upload/batch \
+curl -X POST http://127.0.0.1:8001/documents/upload/batch \
   -F "files=@data/raw/example.md;type=text/markdown" \
   -F "files=@data/raw/example.pdf;type=application/pdf"
 ```
@@ -246,7 +246,7 @@ curl -X POST http://127.0.0.1:8002/documents/upload/batch \
 入库已上传的单个文件：
 
 ```bash
-curl -X POST http://127.0.0.1:8002/documents/ingest \
+curl -X POST http://127.0.0.1:8001/documents/ingest \
   -H "Content-Type: application/json" \
   -d '{"filename":"example.pdf"}'
 ```
@@ -265,7 +265,7 @@ curl -X POST http://127.0.0.1:8002/documents/ingest \
 发送问题：
 
 ```bash
-curl -X POST http://127.0.0.1:8002/ask \
+curl -X POST http://127.0.0.1:8001/ask \
   -H "Content-Type: application/json" \
   -d '{"question":"What does retrieval augmented generation combine?"}'
 ```
@@ -273,7 +273,7 @@ curl -X POST http://127.0.0.1:8002/ask \
 流式提问：
 
 ```bash
-curl -N -X POST http://127.0.0.1:8002/ask/stream \
+curl -N -X POST http://127.0.0.1:8001/ask/stream \
   -H "Content-Type: application/json" \
   -d '{"question":"What does retrieval augmented generation combine?"}'
 ```
@@ -405,25 +405,25 @@ Prompt A/B 对比结论见 `experiments/prompt_comparison_report.md`。
 API 启动后，也可以通过 Prompt Eval API 查询历史评测结果：
 
 ```bash
-curl http://127.0.0.1:8002/prompt-evals/reports
+curl http://127.0.0.1:8001/prompt-evals/reports
 ```
 
 查询指定 judge report：
 
 ```bash
-curl http://127.0.0.1:8002/prompt-evals/reports/<run_id>
+curl http://127.0.0.1:8001/prompt-evals/reports/<run_id>
 ```
 
 查询最新 `qa_prompt_v1` 和 `qa_prompt_v2` 对比指标：
 
 ```bash
-curl http://127.0.0.1:8002/prompt-evals/comparison/latest
+curl http://127.0.0.1:8001/prompt-evals/comparison/latest
 ```
 
 同步触发一次小样本 LLM-as-Judge 评测，并将报告写入 `experiments/judge_runs/`：
 
 ```bash
-curl -X POST http://127.0.0.1:8002/prompt-evals/run \
+curl -X POST http://127.0.0.1:8001/prompt-evals/run \
   -H "Content-Type: application/json" \
   -d '{"prompt_version":"qa_prompt_v2","case_limit":1}'
 ```
@@ -542,7 +542,7 @@ Start the RAG API from the image:
 docker run --rm --env-file .env \
   -e QDRANT_URL=http://host.docker.internal:6333 \
   -e EMBEDDING_BASE_URL=http://host.docker.internal:11434 \
-  -p 8002:8002 \
+  -p 8001:8001 \
   rag-app
 ```
 
@@ -580,14 +580,14 @@ data/raw/
 You can also upload files after the API starts:
 
 ```bash
-curl -X POST http://127.0.0.1:8002/documents/upload \
+curl -X POST http://127.0.0.1:8001/documents/upload \
   -F "file=@data/raw/example.md;type=text/markdown"
 ```
 
 Batch upload multiple files:
 
 ```bash
-curl -X POST http://127.0.0.1:8002/documents/upload/batch \
+curl -X POST http://127.0.0.1:8001/documents/upload/batch \
   -F "files=@data/raw/example.md;type=text/markdown" \
   -F "files=@data/raw/example.pdf;type=application/pdf"
 ```
@@ -603,7 +603,7 @@ python -m rag_app.scripts.build_index
 If you uploaded a single file through the API, you can ingest only that file:
 
 ```bash
-curl -X POST http://127.0.0.1:8002/documents/ingest \
+curl -X POST http://127.0.0.1:8001/documents/ingest \
   -H "Content-Type: application/json" \
   -d '{"filename":"example.md"}'
 ```
@@ -611,11 +611,11 @@ curl -X POST http://127.0.0.1:8002/documents/ingest \
 5. Start the API and ask a question:
 
 ```bash
-uvicorn rag_app.app.main:app --host 127.0.0.1 --port 8002 --reload
+uvicorn rag_app.app.main:app --host 127.0.0.1 --port 8001 --reload
 ```
 
 ```bash
-curl -X POST http://127.0.0.1:8002/ask \
+curl -X POST http://127.0.0.1:8001/ask \
   -H "Content-Type: application/json" \
   -d '{"question":"What does retrieval augmented generation combine?"}'
 ```
@@ -648,13 +648,13 @@ conda run -n AI_DEV python -m rag_app.scripts.build_index
 Start FastAPI:
 
 ```bash
-conda run -n AI_DEV uvicorn rag_app.app.main:app --host 127.0.0.1 --port 8002 --reload
+conda run -n AI_DEV uvicorn rag_app.app.main:app --host 127.0.0.1 --port 8001 --reload
 ```
 
 Upload a Markdown or PDF file:
 
 ```bash
-curl -X POST http://127.0.0.1:8002/documents/upload \
+curl -X POST http://127.0.0.1:8001/documents/upload \
   -F "file=@data/raw/example.pdf;type=application/pdf"
 ```
 
@@ -671,7 +671,7 @@ Example upload response:
 Batch upload Markdown or PDF files:
 
 ```bash
-curl -X POST http://127.0.0.1:8002/documents/upload/batch \
+curl -X POST http://127.0.0.1:8001/documents/upload/batch \
   -F "files=@data/raw/example.md;type=text/markdown" \
   -F "files=@data/raw/example.pdf;type=application/pdf"
 ```
@@ -700,7 +700,7 @@ The upload endpoints only save files into `data/raw/`. After uploading a new fil
 Ingest a single uploaded file:
 
 ```bash
-curl -X POST http://127.0.0.1:8002/documents/ingest \
+curl -X POST http://127.0.0.1:8001/documents/ingest \
   -H "Content-Type: application/json" \
   -d '{"filename":"example.pdf"}'
 ```
@@ -719,7 +719,7 @@ Example ingest response:
 Ask a question:
 
 ```bash
-curl -X POST http://127.0.0.1:8002/ask \
+curl -X POST http://127.0.0.1:8001/ask \
   -H "Content-Type: application/json" \
   -d '{"question":"What does retrieval augmented generation combine?"}'
 ```
@@ -727,7 +727,7 @@ curl -X POST http://127.0.0.1:8002/ask \
 Ask a streaming question:
 
 ```bash
-curl -N -X POST http://127.0.0.1:8002/ask/stream \
+curl -N -X POST http://127.0.0.1:8001/ask/stream \
   -H "Content-Type: application/json" \
   -d '{"question":"What does retrieval augmented generation combine?"}'
 ```
@@ -859,25 +859,25 @@ The Prompt A/B comparison is summarized in `experiments/prompt_comparison_report
 After the API starts, you can also query historical evaluation results through the Prompt Eval API:
 
 ```bash
-curl http://127.0.0.1:8002/prompt-evals/reports
+curl http://127.0.0.1:8001/prompt-evals/reports
 ```
 
 Query a specific judge report:
 
 ```bash
-curl http://127.0.0.1:8002/prompt-evals/reports/<run_id>
+curl http://127.0.0.1:8001/prompt-evals/reports/<run_id>
 ```
 
 Query the latest `qa_prompt_v1` and `qa_prompt_v2` comparison metrics:
 
 ```bash
-curl http://127.0.0.1:8002/prompt-evals/comparison/latest
+curl http://127.0.0.1:8001/prompt-evals/comparison/latest
 ```
 
 Trigger a synchronous small-sample LLM-as-Judge run and write the report to `experiments/judge_runs/`:
 
 ```bash
-curl -X POST http://127.0.0.1:8002/prompt-evals/run \
+curl -X POST http://127.0.0.1:8001/prompt-evals/run \
   -H "Content-Type: application/json" \
   -d '{"prompt_version":"qa_prompt_v2","case_limit":1}'
 ```
