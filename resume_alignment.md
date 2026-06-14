@@ -95,11 +95,12 @@ AI 应用开发 / LLM Engineering 实习通常考察：
 ### A 档：已实现、接近可用质量
 
 - **清晰分层**：`app/routers → services → retrieval|generation|ingestion|evaluation → infrastructure → config|schemas`，职责分离干净。最强工程信号。
-- **真实测试 + CI**：`rag/tests` 119 个 test 函数、`agent/tests` 47 个；`.github/workflows/tests.yml` 在 push/PR 跑两套 pytest。（2026-06-09 实跑：rag 119 passed、agent 47 passed，离线全绿；简历引用以最近一次实跑为准。）
+- **真实测试 + CI**：`rag/tests` 119 个 test 函数、`agent/tests` 53 个；`.github/workflows/tests.yml` 在 push/PR 跑两套 pytest。（agent 2026-06-14 实跑 53 passed、离线全绿；rag 以 2026-06-09 实跑 119 passed 为准；简历引用以最近一次实跑为准。）
 - **安全意识**：path-traversal 防护——`documents.py:17-35,52-62` 用 `Path(filename).name`；`prompt_eval_service.py:31-37` 校验 report 父目录。
 - **结构化 trace 贯穿全链路**：`ask_service.py:74-83,200-342`、`service.py:52-75`。
 - **检索 + 生成有限重试**：`ask_service.py:128-197`、`264-342`，失败落 `FALLBACK_ANSWER`。
 - **评估闭环（真亮点）**：LLM-as-Judge + Pydantic，`judge_schema.py:9-31` 用 `model_validator` 强制 `overall_pass` 由四维分数推导，杜绝模型自评注水；A/B 与报告持久化（`prompt_eval_service.py`）。
+- **真·多步 Agent loop（2026-06-14 新增，agent 线的纵向加深）**：`agent/src/agent_app/orchestration/loop.py` 用 `bind_tools`+`tool_choice="auto"` 跑多轮 ReAct——模型自主选工具→`run_tool` 执行→结果/失败回灌 `ToolMessage`→模型再决策，三种终止语义（final_answer/max_steps/failed），耗尽预算时去工具强制收尾。`service.run_agent` 默认走 loop，loop 异常或空问题降级到单步 `run_agent_once`（`service.py:114-201`）；`executor.run_tool` 按工具名统一派发；`/agent/run` 已接线并改同步 handler（不阻塞事件循环）。离线 fake-LLM 覆盖 loop 成功 / fallback / 工具失败恢复路径（`agent/tests/conftest.py`、`test_service.py`、`test_run_api.py`）。
 
 ### B 档：原型级（能跑，缺边界 / 可观测 / 一致性）
 
