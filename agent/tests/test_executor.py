@@ -1,6 +1,77 @@
-from agent_app.orchestration.executor import execute_plan
+from agent_app.orchestration.executor import ToolResult, execute_plan, run_tool
 from agent_app.orchestration.planner import AgentPlan
 from agent_app.tools.registry import ToolDefinition, get_tool
+
+
+def test_run_tool_runs_retrieval_tool(monkeypatch) -> None:
+    expected = {
+        "answer": "RAG answer",
+        "sources": [],
+        "trace": [],
+    }
+
+    monkeypatch.setattr(
+        "agent_app.orchestration.executor.run_retrieval_tool",
+        lambda question: expected,
+    )
+
+    result = run_tool(
+        "retrieval_tool",
+        tool_input={"question": "What is RAG?"},
+    )
+
+    assert result.tool_name == "retrieval_tool"
+    assert result.status == "success"
+    assert result.output == expected
+    assert result.attempts == [
+        {
+            "attempt": 1,
+            "status": "success",
+        }
+    ]
+
+
+def test_execute_plan_delegates_to_run_tool(monkeypatch) -> None:
+    calls: list[dict] = []
+
+    def fake_run_tool(
+        tool_name: str,
+        tool_input: dict | None = None,
+    ) -> ToolResult:
+        calls.append(
+            {
+                "tool_name": tool_name,
+                "tool_input": tool_input,
+            }
+        )
+        return ToolResult(
+            tool_name=tool_name,
+            status="success",
+            output={"answer": "delegated", "sources": []},
+            attempts=[{"attempt": 1, "status": "success"}],
+        )
+
+    monkeypatch.setattr(
+        "agent_app.orchestration.executor.run_tool",
+        fake_run_tool,
+    )
+    plan = AgentPlan(
+        tool=get_tool("retrieval_tool"),
+        reason="question requires knowledge retrieval",
+    )
+
+    result = execute_plan(
+        plan,
+        tool_input={"question": "What is RAG?"},
+    )
+
+    assert calls == [
+        {
+            "tool_name": "retrieval_tool",
+            "tool_input": {"question": "What is RAG?"},
+        }
+    ]
+    assert result.output == {"answer": "delegated", "sources": []}
 
 
 def test_execute_plan_runs_retrieval_tool(monkeypatch) -> None:

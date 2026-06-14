@@ -14,6 +14,7 @@ class ToolResult:
     output: Any
     attempts: list[dict[str, Any]]
 
+
 def successful_tool_result(tool_name: str, output: Any) -> ToolResult:
     return ToolResult(
         tool_name=tool_name,
@@ -119,19 +120,17 @@ def run_decomposed_retrieval(question: str) -> dict[str, Any]:
     }
 
 
-
-
-def execute_plan(
-    plan: AgentPlan,
+def run_tool(
+    tool_name: str,
     tool_input: dict[str, Any] | None = None,
 ) -> ToolResult:
-    if plan.tool.name == "retrieval_tool":
+    if tool_name == "retrieval_tool":
         question = str((tool_input or {}).get("question", ""))
         try:
             output = run_retrieval_tool(question)
         except Exception as error:
             return ToolResult(
-                tool_name=plan.tool.name,
+                tool_name=tool_name,
                 status="failed",
                 output={
                     "error_type": type(error).__name__,
@@ -148,7 +147,7 @@ def execute_plan(
             )
 
         return ToolResult(
-            tool_name=plan.tool.name,
+            tool_name=tool_name,
             status="success",
             output=output,
             attempts=[
@@ -159,9 +158,9 @@ def execute_plan(
             ],
         )
 
-    if plan.tool.name == "fallback_tool":
+    if tool_name == "fallback_tool":
         return ToolResult(
-            tool_name=plan.tool.name,
+            tool_name=tool_name,
             status="success",
             output={
                 "answer": "No retrieval is needed for this question.",
@@ -175,14 +174,14 @@ def execute_plan(
             ],
         )
 
-    if plan.tool.name == "summary_tool":
+    if tool_name == "summary_tool":
         text = str((tool_input or {}).get("text", ""))
 
         try:
             output = run_summary_tool(text)
         except Exception as error:
             return ToolResult(
-                tool_name=plan.tool.name,
+                tool_name=tool_name,
                 status="failed",
                 output={
                     "error_type": type(error).__name__,
@@ -199,7 +198,7 @@ def execute_plan(
             )
 
         return ToolResult(
-            tool_name=plan.tool.name,
+            tool_name=tool_name,
             status="success",
             output=output,
             attempts=[
@@ -210,7 +209,7 @@ def execute_plan(
             ],
         )
 
-    if plan.tool.name == "question_decompose_tool":
+    if tool_name == "question_decompose_tool":
         question = str((tool_input or {}).get("question", ""))
         output = run_decomposed_retrieval(question)
         sub_results = output.get("sub_results", [])
@@ -228,7 +227,7 @@ def execute_plan(
             status = "partial_success"
 
         return ToolResult(
-            tool_name=plan.tool.name,
+            tool_name=tool_name,
             status=status,
             output=output,
             attempts=[
@@ -240,16 +239,26 @@ def execute_plan(
         )
 
     return ToolResult(
-        tool_name=plan.tool.name,
+        tool_name=tool_name,
         status="failed",
         output={
-            "error": f"Unsupported tool: {plan.tool.name}",
+            "error": f"Unsupported tool: {tool_name}",
         },
         attempts=[
             {
                 "attempt": 1,
                 "status": "failed",
-                "error": f"Unsupported tool: {plan.tool.name}",
+                "error": f"Unsupported tool: {tool_name}",
             }
         ],
+    )
+
+
+def execute_plan(
+    plan: AgentPlan,
+    tool_input: dict[str, Any] | None = None,
+) -> ToolResult:
+    return run_tool(
+        tool_name=plan.tool.name,
+        tool_input=tool_input,
     )
