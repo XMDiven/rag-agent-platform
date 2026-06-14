@@ -1,6 +1,6 @@
 import logging
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from agent_app.tools import get_tool
@@ -20,6 +20,8 @@ class AgentRunResult:
     plan: AgentPlan
     tool_result: ToolResult
     trace: list[dict[str, Any]]
+    termination_reason: str = "single_step"
+    steps: list[dict[str, Any]] = field(default_factory=list)
 
 
 def build_analysis_trace(analysis: QueryAnalysis) -> dict[str, Any]:
@@ -198,6 +200,8 @@ def adapt_loop_result(
         plan=plan,
         tool_result=tool_result,
         trace=trace,
+        termination_reason=loop_result.termination_reason,
+        steps=loop_result.steps,
     )
 
 

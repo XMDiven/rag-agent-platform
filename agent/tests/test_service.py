@@ -104,6 +104,8 @@ def test_run_agent_once_uses_retrieval_tool(monkeypatch) -> None:
 def test_run_agent_uses_fallback_tool_when_retrieval_is_not_needed() -> None:
     result = run_agent("")
 
+    assert result.termination_reason == "single_step"
+    assert result.steps == []
     assert result.plan.tool.name == "fallback_tool"
     assert result.tool_result.tool_name == "fallback_tool"
     assert result.tool_result.status == "success"
@@ -378,6 +380,8 @@ def test_run_agent_routes_through_loop(
     assert result.trace[1]["status"] == "final_answer"
     assert result.trace[1]["detail"]["termination_reason"] == "final_answer"
     assert result.trace[1]["detail"]["steps"][0]["tool_name"] == "retrieval_tool"
+    assert result.termination_reason == "final_answer"
+    assert len(result.steps) == 2
 
 
 def test_run_agent_falls_back_to_single_step_when_loop_raises(

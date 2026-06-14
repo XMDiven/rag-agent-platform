@@ -14,6 +14,8 @@ class AgentRunResponse(BaseModel):
     tool_status: str
     tool_output: dict[str, Any]
     trace: list[dict[str, Any]]
+    termination_reason: str = "single_step"
+    steps: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class AgentToolResponse(BaseModel):

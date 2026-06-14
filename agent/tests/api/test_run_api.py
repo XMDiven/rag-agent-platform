@@ -24,6 +24,8 @@ def test_run_agent_endpoint_uses_fallback_tool_for_empty_question() -> None:
     assert data["sources"] == []
     assert data["selected_tool"] == "fallback_tool"
     assert data["tool_status"] == "success"
+    assert data["termination_reason"] == "single_step"
+    assert data["steps"] == []
     assert data["tool_output"] == {
         "answer": "No retrieval is needed for this question.",
         "sources": [],
@@ -106,6 +108,8 @@ def test_run_agent_endpoint_returns_success_through_loop(
     assert data["trace"][0]["step"] == "analyze_question"
     assert data["trace"][1]["step"] == "agent_loop"
     assert data["trace"][1]["detail"]["termination_reason"] == "final_answer"
+    assert data["termination_reason"] == "final_answer"
+    assert len(data["steps"]) >= 1
 
 
 def test_run_agent_endpoint_recovers_from_tool_failure_through_loop(

@@ -54,4 +54,6 @@ def run_agent_endpoint(request: AgentRunRequest) -> AgentRunResponse:
         tool_status=result.tool_result.status,
         tool_output=tool_output,
         trace=result.trace,
+        termination_reason=result.termination_reason,
+        steps=result.steps,
     )
