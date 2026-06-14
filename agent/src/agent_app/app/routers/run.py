@@ -42,7 +42,7 @@ def extract_sources(tool_output: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 @router.post("/agent/run", response_model=AgentRunResponse)
-async def run_agent_endpoint(request: AgentRunRequest) -> AgentRunResponse:
+def run_agent_endpoint(request: AgentRunRequest) -> AgentRunResponse:
     result = run_agent(request.question)
 
     tool_output = normalize_tool_output(result.tool_result.output)

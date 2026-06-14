@@ -1,9 +1,11 @@
 from typing import Any
 
 import pytest
+from langchain_core.messages import AIMessage
+from rag_app.retrieval.query_analyzer import analyze_query
 
 from agent_app.orchestration.tool_selector import ToolSelection
-from agent_app.service import run_agent
+from agent_app.service import run_agent, run_agent_once
 from agent_app.tools import get_tool
 
 
@@ -23,7 +25,11 @@ def patch_tool_selection(
     )
 
 
-def test_run_agent_uses_retrieval_tool(monkeypatch) -> None:
+def run_once(question: str) -> Any:
+    return run_agent_once(question, analyze_query(question))
+
+
+def test_run_agent_once_uses_retrieval_tool(monkeypatch) -> None:
     patch_tool_selection(
         monkeypatch=monkeypatch,
         tool_name="retrieval_tool",
@@ -45,7 +51,7 @@ def test_run_agent_uses_retrieval_tool(monkeypatch) -> None:
         fake_retrieval_tool,
     )
 
-    result = run_agent("What is RAG?")
+    result = run_once("What is RAG?")
 
     assert result.plan.tool.name == "retrieval_tool"
     assert result.tool_result.tool_name == "retrieval_tool"
@@ -145,7 +151,9 @@ def test_run_agent_uses_fallback_tool_when_retrieval_is_not_needed() -> None:
     ]
 
 
-def test_run_agent_uses_summary_tool_for_summary_question(monkeypatch) -> None:
+def test_run_agent_once_uses_summary_tool_for_summary_question(
+    monkeypatch,
+) -> None:
     patch_tool_selection(
         monkeypatch=monkeypatch,
         tool_name="summary_tool",
@@ -156,7 +164,7 @@ def test_run_agent_uses_summary_tool_for_summary_question(monkeypatch) -> None:
         lambda text: {"summary": "LangChain 用途摘要"},
     )
 
-    result = run_agent("请总结 LangChain 的用途")
+    result = run_once("请总结 LangChain 的用途")
 
     assert result.plan.tool.name == "summary_tool"
     assert result.tool_result.tool_name == "summary_tool"
@@ -207,7 +215,7 @@ def test_run_agent_uses_summary_tool_for_summary_question(monkeypatch) -> None:
     ]
 
 
-def test_run_agent_uses_question_decompose_tool_for_comparison_question(
+def test_run_agent_once_uses_question_decompose_tool_for_comparison_question(
     monkeypatch,
 ) -> None:
     patch_tool_selection(
@@ -228,7 +236,7 @@ def test_run_agent_uses_question_decompose_tool_for_comparison_question(
         fake_retrieval_tool,
     )
 
-    result = run_agent("LangChain 和 LlamaIndex 分别适合做什么？")
+    result = run_once("LangChain 和 LlamaIndex 分别适合做什么？")
 
     assert result.plan.tool.name == "question_decompose_tool"
     assert result.tool_result.tool_name == "question_decompose_tool"
@@ -291,7 +299,7 @@ def test_run_agent_uses_question_decompose_tool_for_comparison_question(
     }
 
 
-def test_run_agent_marks_trace_failed_when_retrieval_tool_fails(
+def test_run_agent_once_marks_trace_failed_when_retrieval_tool_fails(
     monkeypatch,
 ) -> None:
     patch_tool_selection(
@@ -308,7 +316,7 @@ def test_run_agent_marks_trace_failed_when_retrieval_tool_fails(
         raise_error,
     )
 
-    result = run_agent("What is RAG?")
+    result = run_once("What is RAG?")
 
     assert result.tool_result.status == "failed"
     assert result.tool_result.output == {
@@ -338,3 +346,63 @@ def test_run_agent_marks_trace_failed_when_retrieval_tool_fails(
             ],
         },
     }
+
+
+def test_run_agent_routes_through_loop(
+    patch_loop_llm,
+    make_tool_call,
+    monkeypatch,
+) -> None:
+    patch_loop_llm(
+        [
+            make_tool_call("retrieval_tool", {"question": "What is RAG?"}),
+            AIMessage(content="RAG grounds answers in retrieved context."),
+        ]
+    )
+    monkeypatch.setattr(
+        "agent_app.orchestration.executor.run_retrieval_tool",
+        lambda question: {"answer": "ctx", "sources": [{"source": "rag.md"}]},
+    )
+
+    result = run_agent("What is RAG?")
+
+    assert result.plan.tool.name == "retrieval_tool"
+    assert result.tool_result.tool_name == "agent_loop"
+    assert result.tool_result.status == "success"
+    assert result.tool_result.output == {
+        "answer": "RAG grounds answers in retrieved context.",
+        "sources": [{"source": "rag.md"}],
+    }
+    assert result.trace[0]["step"] == "analyze_question"
+    assert result.trace[1]["step"] == "agent_loop"
+    assert result.trace[1]["status"] == "final_answer"
+    assert result.trace[1]["detail"]["termination_reason"] == "final_answer"
+    assert result.trace[1]["detail"]["steps"][0]["tool_name"] == "retrieval_tool"
+
+
+def test_run_agent_falls_back_to_single_step_when_loop_raises(
+    monkeypatch,
+) -> None:
+    def boom() -> None:
+        raise RuntimeError("llm down")
+
+    monkeypatch.setattr("agent_app.service.get_client", boom)
+    patch_tool_selection(
+        monkeypatch=monkeypatch,
+        tool_name="retrieval_tool",
+        tool_args={"question": "What is RAG?"},
+    )
+    monkeypatch.setattr(
+        "agent_app.orchestration.executor.run_retrieval_tool",
+        lambda question: {"answer": "RAG answer", "sources": [], "trace": []},
+    )
+
+    result = run_agent("What is RAG?")
+
+    assert result.tool_result.tool_name == "retrieval_tool"
+    assert result.tool_result.status == "success"
+    assert [step["step"] for step in result.trace] == [
+        "analyze_question",
+        "plan_tool",
+        "execute_tool",
+    ]
