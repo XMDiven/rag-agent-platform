@@ -218,7 +218,7 @@ def test_loop_appends_ai_message_and_tool_message_before_next_round() -> None:
     }
 
 
-def test_loop_finalizes_without_tools_when_max_steps_is_reached() -> None:
+def test_loop_finalizes_with_tool_choice_none_when_max_steps_is_reached() -> None:
     fake_llm = FakeModel(
         responses=[
             tool_call_message(call_id="call_1", args={"question": "first"}),
@@ -264,8 +264,8 @@ def test_loop_finalizes_without_tools_when_max_steps_is_reached() -> None:
     assert len(fake_llm.invocations) == 3
     assert fake_llm.invocations[0].tool_names is not None
     assert fake_llm.invocations[1].tool_names is not None
-    assert fake_llm.invocations[2].tool_names is None
-    assert fake_llm.invocations[2].tool_choice is None
+    assert fake_llm.invocations[2].tool_names is not None
+    assert fake_llm.invocations[2].tool_choice == "none"
 
 
 def test_loop_feeds_tool_error_back_to_model() -> None:

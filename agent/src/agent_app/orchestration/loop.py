@@ -239,7 +239,7 @@ def run_agent_loop(
             )
 
     try:
-        final_message = llm.invoke(messages)
+        final_message = llm.bind_tools(build_loop_tools(), tool_choice="none").invoke(messages)
         final_answer = extract_message_text(final_message)
     except Exception:
         final_answer = ""
