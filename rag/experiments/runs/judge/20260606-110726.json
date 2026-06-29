@@ -1,0 +1,225 @@
+{
+  "run_id": "20260606-110726",
+  "prompt_version": "qa_prompt_v1",
+  "total": 11,
+  "passed": 1,
+  "failed": 10,
+  "cases": [
+    {
+      "id": "gpt4_report_scope",
+      "question": "What does the GPT-4 technical report say about its scope and limitations?",
+      "answer": "我无法仅根据当前检索到的上下文可靠回答这个问题。",
+      "sources": [],
+      "judge": {
+        "relevance_score": 5,
+        "completeness_score": 5,
+        "groundedness_score": 5,
+        "format_score": 5,
+        "overall_pass": true,
+        "feedback": "The answer correctly identifies that no evidence was retrieved and refrains from generating ungrounded content. It is fully aligned with the constraint to use only provided evidence, clearly states its limitation, and avoids hallucination."
+      },
+      "passed": true,
+      "failures": [],
+      "answer_duration_seconds": 5.7,
+      "judge_duration_seconds": 22.98,
+      "total_duration_seconds": 28.69
+    },
+    {
+      "id": "qdrant_usage",
+      "question": "What is Qdrant used for in vector search?",
+      "answer": "我无法仅根据当前检索到的上下文可靠回答这个问题。",
+      "sources": [],
+      "judge": {
+        "relevance_score": 1,
+        "completeness_score": 1,
+        "groundedness_score": 5,
+        "format_score": 5,
+        "overall_pass": false,
+        "feedback": "The answer appropriately acknowledges the lack of retrieved evidence and refuses to hallucinate, resulting in high groundedness. However, it completely fails to answer the question about what Qdrant is used for in vector search, yielding low relevance and completeness scores. The response is clear and well-formatted."
+      },
+      "passed": false,
+      "failures": [],
+      "answer_duration_seconds": 5.01,
+      "judge_duration_seconds": 49.6,
+      "total_duration_seconds": 54.61
+    },
+    {
+      "id": "langchain_usage",
+      "question": "What is LangChain used for?",
+      "answer": "我无法仅根据当前检索到的上下文可靠回答这个问题。",
+      "sources": [],
+      "judge": {
+        "relevance_score": 1,
+        "completeness_score": 1,
+        "groundedness_score": 5,
+        "format_score": 5,
+        "overall_pass": false,
+        "feedback": "The answer correctly identifies that no retrieved evidence is available, earning high marks for groundedness and format. However, it completely fails to answer the question about LangChain's uses or provide any relevant information, resulting in minimal scores for relevance and completeness. While acknowledging limitations is appropriate in RAG systems, the answer does not fulfill the user's information need."
+      },
+      "passed": false,
+      "failures": [],
+      "answer_duration_seconds": 7.12,
+      "judge_duration_seconds": 35.24,
+      "total_duration_seconds": 42.36
+    },
+    {
+      "id": "rag_paper_definition",
+      "question": "In the original Retrieval-Augmented Generation paper, what does RAG combine?",
+      "answer": "我无法仅根据当前检索到的上下文可靠回答这个问题。",
+      "sources": [],
+      "judge": {
+        "relevance_score": 1,
+        "completeness_score": 1,
+        "groundedness_score": 5,
+        "format_score": 5,
+        "overall_pass": false,
+        "feedback": "The answer fails to address the question about what RAG combines. While it correctly acknowledges the absence of retrieved evidence and refuses to hallucinate (demonstrating high groundedness), it provides no information regarding the actual content of the query. A relevant and complete answer would state what components RAG combines (e.g., parametric and non-parametric memory, or a retriever and a generator) if the evidence permitted, or explicitly state that the specific information is missing from the retrieved context rather than giving a generic refusal. The format is clear and the admission of limitation is honest, but the answer is irrelevant and incomplete with respect to the user's question."
+      },
+      "passed": false,
+      "failures": [],
+      "answer_duration_seconds": 5.55,
+      "judge_duration_seconds": 36.48,
+      "total_duration_seconds": 42.03
+    },
+    {
+      "id": "qlora_memory",
+      "question": "How does QLoRA reduce memory usage during finetuning?",
+      "answer": "我无法仅根据当前检索到的上下文可靠回答这个问题。",
+      "sources": [],
+      "judge": {
+        "relevance_score": 1,
+        "completeness_score": 1,
+        "groundedness_score": 5,
+        "format_score": 3,
+        "overall_pass": false,
+        "feedback": "The answer fails to address the question regarding how QLoRA reduces memory usage. Instead, it provides a refusal stating that it cannot answer based on the retrieved context. While this refusal is appropriately grounded given the absence of retrieved evidence (avoiding hallucination), it offers no relevant information or completeness regarding the topic. The response is clear but is provided in a different language (Chinese) than the question (English), which impacts formatting appropriateness."
+      },
+      "passed": false,
+      "failures": [],
+      "answer_duration_seconds": 6.04,
+      "judge_duration_seconds": 93.99,
+      "total_duration_seconds": 100.03
+    },
+    {
+      "id": "lora_low_rank",
+      "question": "What is the main idea of low-rank adaptation in LoRA?",
+      "answer": "我无法仅根据当前检索到的上下文可靠回答这个问题。",
+      "sources": [],
+      "judge": {
+        "relevance_score": 1,
+        "completeness_score": 1,
+        "groundedness_score": 5,
+        "format_score": 5,
+        "overall_pass": false,
+        "feedback": "The answer explicitly refuses to answer the question due to lack of retrieved evidence. While this demonstrates high groundedness (correctly acknowledging the absence of evidence) and clear format, it completely lacks relevance and completeness regarding the question about LoRA's main idea."
+      },
+      "passed": false,
+      "failures": [],
+      "answer_duration_seconds": 6.33,
+      "judge_duration_seconds": 60.74,
+      "total_duration_seconds": 67.08
+    },
+    {
+      "id": "self_consistency_reasoning",
+      "question": "What is self-consistency in chain-of-thought reasoning?",
+      "answer": "我无法仅根据当前检索到的上下文可靠回答这个问题。",
+      "sources": [],
+      "judge": {
+        "relevance_score": 1,
+        "completeness_score": 1,
+        "groundedness_score": 5,
+        "format_score": 4,
+        "overall_pass": false,
+        "feedback": "The answer appropriately acknowledges the lack of retrieved evidence and refuses to hallucinate ungrounded content. However, it completely fails to address the question about self-consistency in chain-of-thought reasoning, providing no definition, explanation, or relevant information. While the statement about lacking context is fully grounded in the provided evidence (which shows no retrieved documents), the answer is neither relevant nor complete with respect to the user's specific technical query."
+      },
+      "passed": false,
+      "failures": [],
+      "answer_duration_seconds": 5.06,
+      "judge_duration_seconds": 32.37,
+      "total_duration_seconds": 37.43
+    },
+    {
+      "id": "vllm_paged_attention",
+      "question": "What problem does PagedAttention solve in vLLM?",
+      "answer": "我无法仅根据当前检索到的上下文可靠回答这个问题。",
+      "sources": [],
+      "judge": {
+        "relevance_score": 1,
+        "completeness_score": 1,
+        "groundedness_score": 5,
+        "format_score": 5,
+        "overall_pass": false,
+        "feedback": "The answer correctly identifies that no evidence was retrieved and refuses to hallucinate an answer, demonstrating perfect groundedness and clear formatting. However, it completely fails to answer the question about what problem PagedAttention solves, providing no relevant information or key points regarding the query."
+      },
+      "passed": false,
+      "failures": [],
+      "answer_duration_seconds": 5.74,
+      "judge_duration_seconds": 38.23,
+      "total_duration_seconds": 43.97
+    },
+    {
+      "id": "qdrant_chinese_paraphrase",
+      "question": "向量数据库 Qdrant 主要解决什么问题？",
+      "answer": "我无法仅根据当前检索到的上下文可靠回答这个问题。",
+      "sources": [],
+      "judge": {
+        "relevance_score": 1,
+        "completeness_score": 1,
+        "groundedness_score": 5,
+        "format_score": 5,
+        "overall_pass": false,
+        "feedback": "The answer correctly states that it cannot respond based on the lack of retrieved evidence, making this claim fully grounded. However, it completely fails to address the question about what problems Qdrant solves, resulting in low relevance and completeness. While the honest admission is appropriate given the empty evidence, no substantive information about the vector database is provided."
+      },
+      "passed": false,
+      "failures": [],
+      "answer_duration_seconds": 4.39,
+      "judge_duration_seconds": 54.6,
+      "total_duration_seconds": 59.0
+    },
+    {
+      "id": "rag_memory_paraphrase",
+      "question": "RAG 里的参数化记忆和非参数化记忆分别是什么？",
+      "answer": "我无法仅根据当前检索到的上下文可靠回答这个问题。",
+      "sources": [],
+      "judge": {
+        "relevance_score": 1,
+        "completeness_score": 1,
+        "groundedness_score": 5,
+        "format_score": 5,
+        "overall_pass": false,
+        "feedback": "The answer appropriately acknowledges the absence of retrieved evidence and refuses to hallucinate, resulting in perfect groundedness and format scores. However, it completely fails to address the question about parametric and non-parametric memory in RAG, resulting in minimal relevance and completeness. Without relevant evidence, the system cannot generate a substantive answer to this query."
+      },
+      "passed": false,
+      "failures": [],
+      "answer_duration_seconds": 7.86,
+      "judge_duration_seconds": 38.32,
+      "total_duration_seconds": 46.18
+    },
+    {
+      "id": "langchain_llamaindex_comparison",
+      "question": "LangChain 和 LlamaIndex 分别适合做什么？",
+      "answer": "我无法仅根据当前检索到的上下文可靠回答这个问题。",
+      "sources": [],
+      "judge": {
+        "relevance_score": 1,
+        "completeness_score": 1,
+        "groundedness_score": 5,
+        "format_score": 5,
+        "overall_pass": false,
+        "feedback": "The answer appropriately acknowledges the lack of retrieved evidence and refuses to hallucinate, but consequently provides zero information about LangChain or LlamaIndex. It fails to answer the question or cover any key points about these frameworks' respective use cases."
+      },
+      "passed": false,
+      "failures": [],
+      "answer_duration_seconds": 7.41,
+      "judge_duration_seconds": 29.75,
+      "total_duration_seconds": 37.16
+    }
+  ],
+  "case_source": "default",
+  "retrieval_config": {
+    "top_k": 7,
+    "search_type": "mmr",
+    "fetch_k": 50,
+    "lambda_mult": 0.3
+  }
+}

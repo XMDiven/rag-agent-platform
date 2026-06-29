@@ -1,0 +1,621 @@
+{
+  "run_id": "20260606-111842",
+  "prompt_version": "qa_prompt_v1",
+  "total": 11,
+  "passed": 11,
+  "failed": 0,
+  "cases": [
+    {
+      "id": "gpt4_report_scope",
+      "question": "What does the GPT-4 technical report say about its scope and limitations?",
+      "answer": "根据GPT-4技术报告，其**范围**聚焦于模型的能力、局限性和安全特性，但出于竞争格局和安全考虑，未披露架构细节（包括模型规模）、硬件、训练计算、数据集构建及训练方法等信息；报告包含一份系统卡，详细说明了偏见、虚假信息、过度依赖、隐私、网络安全和扩散等风险。关于**局限性**，GPT-4与早期GPT模型类似：不完全可靠（可能出现\"幻觉\"）、上下文窗口有限、无法学习；此外，它在漏洞利用构建方面表现不佳，且在识别新型漏洞等复杂高级任务上效果不如现有专业工具。\n\n关键证据：\n- 报告明确关注能力、局限性和安全特性，但出于竞争和安全考虑省略了架构规模、硬件、训练计算和数据集等细节[1][2]。\n- 局限性包括不可靠性（幻觉）、有限的上下文窗口以及缺乏学习能力[3]。\n- 在网络安全方面，GPT-4在构建漏洞利用代码时表现较差，在识别新型漏洞等复杂任务上不如现有工具有效[6]。",
+      "sources": [
+        {
+          "source": "data/raw/gpt4_technical_report.pdf",
+          "section_path": "page_2",
+          "snippet": "2 Scope and Limitations of this Technical Report\nThis report focuses on the capabilities, limitations, and safety properties of GPT-4. GPT-4 is a\nTransformer-style model [39] pre-trained to predict the next token in a document, using both publicly\navailable data (such as internet data) and data licensed from third-party providers. The model was\nthen fine-tuned using Reinforcement Learning from Human Feedback (RLHF) [ 40]. Given both\nthe competitive landscape and the safety implications of large-scale models like GPT-4, this report\ncontains no further details about the architecture (including model size), hardware, training compute,\ndataset construction, training method, or similar.\nWe are committed to independent auditing of our technologies, and shared some initial steps and"
+        },
+        {
+          "source": "data/raw/gpt4_technical_report.pdf",
+          "section_path": "page_2",
+          "snippet": "from experience. Care should be taken when using the outputs of GPT-4, particularly in contexts\nwhere reliability is important.\nGPT-4’s capabilities and limitations create significant and novel safety challenges, and we believe\ncareful study of these challenges is an important area of research given the potential societal impact.\nThis report includes an extensive system card (after the Appendix) describing some of the risks we\nforesee around bias, disinformation, over-reliance, privacy, cybersecurity, proliferation, and more.\nIt also describes interventions we made to mitigate potential harms from the deployment of GPT-4,\nincluding adversarial testing with domain experts, and a model-assisted safety pipeline.\n2 Scope and Limitations of this Technical Report"
+        },
+        {
+          "source": "data/raw/gpt4_technical_report.pdf",
+          "section_path": "page_1",
+          "snippet": "predictions about the expected performance of GPT-4 (based on small runs trained in similar ways)\nthat were tested against the final run to increase confidence in our training.\nDespite its capabilities, GPT-4 has similar limitations to earlier GPT models [1, 37, 38]: it is not fully\nreliable (e.g. can suffer from “hallucinations”), has a limited context window, and does not learn\n∗Please cite this work as “OpenAI (2023)\". Full authorship contribution statements appear at the end of the\ndocument. Correspondence regarding this technical report can be sent to gpt4-report@openai.com\narXiv:2303.08774v6  [cs.CL]  4 Mar 2024"
+        },
+        {
+          "source": "data/raw/gpt4_technical_report.pdf",
+          "section_path": "page_17",
+          "snippet": "Wu\nGPT-4 API & ChatML deployment11\nGreg Brockman, Brooke Chan, Chester Cho, Atty Eleti, Rachel Lim,\nAndrew Peng, Michelle Pokrass, Sherwin Wu\nGPT-4 web experience11\nValerie Balcom, Lenny Bogdonoff, Jason Chen, Dave Cummings,\nNoah Deutsch, Mike Heaton, Paul McMillan, Rajeev Nayak, Joel\nParish, Adam Perelman, Eric Sigler, Nick Turley, Arun Vijayvergiya,\nChelsea V oss\nInference infrastructure11\nBrooke Chan, Scott Gray, Chris Hallacy, Kenny Hsu, Tomer Kaftan,\nRachel Lim, Henrique Ponde de Oliveira Pinto, Raul Puri, Heather\nSchmidt, Felipe Petroski Such\nReliability engineering11\nHaiming Bao, Madelaine Boyd, Ben Chess, Damien Deville, Yufei\nGuo, Vishal Kuo, Ikai Lan, Michelle Pokrass, Carl Ross, David\nSchnurr, Jordan Sitkin, Felipe Petroski Such\nTrust & safety engineering11"
+        },
+        {
+          "source": "data/raw/agent__arxiv__autogen-enabling-next-gen-llm.pdf",
+          "section_path": "page_6",
+          "snippet": "stricted by its hourly message-number limitation. Multi-agent debate and LangChain ReAct were also not\nevaluated since they underperformed vanilla GPT-4 on the smaller test set.\n6"
+        },
+        {
+          "source": "data/raw/gpt4_technical_report.pdf",
+          "section_path": "page_54",
+          "snippet": "network navigation, and is less eﬀective than existing tools for complex and high-level activities like\nnovel vulnerability identiﬁcation.\nThe following summarizes ﬁndings from expert red teamers who focused on assessing GPT-4’s\ncapabilities for vulnerability discovery and exploitation, and social engineering:\n• V ulnerability discovery and exploitation: We contracted external cybersecurity experts\nto test GPT-4’s ability to aid in computer vulnerability discovery, assessment, and exploitation.\nThey found that GPT-4 could explain some vulnerabilities if the source code was small enough\nto ﬁt in the context window, just as the model can explain other source code. However, GPT-4\nperformed poorly at building exploits for the vulnerabilities that were identiﬁed."
+        },
+        {
+          "source": "data/raw/gpt4_technical_report.pdf",
+          "section_path": "page_43",
+          "snippet": "In Section 1, we outline some of the observed safety challenges in the development of GPT-4. In\nSection 2, we discuss our process for deployment preparation and some of the model mitigations and\nsystem safety measures. In Section 3, we conclude by discussing some remaining limitations and\nrecommendations in light of the observed risks we have learned through our iterative deployment\nstrategy.\n5Autonomously replicate is a reference to self-replication, a concept that dates back at least as far as the 1988, to\nthe self-replicating computer worms, “Morris worm”, written by Robert Morris.[20]\n43"
+        }
+      ],
+      "judge": {
+        "relevance_score": 5,
+        "completeness_score": 5,
+        "groundedness_score": 5,
+        "format_score": 5,
+        "overall_pass": true,
+        "feedback": "The answer comprehensively addresses both the scope and limitations of the GPT-4 technical report as requested. It accurately captures that the scope focuses on capabilities, limitations, and safety properties while omitting specific technical details (architecture, model size, hardware, training compute) due to competitive and safety concerns, and includes the system card content. The limitations section correctly identifies hallucinations, limited context window, lack of learning ability, and specific cybersecurity shortcomings (poor exploit building, inferiority to existing tools for novel vulnerability identification). All claims are properly grounded in the provided evidence snippets [1], [2], [3], and [6]. The answer is well-structured with clear headings and accurate citations."
+      },
+      "passed": true,
+      "failures": [],
+      "answer_duration_seconds": 28.42,
+      "judge_duration_seconds": 23.58,
+      "total_duration_seconds": 52.0
+    },
+    {
+      "id": "qdrant_usage",
+      "question": "What is Qdrant used for in vector search?",
+      "answer": "Qdrant是一个向量相似性搜索引擎和向量数据库，专为AI应用设计，用于存储、搜索和管理向量（嵌入），支持语义搜索、神经网络匹配、混合搜索（结合密集与稀疏向量）、分面搜索、推荐和发现等功能。\n\n关键证据：\n- [1] Qdrant是向量相似性搜索引擎和向量数据库，提供生产就绪服务以存储、搜索和管理带附加负载的向量，适用于神经网络或语义匹配、分面搜索等应用。\n- [2] Qdrant是AI原生的向量搜索和语义搜索引擎，用于从非结构化数据中提取有意义的信息。\n- [3] 支持密集、稀疏和多向量搜索，以及混合搜索（融合语义理解与关键词精度）。\n- [7] 提供分面聚合、推荐（基于正负例）、发现（约束向量空间区域）和搜索相关性调整等功能。",
+      "sources": [
+        {
+          "source": "data/raw/aiapp-05-qdrant-readme.md",
+          "section_path": "",
+          "snippet": "Vector Search Engine for the next generation of AI applications  \nTests status  \nOpenAPI Docs  \nApache 2.0 License  \nDiscord  \nRoadmap 2025  \nQdrant Cloud  \nQdrant (read: quadrant) is a vector similarity search engine and vector database. It provides a production-ready service with a convenient API to store, search, and manage points—vectors with an additional payload. Qdrant is tailored for extended filtering support, making it useful for all sorts of neural-network or semantic-based matching, faceted search, and other applications.  \nQdrant is written in Rust 🦀, which makes it fast and reliable even under high load. See benchmarks.  \nWith Qdrant, embeddings or neural network encoders can be turned into full-fledged applications for matching, searching, recommending, and much more!"
+        },
+        {
+          "source": "data/raw/qdrant-docs.md",
+          "section_path": "",
+          "snippet": "Qdrant Docs  \nSource: https://qdrant.tech/documentation/  \nQdrant Documentation  \nQdrant is an AI-native vector search and a semantic search engine. You can use it to extract meaningful information from unstructured data.  \nClone this repo now and build a search engine in five minutes.  \nReady to start developing?  \nQdrant is open-source and can be self-hosted. However, the quickest way to get started is with our free tier on Qdrant Cloud. It scales easily and provides a UI where you can interact with data.  \nCreate your first Qdrant Cloud cluster today  \nGet Started  \nOptimize Qdrant's performance  \nBoost search speed, reduce latency, and improve the accuracy and memory usage of your Qdrant deployment.  \nLearn More"
+        },
+        {
+          "source": "data/raw/aiapp-05-qdrant-readme.md",
+          "section_path": "",
+          "snippet": "Features  \nDense, Sparse, and Multi Vector Search  \nQdrant supports dense vectors for semantic similarity, sparse vectors for full-text search, and multivector search for objects with multiple embeddings or late interaction models like ColBERT.  \nFiltering on Payload  \nAttach any JSON payload to your vectors and filter on it using a rich set of conditions—keyword matching, full-text, numeric ranges, geo-locations, and more—combined with should, must, and must_not clauses.  \nHybrid Search  \nCombine multiple vectors in a single query to get the best of semantic understanding and keyword precision, with results merged via configurable fusion strategies, such as Reciprocal Rank Fusion (RRF) and Distribution-Based Score Fusion (DBSF).  \nVector Quantization and On-Disk Storage"
+        },
+        {
+          "source": "data/raw/aiapp-05-qdrant-readme.md",
+          "section_path": "",
+          "snippet": "Demo Projects  \nDiscover Semantic Text Search 🔍  \nUnlock the power of semantic embeddings with Qdrant, transcending keyword-based search to find meaningful connections in short texts. Deploy a neural search in minutes using a pre-trained neural network, and experience the future of text search. Try it online!  \nExplore Similar Image Search - Food Discovery 🍕  \nThere's more to discovery than text search, especially when it comes to food. People often choose meals based on appearance rather than descriptions and ingredients. Let Qdrant help your users find their next delicious meal using visual search, even if they don't know the dish's name. Check it out!  \nMaster Extreme Classification - E-Commerce Product Categorization 📺"
+        },
+        {
+          "source": "data/raw/aiapp-05-qdrant-readme.md",
+          "section_path": "",
+          "snippet": "Qdrant is also available as a fully managed Qdrant Cloud ⛅ including a free tier.  \nQuick Start • Agent Skills • Client Libraries • Demo Projects • Integrations • Contact  \nGetting Started  \nAgent Skills  \nQdrant provides a collection of ready-to-use agent skills that bring Qdrant's vector search capabilities directly into your AI coding assistant. Install these skills to empower your agent in making critical engineering decisions for optimal vector search performance, such as quantization, sharding, tenant isolation, hybrid search, model migration, and more.  \nClient-Server  \nTo experience the full power of Qdrant locally, run the container with this command:  \ndocker run -p 6333:6333 qdrant/qdrant"
+        },
+        {
+          "source": "data/raw/aiapp-05-qdrant-readme.md",
+          "section_path": "",
+          "snippet": "Python client  \n.NET/C# client  \nJava client  \nCommunity:  \nPHP  \nQdrant Edge  \nQdrant Edge is a lightweight version of Qdrant designed for edge devices and resource-constrained environments. Unlike Qdrant Server, which uses a client-server architecture, Qdrant Edge runs inside the application process. Data is stored and queried locally and can be synchronized with a Qdrant server. It offers the same powerful vector search capabilities as the client-server version but with a smaller footprint, making it ideal for applications that require low latency and offline functionality.  \nTo get started with Qdrant Edge from Python or Rust, initialize an instance of EdgeShard, which exposes methods to manage data, query it, and restore snapshots. For example:"
+        },
+        {
+          "source": "data/raw/aiapp-05-qdrant-readme.md",
+          "section_path": "",
+          "snippet": "Vector Quantization and On-Disk Storage  \nBuilt-in quantization cuts RAM usage by up to 97% and lets you tune the trade-off between search speed and precision.  \nDistributed Deployment  \nScale horizontally with sharding and replication, and update or resize collections with zero downtime.  \nHighlighted Features  \nFaceting - aggregate search results by payload values.  \nRecommendation - use positive and negative examples to find similar points.  \nDiscovery - constrain search to a specific region of the vector space.  \nSearch Relevance Tuning - tools for adjusting search results, such as Maximal Marginal Relevance (MMR) and the Relevance Feedback Query.  \nMultitenancy - scalable partitioning of data for multi-user environments."
+        }
+      ],
+      "judge": {
+        "relevance_score": 5,
+        "completeness_score": 5,
+        "groundedness_score": 5,
+        "format_score": 5,
+        "overall_pass": true,
+        "feedback": "The answer comprehensively addresses the question by identifying Qdrant as a vector similarity search engine and vector database for AI applications. It covers all key use cases mentioned in the evidence: storing/searching/managing vectors, semantic search, neural network matching, hybrid search (dense and sparse vectors), faceted search, recommendations, and discovery. Each claim is properly grounded with citations to the retrieved evidence ([1], [2], [3], [7]). The format is clear and well-structured, presenting the information concisely while maintaining accuracy."
+      },
+      "passed": true,
+      "failures": [],
+      "answer_duration_seconds": 17.98,
+      "judge_duration_seconds": 23.47,
+      "total_duration_seconds": 41.45
+    },
+    {
+      "id": "langchain_usage",
+      "question": "What is LangChain used for?",
+      "answer": "LangChain 用于构建基于大语言模型（LLM）的应用程序和智能体（agents）。它提供了一个标准接口来连接模型、嵌入、向量存储等组件，帮助开发者通过链式组合可互操作的组件和第三方集成来简化 AI 应用开发，同时支持将 LLM 连接到多样化的数据源和外部/内部系统 [1][2][5]。\n\n关键证据：\n- LangChain 是一个用于构建智能体和 LLM 驱动应用程序的框架，帮助开发者链式组合可互操作的组件和第三方集成，简化 AI 应用开发 [2]。\n- 它帮助开发者通过模型、嵌入、向量存储等的标准接口构建基于 LLM 的应用程序，并支持实时数据增强，轻松将 LLM 连接到各种数据源和外部/内部系统 [1]。\n- 它是构建完全自定义的智能体和基于 LLM 的应用程序的简便方式，提供预构建的智能体架构和模型集成，帮助快速入门 [5]。",
+      "sources": [
+        {
+          "source": "data/raw/03-langchain-README.md",
+          "section_path": "or",
+          "snippet": "LangGraph — Build agents that can reliably handle complex tasks with our low-level agent orchestration framework  \nIntegrations — Chat & embedding models, tools & toolkits, and more  \nLangSmith — Agent evals, observability, and debugging for LLM apps  \nLangSmith Deployment — Deploy and scale agents with a purpose-built platform for long-running, stateful workflows  \nWhy use LangChain?  \nLangChain helps developers build applications powered by LLMs through a standard interface for models, embeddings, vector stores, and more.  \nReal-time data augmentation — Easily connect LLMs to diverse data sources and external/internal systems, drawing from LangChain's vast library of integrations with model providers, tools, vector stores, retrievers, and more"
+        },
+        {
+          "source": "data/raw/03-langchain-README.md",
+          "section_path": "",
+          "snippet": "The agent engineering platform.  \nPyPI - License  \nPyPI - Downloads  \nVersion  \nTwitter / X  \nLangChain is a framework for building agents and LLM-powered applications. It helps you chain together interoperable components and third-party integrations to simplify AI application development — all while future-proofing decisions as the underlying technology evolves.  \n[!NOTE] Looking for the JS/TS library? Check out LangChain.js.  \nQuickstart  \npip install langchain"
+        },
+        {
+          "source": "data/raw/aiapp-02-langserve-readme.md",
+          "section_path": "Declare a chain",
+          "snippet": "Legacy Chains  \nLangServe works with both Runnables (constructed via LangChain Expression Language) and legacy chains (inheriting from Chain). However, some of the input schemas for legacy chains may be incomplete/incorrect, leading to errors. This can be fixed by updating the input_schema property of those chains in LangChain. If you encounter any errors, please open an issue on THIS repo, and we will work to address it.  \nDeployment  \nDeploy to AWS  \nYou can deploy to AWS using the AWS Copilot CLI  \ncopilot init --app [application-name] --name [service-name] --type 'Load Balanced Web Service' --dockerfile './Dockerfile' --deploy  \nClick here to learn more.  \nDeploy to Azure  \nYou can deploy to Azure using Azure Container Apps (Serverless):"
+        },
+        {
+          "source": "data/raw/aiapp-01-langgraph-readme.md",
+          "section_path": "",
+          "snippet": "Contributing Guide – Learn how to contribute to LangChain projects and find good first issues.  \nCode of Conduct – Our community guidelines and standards for participation.  \nAcknowledgements  \nLangGraph is inspired by Pregel and Apache Beam. The public interface draws inspiration from NetworkX. LangGraph is built by LangChain Inc, the creators of LangChain, but can be used without LangChain."
+        },
+        {
+          "source": "data/raw/langchain-docs.md",
+          "section_path": "",
+          "snippet": "LangChain Docs  \nSource: https://python.langchain.com/docs/  \nLangChain is the easy way to start building completely custom agents and applications powered by LLMs. With under 10 lines of code, you can connect to OpenAI, Anthropic, Google, and more. LangChain provides a prebuilt agent architecture and model integrations to help you get started quickly and seamlessly incorporate LLMs into your agents and applications.  \nLangChain agents are built on top of LangGraph in order to provide durable execution, streaming, human-in-the-loop, persistence, and more. You do not need to know LangGraph for basic LangChain agent usage. We recommend you use LangChain if you want to quickly build agents and autonomous applications.  \nCreate an agent"
+        },
+        {
+          "source": "data/raw/aiapp-02-langserve-readme.md",
+          "section_path": "",
+          "snippet": "🦜️🏓 LangServe  \nRelease Notes  \nDownloads  \nOpen Issues  \n[!WARNING] DEPRECATED This project has been deprecated since Nov 18, 2024 (https://github.com/langchain-ai/langserve/issues/791).  \nWe recommend using LangGraph Platform rather than LangServe for new projects.  \nPlease see the LangGraph Platform Migration Guide for more information.  \nWe will continue to accept bug fixes for LangServe from the community; however, we will not be accepting new feature contributions.  \nOverview  \nLangServe helps developers deploy LangChain runnables and chains as a REST API.  \nThis library is integrated with FastAPI and uses pydantic for data validation.  \nIn addition, it provides a client that can be used to call into runnables deployed on a server. A JavaScript client is available in LangChain.js."
+        },
+        {
+          "source": "data/raw/03-langchain-README.md",
+          "section_path": "or",
+          "snippet": "Chat LangChain – Chat with the LangChain documentation and get answers to your questions  \nDiscussions: Visit the LangChain Forum to connect with the community and share all of your technical questions, ideas, and feedback.  \nAdditional resources  \nContributing Guide – Learn how to contribute to LangChain projects and find good first issues.  \nCode of Conduct – Our community guidelines and standards for participation.  \nLangChain Academy – Comprehensive, free courses on LangChain libraries and products, made by the LangChain team."
+        }
+      ],
+      "judge": {
+        "relevance_score": 5,
+        "completeness_score": 5,
+        "groundedness_score": 5,
+        "format_score": 5,
+        "overall_pass": true,
+        "feedback": "The answer accurately addresses what LangChain is used for based on the provided evidence. It correctly identifies key purposes including building LLM-powered applications and agents, providing standard interfaces for models/embeddings/vector stores, chaining interoperable components, and connecting LLMs to diverse data sources. All claims are properly supported by citations [1], [2], and [5], and the answer is well-formatted with clear structure and accurate references to the evidence."
+      },
+      "passed": true,
+      "failures": [],
+      "answer_duration_seconds": 12.03,
+      "judge_duration_seconds": 14.96,
+      "total_duration_seconds": 27.0
+    },
+    {
+      "id": "rag_paper_definition",
+      "question": "In the original Retrieval-Augmented Generation paper, what does RAG combine?",
+      "answer": "RAG结合了参数化记忆（parametric memory）和非参数化记忆（non-parametric memory）。具体而言，它将预训练的序列到序列Transformer（作为参数化记忆）与通过预训练神经检索器访问的密集向量索引（如维基百科，作为非参数化记忆）相结合[1][2]。\n\n证据：原始论文指出，RAG模型中的参数化记忆是预训练的seq2seq Transformer，非参数化记忆是通过预训练神经检索器访问的密集向量索引（如维基百科）[1]。Hugging Face的文档也说明，RAG将预训练语言模型（参数化记忆）与外部数据源（非参数化记忆）通过预训练神经检索器结合[2]。",
+      "sources": [
+        {
+          "source": "data/raw/retrieval_augmented_generation_for_knowledge_intensive_nlp.pdf",
+          "section_path": "page_2",
+          "snippet": "a general-purpose ﬁne-tuning approach which we refer to as retrieval-augmented generation (RAG).\nWe build RAG models where the parametric memory is a pre-trained seq2seq transformer, and the\nnon-parametric memory is a dense vector index of Wikipedia, accessed with a pre-trained neural\nretriever. We combine these components in a probabilistic model trained end-to-end (Fig. 1). The\nretriever (Dense Passage Retriever [26], henceforth DPR) provides latent documents conditioned on\nthe input, and the seq2seq model (BART [32]) then conditions on these latent documents together with\nthe input to generate the output. We marginalize the latent documents with a top-K approximation,\neither on a per-output basis (assuming the same document is responsible for all tokens) or a per-token"
+        },
+        {
+          "source": "data/raw/transformers__hugging-face-transformers__rag.md",
+          "section_path": "",
+          "snippet": "This model was released on 2020-05-22 and added to Hugging Face Transformers on 2020-11-16.  \nRAG  \nFlashAttention  \nRetrieval-Augmented Generation (RAG) combines a pretrained language model (parametric memory) with access to an external data source (non-parametric memory) by means of a pretrained neural retriever. RAG fetches relevant passages and conditions its generation on them during inference. This often makes the answers more factual and lets you update knowledge by changing the index instead of retraining the whole model.  \nYou can find all the original RAG checkpoints under the AI at Meta organization.  \n[!TIP] This model was contributed by ola13.  \nClick on the RAG models in the right sidebar for more examples of how to apply RAG to different language tasks."
+        },
+        {
+          "source": "data/raw/agent__arxiv__autogen-enabling-next-gen-llm.pdf",
+          "section_path": "page_6",
+          "snippet": "A2: Retrieval-Augmented Code Generation and Question Answering\nRetrieval augmentation has emerged as a practical and effective approach for mitigating the intrinsic\nlimitations of LLMs by incorporating external documents. In this section, we employ AutoGen to\nbuild a Retrieval-Augmented Generation (RAG) system (Lewis et al., 2020; Parvez et al., 2021)\nnamed Retrieval-augmented Chat. The system consists of two agents: a Retrieval-augmented User\nProxy agent and a Retrieval-augmented Assistant agent, both of which are extended from built-in\nagents from AutoGen. The Retrieval-augmented User Proxy includes a vector database (Chroma,\n5We did not evaluate ChatGPT on the whole dataset since it requires substantial manual effort and is re-"
+        },
+        {
+          "source": "data/raw/aiapp-06-milvus-readme.md",
+          "section_path": "",
+          "snippet": "Image Search RAG Drug Discovery  \nEcosystem and Integration"
+        },
+        {
+          "source": "data/raw/retrieval_augmented_generation_for_knowledge_intensive_nlp.pdf",
+          "section_path": "page_7",
+          "snippet": "We also analyze whether documents retrieved by RAG correspond to documents annotated as gold\nevidence in FEVER. We calculate the overlap in article titles between the topk documents retrieved\nby RAG and gold evidence annotations. We ﬁnd that the top retrieved document is from a gold article\nin 71% of cases, and a gold article is present in the top 10 retrieved articles in 90% of cases.\n4.5 Additional Results\nGeneration Diversity Section 4.3 shows that RAG models are more factual and speciﬁc than\nBART for Jeopardy question generation. Following recent work on diversity-promoting decoding\n[33, 59, 39], we also investigate generation diversity by calculating the ratio of distinct ngrams to\ntotal ngrams generated by different models. Table 5 shows that RAG-Sequence’s generations are"
+        },
+        {
+          "source": "data/raw/aiapp-16-owasp-top-10-llm-2025.pdf",
+          "section_path": "page_33",
+          "snippet": "OWASP Top 10 for LLM Applications v2.0\n29genai.owasp.org\nLLM08:2025 Vector and Embedding Weaknesses\nDescription\nVectors and embeddings vulnerabilities present significant security risks in systems utilizing\nRetrieval Augmented Generation (RAG) with Large Language Models (LLMs). Weaknesses in how\nvectors and embeddings are generated, stored, or retrieved can be exploited by malicious actions\n(intentional or unintentional) to inject harmful content, manipulate model outputs, or access\nsensitive information.\nRetrieval Augmented Generation (RAG) is a model adaptation technique that enhances the\nperformance and contextual relevance of responses from LLM Applications, by combining pre-\ntrained language models with external knowledge sources.Retrieval Augmentation uses vector"
+        },
+        {
+          "source": "data/raw/rag__arxiv__corrective-retrieval-augmented-generation.pdf",
+          "section_path": "page_2",
+          "snippet": "On account of the above issues, this paper\nparticularly studies the scenarios where\nthe retriever returns inaccurate results. A\nmethod named Corrective Retrieval-Augmented\nGeneration ( CRAG ) is proposed to self-correct\nthe results of retriever and improve the utilization\nof documents for augmenting generation. A\nlightweight retrieval evaluator is designed to\nassess the overall quality of retrieved documents\nfor a query. This serves as a crucial component\nin RAG, contributing to informative generation\nby reviewing and evaluating the relevance\nand reliability of the retrieved documents. A\nconfidence degree is quantified based on which\ndifferent knowledge retrieval actions of {Correct,\nIncorrect, Ambiguous} can be triggered. For the\nlatter two actions, large-scale web searches (Piktus"
+        }
+      ],
+      "judge": {
+        "relevance_score": 5,
+        "completeness_score": 5,
+        "groundedness_score": 5,
+        "format_score": 5,
+        "overall_pass": true,
+        "feedback": "The answer accurately identifies that RAG combines parametric memory (pre-trained seq2seq Transformer) and non-parametric memory (dense vector index accessed via pre-trained neural retriever). This is fully supported by evidence [1], which explicitly defines these components from the original paper, and evidence [2], which confirms the combination of parametric and non-parametric memory. The answer includes proper citations and clearly explains what each memory type consists of."
+      },
+      "passed": true,
+      "failures": [],
+      "answer_duration_seconds": 27.94,
+      "judge_duration_seconds": 15.91,
+      "total_duration_seconds": 43.85
+    },
+    {
+      "id": "qlora_memory",
+      "question": "How does QLoRA reduce memory usage during finetuning?",
+      "answer": "QLoRA通过以下创新技术减少内存使用：(1) 使用4-bit NormalFloat (NF4)数据类型对预训练模型权重进行量化；(2) 采用双重量化（Double Quantization）进一步压缩量化常数；(3) 使用分页优化器（Paged Optimizers）管理内存峰值；(4) 冻结4位量化的预训练模型，仅通过其反向传播梯度来训练Low Rank Adapters (LoRA)参数。\n\n关键证据：\n- [1] 明确指出QLoRA引入了三项创新以节省内存：4-bit NormalFloat (NF4)信息论上适用于正态分布权重、双重量化（通过量化量化常数减少平均内存占用）以及分页优化器（管理内存峰值）。\n- [5] 说明QLoRA通过冻结的4-bit量化预训练语言模型反向传播梯度到LoRA，从而在单张48GB GPU上微调65B参数模型，同时保持完整的16-bit微调任务性能。",
+      "sources": [
+        {
+          "source": "data/raw/qlora_efficient_finetuning_of_quantized_llms.pdf",
+          "section_path": "page_1",
+          "snippet": "of the performance level of ChatGPT while only requiring 24 hours of finetuning\non a single GPU. QL ORA introduces a number of innovations to save memory\nwithout sacrificing performance: (a) 4-bit NormalFloat (NF4), a new data type that\nis information theoretically optimal for normally distributed weights (b) Double\nQuantization to reduce the average memory footprint by quantizing the quantization\nconstants, and (c) Paged Optimizers to manage memory spikes. We use QL ORA\nto finetune more than 1,000 models, providing a detailed analysis of instruction\nfollowing and chatbot performance across 8 instruction datasets, multiple model\ntypes (LLaMA, T5), and model scales that would be infeasible to run with regular\nfinetuning (e.g. 33B and 65B parameter models). Our results show that QLoRA"
+        },
+        {
+          "source": "data/raw/peft__hugging-face-peft__lora.md",
+          "section_path": "Assume `model` and `dataset` is in context...",
+          "snippet": "pass  \nA complete working example is available at examples/monteclora_finetuning.  \nVeLoRA  \nVeLoRA is a LoRA variant that reduces training memory by compressing the activations saved for the LoRA in the forward pass and then reconstructing them in the backwards pass to implement the update rules. In PEFT, VeLoRA is configured as a LoRA variant through the velora_config argument on [LoraConfig].  \nfrom peft import LoraConfig, VeloraConfig  \nconfig = LoraConfig(\ntarget_modules=[\"q_proj\", \"v_proj\"],\nvelora_config=VeloraConfig(\nnum_groups=64,\nscale=0.2,\ninit_type=\"batch_average\",\n),\n)"
+        },
+        {
+          "source": "data/raw/qlora_efficient_finetuning_of_quantized_llms.pdf",
+          "section_path": "page_3",
+          "snippet": "performance without significantly increasing the total memory used. While LoRA was designed as a\n3"
+        },
+        {
+          "source": "data/raw/qlora_efficient_finetuning_of_quantized_llms.pdf",
+          "section_path": "page_5",
+          "snippet": "parameters which use 16-bit BrainFloat.\n4 QLoRA vs. Standard Finetuning\nWe have discussed how QLoRA works and how it can significantly reduce the required memory for\nfinetuning models. The main question now is whether QLoRA can perform as well as full-model\nfinetuning. Furthermore, we want to analyze the components of QLoRA including the impact of\nNormalFloat4 over standard Float4. The following sections will discuss the experiments that aimed\nat answering these questions.\n3https://docs.nvidia.com/cuda/cuda-c-programming-guide\n5"
+        },
+        {
+          "source": "data/raw/qlora_efficient_finetuning_of_quantized_llms.pdf",
+          "section_path": "page_1",
+          "snippet": "QL ORA: Efficient Finetuning of Quantized LLMs\nTim Dettmers∗ Artidoro Pagnoni∗ Ari Holtzman\nLuke Zettlemoyer\nUniversity of Washington\n{dettmers,artidoro,ahai,lsz}@cs.washington.edu\nAbstract\nWe present QL ORA, an efficient finetuning approach that reduces memory us-\nage enough to finetune a 65B parameter model on a single 48GB GPU while\npreserving full 16-bit finetuning task performance. QL ORA backpropagates gradi-\nents through a frozen, 4-bit quantized pretrained language model into Low Rank\nAdapters (LoRA). Our best model family, which we name Guanaco, outperforms\nall previous openly released models on the Vicuna benchmark, reaching 99.3%\nof the performance level of ChatGPT while only requiring 24 hours of finetuning"
+        },
+        {
+          "source": "data/raw/qlora_efficient_finetuning_of_quantized_llms.pdf",
+          "section_path": "page_16",
+          "snippet": "technology. QLORA can be seen as an equalizing factor that helps to close the resource gap between\nlarge corporations and small teams with consumer GPUs.\nAnother potential source of impact is deployment to mobile phones. We believe our QL ORA method\nmight enable the critical milestone of enabling the finetuning of LLMs on phones and other low\nresource settings. While 7B models were shown to be able to be run on phones before, QL ORA is\nthe first method that would enable the finetuning of such models. We estimate that with an iPhone 12\nPlus, QLORA can finetune 3 million tokens per night while the phone is charging. While finetuned\n7B models do not reach the quality of ChatGPT, we believe that the quality is good enough to enable"
+        },
+        {
+          "source": "data/raw/qlora_efficient_finetuning_of_quantized_llms.pdf",
+          "section_path": "page_4",
+          "snippet": "Parameter Efficient Finetuning (PEFT) method, most of the memory footprint for LLM finetuning\ncomes from activation gradients and not from the learned LoRA parameters. For a 7B LLaMA\nmodel trained on FLAN v2 with a batch size of 1, with LoRA weights equivalent to commonly used\n0.2% of the original model weights[ 28, 37], the LoRA input gradients have a memory footprint\nof 567 MB while the LoRA parameters take up only 26 MB. With gradient checkpointing [9], the\ninput gradients reduce to an average of 18 MB per sequence making them more memory intensive\nthan all LoRA weights combined. In comparison, the 4-bit base model consumes 5,048 MB of\nmemory. This highlights that gradient checkpointing is important but also that aggressively reducing"
+        }
+      ],
+      "judge": {
+        "relevance_score": 5,
+        "completeness_score": 5,
+        "groundedness_score": 5,
+        "format_score": 5,
+        "overall_pass": true,
+        "feedback": "The answer comprehensively addresses the question by accurately identifying all four key mechanisms through which QLoRA reduces memory usage: 4-bit NormalFloat (NF4) quantization, Double Quantization, Paged Optimizers, and the combination of frozen 4-bit base models with trainable LoRA adapters. All claims are properly grounded in the provided evidence ([1] for the three technical innovations and [5] for the gradient backpropagation approach), and the response is well-structured with clear citations."
+      },
+      "passed": true,
+      "failures": [],
+      "answer_duration_seconds": 28.06,
+      "judge_duration_seconds": 22.05,
+      "total_duration_seconds": 50.12
+    },
+    {
+      "id": "lora_low_rank",
+      "question": "What is the main idea of low-rank adaptation in LoRA?",
+      "answer": "LoRA（Low-Rank Adaptation）的核心思想是**冻结预训练模型的权重，通过注入可训练的低秩分解矩阵（如矩阵A和B）来近似表示模型在下游任务适应过程中的权重变化**，从而以极少的可训练参数实现高效微调，同时保持与全量微调相当或更好的模型质量。\n\n关键证据：\n- 冻结预训练权重，并在Transformer架构的每一层注入可训练的低秩分解矩阵，间接优化密集层的权重变化 [1][3]；\n- 基于假设：模型适应过程中的权重变化具有低\"内在秩\"（intrinsic rank） [5]；\n- 可训练参数减少10,000倍，GPU内存需求减少3倍，且不引入额外推理延迟 [1]。",
+      "sources": [
+        {
+          "source": "data/raw/lora_low_rank_adaptation_of_large_language_models.pdf",
+          "section_path": "page_1",
+          "snippet": "expensive. We propose Low-Rank Adaptation, or LoRA, which freezes the pre-\ntrained model weights and injects trainable rank decomposition matrices into each\nlayer of the Transformer architecture, greatly reducing the number of trainable pa-\nrameters for downstream tasks. Compared to GPT-3 175B ﬁne-tuned with Adam,\nLoRA can reduce the number of trainable parameters by 10,000 times and the\nGPU memory requirement by 3 times. LoRA performs on-par or better than ﬁne-\ntuning in model quality on RoBERTa, DeBERTa, GPT-2, and GPT-3, despite hav-\ning fewer trainable parameters, a higher training throughput, and, unlike adapters,\nno additional inference latency . We also provide an empirical investigation into\nrank-deﬁciency in language model adaptation, which sheds light on the efﬁcacy of"
+        },
+        {
+          "source": "data/raw/peft__hugging-face-peft__lora-methods.md",
+          "section_path": "",
+          "snippet": "There are several different ways to express the weight matrix as a low-rank decomposition, but Low-Rank Adaptation (LoRA) is the most common method. The PEFT library supports several other LoRA variants, such as Low-Rank Hadamard Product (LoHa), Low-Rank Kronecker Product (LoKr), and Adaptive Low-Rank Adaptation (AdaLoRA). You can learn more about how these methods work conceptually in the Adapters guide. If you're interested in applying these methods to other tasks and use cases like semantic segmentation, token classification, take a look at our notebook collection!  \nAdditionally, PEFT supports the X-LoRA Mixture of LoRA Experts method."
+        },
+        {
+          "source": "data/raw/lora_low_rank_adaptation_of_large_language_models.pdf",
+          "section_path": "page_2",
+          "snippet": "Low-Rank Adaptation (LoRA) approach. LoRA allows us to train some dense layers in a neural\nnetwork indirectly by optimizing rank decomposition matrices of the dense layers’ change during\nadaptation instead, while keeping the pre-trained weights frozen, as shown in Figure 1. Using GPT-3\n175B as an example, we show that a very low rank (i.e.,r in Figure 1 can be one or two) sufﬁces even\nwhen the full rank (i.e., d) is as high as 12,288, making LoRA both storage- and compute-efﬁcient.\nLoRA possesses several key advantages.\n• A pre-trained model can be shared and used to build many small LoRA modules for dif-\nferent tasks. We can freeze the shared model and efﬁciently switch tasks by replacing the\nmatrices A and B in Figure 1, reducing the storage requirement and task-switching over-"
+        },
+        {
+          "source": "data/raw/lora_low_rank_adaptation_of_large_language_models.pdf",
+          "section_path": "page_9",
+          "snippet": "7 U NDERSTANDING THE LOW-RANK UPDATES\nGiven the empirical advantage of LoRA, we hope to further explain the properties of the low-rank\nadaptation learned from downstream tasks. Note that the low-rank structure not only lowers the\nhardware barrier to entry which allows us to run multiple experiments in parallel, but also gives\nbetter interpretability of how the update weights are correlated with the pre-trained weights. We\nfocus our study on GPT-3 175B, where we achieved the largest reduction of trainable parameters\n(up to 10,000×) without adversely affecting task performances.\nWe perform a sequence of empirical studies to answer the following questions: 1) Given a parameter\nbudget constraint, which subset of weight matrices in a pre-trained Transformer should we adapt\n9"
+        },
+        {
+          "source": "data/raw/lora_low_rank_adaptation_of_large_language_models.pdf",
+          "section_path": "page_2",
+          "snippet": "often introduce inference latency (Houlsby et al., 2019; Rebufﬁ et al., 2017) by extending model\ndepth or reduce the model’s usable sequence length (Li & Liang, 2021; Lester et al., 2021; Ham-\nbardzumyan et al., 2020; Liu et al., 2021) (Section 3). More importantly, these method often fail to\nmatch the ﬁne-tuning baselines, posing a trade-off between efﬁciency and model quality.\nWe take inspiration from Li et al. (2018a); Aghajanyan et al. (2020) which show that the learned\nover-parametrized models in fact reside on a low intrinsic dimension. We hypothesize that the\nchange in weights during model adaptation also has a low “intrinsic rank”, leading to our proposed\nLow-Rank Adaptation (LoRA) approach. LoRA allows us to train some dense layers in a neural"
+        },
+        {
+          "source": "data/raw/lora_low_rank_adaptation_of_large_language_models.pdf",
+          "section_path": "page_1",
+          "snippet": "LORA: L OW-R ANK ADAPTATION OF LARGE LAN-\nGUAGE MODELS\nEdward Hu∗ Yelong Shen∗ Phillip Wallis Zeyuan Allen-Zhu\nYuanzhi Li Shean Wang Lu Wang Weizhu Chen\nMicrosoft Corporation\n{edwardhu, yeshe, phwallis, zeyuana,\nyuanzhil, swang, luw, wzchen }@microsoft.com\nyuanzhil@andrew.cmu.edu\n(Version 2)\nABSTRACT\nAn important paradigm of natural language processing consists of large-scale pre-\ntraining on general domain data and adaptation to particular tasks or domains. As\nwe pre-train larger models, full ﬁne-tuning, which retrains all model parameters,\nbecomes less feasible. Using GPT-3 175B as an example – deploying indepen-\ndent instances of ﬁne-tuned models, each with 175B parameters, is prohibitively\nexpensive. We propose Low-Rank Adaptation, or LoRA, which freezes the pre-"
+        },
+        {
+          "source": "data/raw/peft__hugging-face-peft__lora.md",
+          "section_path": "",
+          "snippet": "LoRA  \nLoRA is low-rank decomposition method to reduce the number of trainable parameters which speeds up finetuning large models and uses less memory. In PEFT, using LoRA is as easy as setting up a [LoraConfig] and wrapping it with [get_peft_model] to create a trainable [PeftModel].  \nThis guide explores in more detail other options and features for using LoRA.  \nInitialization  \nThe initialization of LoRA weights is controlled by the parameter init_lora_weights in [LoraConfig]. By default, PEFT initializes LoRA weights with Kaiming-uniform for weight A and zeros for weight B resulting in an identity transform (same as the reference implementation)."
+        }
+      ],
+      "judge": {
+        "relevance_score": 5,
+        "completeness_score": 5,
+        "groundedness_score": 5,
+        "format_score": 5,
+        "overall_pass": true,
+        "feedback": "The answer excellently captures the main idea of LoRA by clearly explaining the freezing of pretrained weights and the injection of trainable low-rank decomposition matrices to approximate weight changes. It comprehensively covers key aspects including the intrinsic rank hypothesis (citing [5]), efficiency gains in parameters and memory (citing [1]), and the technical mechanism (citing [1][3]). All claims are well-supported by the provided evidence, and the answer is clearly formatted with logical structure and proper citations."
+      },
+      "passed": true,
+      "failures": [],
+      "answer_duration_seconds": 16.13,
+      "judge_duration_seconds": 24.73,
+      "total_duration_seconds": 40.86
+    },
+    {
+      "id": "self_consistency_reasoning",
+      "question": "What is self-consistency in chain-of-thought reasoning?",
+      "answer": "自洽性（self-consistency）是一种用于替代思维链（chain-of-thought）提示中贪婪解码的解码策略。它通过从语言模型的解码器中采样多条多样化的推理路径，然后对这些路径进行边缘化（marginalization，即通过多数表决）来选择最一致的最终答案。\n\n关键证据：\n- 它被引入以替代思维链提示中使用的贪婪解码策略 [1]；\n- 该方法首先采样一组多样化的推理路径，而非仅采用贪婪解码的单一路径，然后通过对采样的推理路径进行边缘化来选择最一致的答案 [7]；\n- 具体实现上，它从解码器中采样多个包含推理路径和答案的输出对，然后通过对答案进行多数表决（majority vote）来对推理路径进行边缘化，从而确定最终答案 [3]；\n- 其背后的核心直觉是：复杂的推理任务通常存在多种不同的思考方式（推理路径）可以到达唯一正确的答案 [1][4]。",
+      "sources": [
+        {
+          "source": "data/raw/self_consistency_improves_chain_of_thought_reasoning_in_language_models.pdf",
+          "section_path": "page_1",
+          "snippet": "chain-of-thought: “There are 3 cars in the parking lot already. 2 more arrive. Now there are 3 +\n2 = 5 cars. The answer is 5. ”. It has been observed that chain-of-thought prompting signiﬁcantly\nimproves model performance across a variety of multi-step reasoning tasks (Wei et al., 2022).\nIn this paper, we introduce a novel decoding strategy called self-consistency to replace the greedy\ndecoding strategy used in chain-of-thought prompting (Wei et al., 2022), that further improves\nlanguage models’ reasoning performance by a signiﬁcant margin. Self-consistency leverages the\nintuition that complex reasoning tasks typically admit multiple reasoning paths that reach a correct\nanswer (Stanovich & West, 2000). The more that deliberate thinking and analysis is required for a"
+        },
+        {
+          "source": "data/raw/self_consistency_improves_chain_of_thought_reasoning_in_language_models.pdf",
+          "section_path": "page_8",
+          "snippet": "aggregated answer) is highly correlated with accuracy (Figure 5, over GSM8K). This suggests that\none can use self-consistency to provide anuncertainty estimate of the model in its generated solutions.\nIn other words, one can use low consistency as an indicator that the model has low conﬁdence; i.e.,\nself-consistency confers some ability for the model to “know when it doesn’t know”.\nLaMDA-137B\nPrompt with correct chain-of-thought 17.1\nPrompt with imperfect chain-of-thought 14.9\n+ Self-consistency (40 paths) 23.4\nPrompt with equations 5.0\n+ Self-consistency (40 paths) 6.5\nPaLM-540B Zero-shot CoT (Kojima et al., 2022) 43.0\n+ Self-consistency (40 paths) 69.2\nTable 8: Self-consistency works under imperfect prompts, equa-\ntion prompts and zero-shot chain-of-thought for GSM8K.\n0 20 40 60 80 100"
+        },
+        {
+          "source": "data/raw/self_consistency_improves_chain_of_thought_reasoning_in_language_models.pdf",
+          "section_path": "page_3",
+          "snippet": "i = 1 , . . . , m indexes the m candidate outputs sampled from the decoder. Given a prompt and a\nquestion, self-consistency introduces an additional latent variable ri, which is a sequence of tokens\nrepresenting the reasoning path in the i-th output, then couples the generation of (ri, ai) where\nri → ai, i.e., generating a reasoning path ri is optional and only used to reach the ﬁnal answerai. As\nan example, consider Output 3 from Figure 1: the ﬁrst few sentences “She eats 3 for breakfast ... So\nshe has 9 eggs * $2 = $18.” constitutes ri, while the answer 18 from the last sentence, “ The answer\nis $18”, is parsed as ai.1 After sampling multiple (ri, ai) from the model’s decoder, self-consistency\napplies a marginalization over ri by taking a majority vote over ai, i.e., arg maxa\n∑m"
+        },
+        {
+          "source": "data/raw/self_consistency_improves_chain_of_thought_reasoning_in_language_models.pdf",
+          "section_path": "page_1",
+          "snippet": "by marginalizing out the sampled reasoning paths. Self-consistency leverages the\nintuition that a complex reasoning problem typically admits multiple different ways\nof thinking leading to its unique correct answer. Our extensive empirical evaluation\nshows that self-consistency boosts the performance of chain-of-thought prompting\nwith a striking margin on a range of popular arithmetic and commonsense reasoning\nbenchmarks, including GSM8K (+17.9%), SV AMP (+11.0%), AQuA (+12.2%),\nStrategyQA (+6.4%) and ARC-challenge (+3.9%).\n1 I NTRODUCTION\nAlthough language models have demonstrated remarkable success across a range of NLP tasks, their\nability to demonstrate reasoning is often seen as a limitation, which cannot be overcome solely by"
+        },
+        {
+          "source": "data/raw/self_consistency_improves_chain_of_thought_reasoning_in_language_models.pdf",
+          "section_path": "page_5",
+          "snippet": "Self-consistency 81.5 (+2.5) 79.8 (+6.4) 96.0 (+2.0) 87.5 (+3.9) 73.4 (+3.0) 99.5 (+0.5)\nTable 3: Commonsense and symbolic reasoning accuracy by self-consistency compared to chain-\nof-thought prompting (Wei et al., 2022). The previous SoTA baselines are obtained from: a:\nDeBERTaV3-large + KEAR (Xu et al., 2021b), b: Chowdhery et al. (2022), c: UniﬁedQA-FT\n(Khashabi et al., 2020). The best performance for each task is shown in bold.\n7The standard deviation of self-consistency is ≤ 0.5 for all tasks and is thus omitted in the table. Please refer\nto Figure 2, Figure 7 and 8 for the standard deviations under varying numbers of sampled paths.\n5"
+        },
+        {
+          "source": "data/raw/self_consistency_improves_chain_of_thought_reasoning_in_language_models.pdf",
+          "section_path": "page_5",
+          "snippet": "Published as a conference paper at ICLR 2023\n3.2 M AIN RESULTS\nWe report the results of self-consistency averaged over 10 runs, where we sampled 40 outputs\nindependently from the decoder in each run. The baseline we compare to is chain-of-thought\nprompting with greedy decoding (Wei et al., 2022), referred to as CoT-prompting, which has been\npreviously used for decoding in large language models (Chowdhery et al., 2022).\nArithmetic Reasoning The results are shown in Table 2.7 Self-consistency improves the arithmetic\nreasoning performance over all four language models signiﬁcantly over chain-of-thought prompting.\nMore surprisingly, the gains become more signiﬁcant when the language model’s scale increases,\ne.g., we see +3%-6% absolute accuracy improvement over UL2-20B but +9%-23% for LaMDA-"
+        },
+        {
+          "source": "data/raw/self_consistency_improves_chain_of_thought_reasoning_in_language_models.pdf",
+          "section_path": "page_1",
+          "snippet": "Published as a conference paper at ICLR 2023\nSELF -C ONSISTENCY IMPROVES CHAIN OF THOUGHT\nREASONING IN LANGUAGE MODELS\nXuezhi Wang†‡ Jason Wei† Dale Schuurmans† Quoc Le† Ed H. Chi†\nSharan Narang† Aakanksha Chowdhery† Denny Zhou†§\n†Google Research, Brain Team\n‡xuezhiw@google.com,§dennyzhou@google.com\nABSTRACT\nChain-of-thought prompting combined with pre-trained large language models has\nachieved encouraging results on complex reasoning tasks. In this paper, we propose\na new decoding strategy, self-consistency, to replace the naive greedy decoding\nused in chain-of-thought prompting. It ﬁrst samples a diverse set of reasoning paths\ninstead of only taking the greedy one, and then selects the most consistent answer\nby marginalizing out the sampled reasoning paths. Self-consistency leverages the"
+        }
+      ],
+      "judge": {
+        "relevance_score": 5,
+        "completeness_score": 5,
+        "groundedness_score": 5,
+        "format_score": 5,
+        "overall_pass": true,
+        "feedback": "The answer accurately defines self-consistency as a decoding strategy designed to replace greedy decoding in chain-of-thought prompting. It comprehensively covers the key mechanisms: sampling diverse reasoning paths from the decoder and marginalizing them via majority voting to select the most consistent answer. The answer also correctly identifies the underlying intuition about multiple reasoning paths leading to correct answers. All claims are well-supported by the retrieved evidence, with appropriate citations to [1], [3], [4], and [7]. The response is clearly structured and logically organized."
+      },
+      "passed": true,
+      "failures": [],
+      "answer_duration_seconds": 20.28,
+      "judge_duration_seconds": 24.22,
+      "total_duration_seconds": 44.49
+    },
+    {
+      "id": "vllm_paged_attention",
+      "question": "What problem does PagedAttention solve in vLLM?",
+      "answer": "PagedAttention 解决了大型语言模型（LLM）推理中注意力键值（KV）缓存的内存管理效率问题，通过动态内存分配和页共享机制提升内存利用效率，并支持基于当前缓存容量动态调度请求以适应任意输出长度。\n\n关键证据：\n- PagedAttention 实现了对注意力键值内存的高效管理[1]。\n- 它通过动态键值缓存分配提升内存效率，并支持基于当前缓存容量动态调度请求以适应任意输出长度[3]。\n- 它还支持在对应的所有输出之间共享提示（prompt）的键值缓存页[3]。",
+      "sources": [
+        {
+          "source": "data/raw/02-vllm-README.md",
+          "section_path": "",
+          "snippet": "Efficient management of attention key and value memory with PagedAttention  \nContinuous batching of incoming requests, chunked prefill, prefix caching  \nFast and flexible model execution with piecewise and full CUDA/HIP graphs  \nQuantization: FP8, MXFP8/MXFP4, NVFP4, INT8, INT4, GPTQ/AWQ, GGUF, compressed-tensors, ModelOpt, TorchAO, and more  \nOptimized attention kernels including FlashAttention, FlashInfer, TRTLLM-GEN, FlashMLA, and Triton  \nOptimized GEMM/MoE kernels for various precisions using CUTLASS, TRTLLM-GEN, CuTeDSL  \nSpeculative decoding including n-gram, suffix, EAGLE, DFlash  \nAutomatic kernel generation and graph-level transformations using torch.compile  \nDisaggregated prefill, decode, and encode  \nvLLM is flexible and easy to use with:"
+        },
+        {
+          "source": "data/raw/vllm-docs.md",
+          "section_path": "",
+          "snippet": "Streaming outputs  \nOpenAI-compatible API server  \nSupport for NVIDIA GPUs, AMD CPUs and GPUs, Intel CPUs and GPUs, PowerPC CPUs, Arm CPUs, and TPU. Additionally, support for diverse hardware plugins such as Intel Gaudi, IBM Spyre and Huawei Ascend.  \nPrefix caching support  \nMulti-LoRA support  \nFor more information, check out the following:  \nvLLM announcing blog post (intro to PagedAttention)  \nvLLM paper (SOSP 2023)  \nHow continuous batching enables 23x throughput in LLM inference while reducing p50 latency by Cade Daniel et al.  \nvLLM Meetups"
+        },
+        {
+          "source": "data/raw/llama3_the_herd_of_models.pdf",
+          "section_path": "page_18",
+          "snippet": "desirable tone, style, or formatting, which might be different for different capabilities.\nTo increase the efficiency of rejection sampling, we adopt PagedAttention (Kwon et al., 2023). PagedAttention\nenhances memory efficiency through dynamic key-value cache allocation. It supports arbitrary output lengths\nby dynamically scheduling requests based on the current cache capacity. Unfortunately, this carries the risk of\nswap-out when running out of memory. To eliminate such swap overhead, we define a maximum output length\nand perform a request only if sufficient memory is available to fit an output with that length. PagedAttention\nalso enables us to share the key-value cache pages for a prompt across all corresponding outputs. Together,"
+        },
+        {
+          "source": "data/raw/aiapp-18-react-reasoning-acting.pdf",
+          "section_path": "page_10",
+          "snippet": "Published as a conference paper at ICLR 2023\nwith initial promising results, but learning from more high-quality human annotations will be the\ndesiderata to further improve the performance. Scaling up ReAct with multi-task training and\ncombining it with complementary paradigms like reinforcement learning could result in stronger\nagents that further unlock the potential of LLMs for more applications.\nACKNOWLEDGMENTS\nWe thank the support and feedback of many people from Google Brain team and Princeton NLP\nGroup. This work was supported in part by the National Science Foundation under Grant No.\n2107048. Any opinions, ﬁndings, and conclusions or recommendations expressed in this material are\nthose of the author(s) and do not necessarily reﬂect the views of the National Science Foundation."
+        },
+        {
+          "source": "data/raw/transformers__hugging-face-transformers__smollm3.md",
+          "section_path": "",
+          "snippet": "This model was released on 2025-07-08 and added to Hugging Face Transformers on 2025-06-25.  \nFlashAttention  \nSDPA  \nSmolLM3  \nSmolLM3 is a fully open, compact language model designed for efficient deployment while maintaining strong performance. It uses a Transformer decoder architecture with Grouped Query Attention (GQA) to reduce the kv cache, and no RoPE, enabling improved performance on long-context tasks. It is trained using a multi-stage training approach on high-quality public datasets across web, code, and math domains. The model is multilingual and supports very large context lengths. The instruct variant is optimized for reasoning and tool use.  \n[!TIP] Click on the SmolLM3 models in the right sidebar for more examples of how to apply SmolLM3 to different language tasks."
+        },
+        {
+          "source": "data/raw/02-vllm-README.md",
+          "section_path": "",
+          "snippet": "Easy, fast, and cheap LLM serving for everyone  \n| Documentation | Blog | Paper | Twitter/X | User Forum | Developer Slack |  \n🔥 We have built a vllm website to help you get started with vllm. Please visit vllm.ai to learn more. For events, please visit vllm.ai/events to join us.  \nAbout  \nvLLM is a fast and easy-to-use library for LLM inference and serving.  \nOriginally developed in the Sky Computing Lab at UC Berkeley, vLLM has grown into one of the most active open-source AI projects built and maintained by a diverse community of many dozens of academic institutions and companies from over 2000 contributors.  \nvLLM is fast with:  \nState-of-the-art serving throughput  \nEfficient management of attention key and value memory with PagedAttention"
+        },
+        {
+          "source": "data/raw/qlora_efficient_finetuning_of_quantized_llms.pdf",
+          "section_path": "page_4",
+          "snippet": "Parameter Efficient Finetuning (PEFT) method, most of the memory footprint for LLM finetuning\ncomes from activation gradients and not from the learned LoRA parameters. For a 7B LLaMA\nmodel trained on FLAN v2 with a batch size of 1, with LoRA weights equivalent to commonly used\n0.2% of the original model weights[ 28, 37], the LoRA input gradients have a memory footprint\nof 567 MB while the LoRA parameters take up only 26 MB. With gradient checkpointing [9], the\ninput gradients reduce to an average of 18 MB per sequence making them more memory intensive\nthan all LoRA weights combined. In comparison, the 4-bit base model consumes 5,048 MB of\nmemory. This highlights that gradient checkpointing is important but also that aggressively reducing"
+        }
+      ],
+      "judge": {
+        "relevance_score": 5,
+        "completeness_score": 5,
+        "groundedness_score": 5,
+        "format_score": 5,
+        "overall_pass": true,
+        "feedback": "The answer accurately identifies that PagedAttention solves the memory management efficiency problem for attention key-value (KV) cache in LLM inference. It comprehensively covers all key aspects found in the evidence: dynamic KV cache allocation, page sharing mechanisms for prompts, and dynamic request scheduling to support arbitrary output lengths. The answer is well-grounded with specific citations to evidence [1] and [3], which explicitly mention efficient management of KV memory, dynamic allocation, and page sharing capabilities. The structure is clear and logical."
+      },
+      "passed": true,
+      "failures": [],
+      "answer_duration_seconds": 10.08,
+      "judge_duration_seconds": 14.55,
+      "total_duration_seconds": 24.63
+    },
+    {
+      "id": "qdrant_chinese_paraphrase",
+      "question": "向量数据库 Qdrant 主要解决什么问题？",
+      "answer": "Qdrant 主要解决向量相似性搜索（语义搜索）问题，为下一代 AI 应用提供生产就绪的向量数据库服务，支持存储、搜索和管理带有效载荷的向量，并能从非结构化数据中提取有意义的信息，适用于神经网络匹配、推荐、分面搜索等场景。\n\n关键证据：\n- Qdrant 是一个向量相似性搜索引擎和向量数据库，提供生产就绪的服务，用于存储、搜索和管理带附加有效载荷的向量，专为扩展过滤支持而定制，适用于神经网络或语义匹配、分面搜索等应用 [1]。\n- 它是 AI 原生向量搜索和语义搜索引擎，可用于从非结构化数据中提取有意义的信息 [2]。\n- 支持密集向量、稀疏向量和多向量搜索，可在有效载荷上进行过滤，并支持混合搜索 [5]。",
+      "sources": [
+        {
+          "source": "data/raw/aiapp-05-qdrant-readme.md",
+          "section_path": "",
+          "snippet": "Vector Search Engine for the next generation of AI applications  \nTests status  \nOpenAPI Docs  \nApache 2.0 License  \nDiscord  \nRoadmap 2025  \nQdrant Cloud  \nQdrant (read: quadrant) is a vector similarity search engine and vector database. It provides a production-ready service with a convenient API to store, search, and manage points—vectors with an additional payload. Qdrant is tailored for extended filtering support, making it useful for all sorts of neural-network or semantic-based matching, faceted search, and other applications.  \nQdrant is written in Rust 🦀, which makes it fast and reliable even under high load. See benchmarks.  \nWith Qdrant, embeddings or neural network encoders can be turned into full-fledged applications for matching, searching, recommending, and much more!"
+        },
+        {
+          "source": "data/raw/qdrant-docs.md",
+          "section_path": "",
+          "snippet": "Qdrant Docs  \nSource: https://qdrant.tech/documentation/  \nQdrant Documentation  \nQdrant is an AI-native vector search and a semantic search engine. You can use it to extract meaningful information from unstructured data.  \nClone this repo now and build a search engine in five minutes.  \nReady to start developing?  \nQdrant is open-source and can be self-hosted. However, the quickest way to get started is with our free tier on Qdrant Cloud. It scales easily and provides a UI where you can interact with data.  \nCreate your first Qdrant Cloud cluster today  \nGet Started  \nOptimize Qdrant's performance  \nBoost search speed, reduce latency, and improve the accuracy and memory usage of your Qdrant deployment.  \nLearn More"
+        },
+        {
+          "source": "data/raw/qlora_efficient_finetuning_of_quantized_llms.pdf",
+          "section_path": "page_2",
+          "snippet": "closing the gap to ChatGPT on the Vicuna bench-\nmark. When deployed, our smallest Guanaco model\n(7B parameters) requires just 5 GB of memory and outperforms a 26 GB Alpaca model by more than\n20 percentage points on the Vicuna benchmark (Table 6).\nQL ORA introduces multiple innovations designed to reduce memory use without sacrificing per-\nformance: (1) 4-bit NormalFloat, an information theoretically optimal quantization data type for\nnormally distributed data that yields better empirical results than 4-bit Integers and 4-bit Floats.\n(2) Double Quantization, a method that quantizes the quantization constants, saving an average\nof about 0.37 bits per parameter (approximately 3 GB for a 65B model). (3) Paged Optimizers,"
+        },
+        {
+          "source": "data/raw/postgresql__postgresql__postgresql-18-4-documentation.pdf",
+          "section_path": "page_955",
+          "snippet": "Number of backends currently connected to this database, or NULL for shared objects. This is\nthe only column in this view that returns a value reflecting current state; all other columns re-\nturn the accumulated values since the last reset.\nxact_commit bigint\nNumber of transactions in this database that have been committed\nxact_rollback bigint\nNumber of transactions in this database that have been rolled back\nblks_read bigint\nNumber of disk blocks read in this database\nblks_hit bigint\nNumber of times disk blocks were found already in the buffer cache, so that a read was not\nnecessary (this only includes hits in the PostgreSQL buffer cache, not the operating system's\nfile system cache)\ntup_returned bigint"
+        },
+        {
+          "source": "data/raw/aiapp-05-qdrant-readme.md",
+          "section_path": "",
+          "snippet": "Features  \nDense, Sparse, and Multi Vector Search  \nQdrant supports dense vectors for semantic similarity, sparse vectors for full-text search, and multivector search for objects with multiple embeddings or late interaction models like ColBERT.  \nFiltering on Payload  \nAttach any JSON payload to your vectors and filter on it using a rich set of conditions—keyword matching, full-text, numeric ranges, geo-locations, and more—combined with should, must, and must_not clauses.  \nHybrid Search  \nCombine multiple vectors in a single query to get the best of semantic understanding and keyword precision, with results merged via configurable fusion strategies, such as Reciprocal Rank Fusion (RRF) and Distribution-Based Score Fusion (DBSF).  \nVector Quantization and On-Disk Storage"
+        },
+        {
+          "source": "data/raw/postgresql__postgresql__postgresql-18-4-documentation.pdf",
+          "section_path": "page_3279",
+          "snippet": "in the query planner, 576\ncos, 248\ncosd, 248\ncosh, 249\ncot, 249\ncotd, 249\ncount, 401\ncovariance\npopulation, 404\nsample, 404\ncovar_pop, 404\ncovar_samp, 404\ncovering index, 492\ncpu_index_tuple_cost configuration parameter, 710\ncpu_operator_cost configuration parameter, 710\ncpu_tuple_cost configuration parameter, 710\ncrc32, 263\ncrc32c, 263\nCREATE ACCESS METHOD, 1847\nCREATE AGGREGATE, 1849\nCREATE CAST, 1857\nCREATE COLLATION, 1862\nCREATE CONVERSION, 1865\nCREATE DATABASE, 797, 1867\nCREATE DOMAIN, 1872\nCREATE EVENT TRIGGER, 1875\nCREATE EXTENSION, 1877\nCREATE FOREIGN DATA WRAPPER, 1880\nCREATE FOREIGN TABLE, 1882\nCREATE FUNCTION, 1888\nCREATE GROUP, 1897\nCREATE INDEX, 1898\nCREATE LANGUAGE, 1908\nCREATE MATERIALIZED VIEW, 1911\nCREATE OPERATOR, 1913\nCREATE OPERATOR CLASS, 1917"
+        },
+        {
+          "source": "data/raw/spring-boot__spring__spring-boot-reference-documentation.pdf",
+          "section_path": "page_914",
+          "snippet": "org.springframework.data spring-data-envers 3.1.1\norg.springframework.data spring-data-jdbc 3.1.1\norg.springframework.data spring-data-jpa 3.1.1\norg.springframework.data spring-data-keyvalue 3.1.1\norg.springframework.data spring-data-ldap 3.1.1\norg.springframework.data spring-data-mongodb 4.1.1\norg.springframework.data spring-data-neo4j 7.1.1\norg.springframework.data spring-data-r2dbc 3.1.1\norg.springframework.data spring-data-redis 3.1.1\norg.springframework.data spring-data-relational 3.1.1\norg.springframework.data spring-data-rest-core 4.1.1\norg.springframework.data spring-data-rest-hal-explorer 4.1.1\norg.springframework.data spring-data-rest-webmvc 4.1.1\norg.springframework.graphql spring-graphql 1.2.1\norg.springframework.graphql spring-graphql-test 1.2.1"
+        }
+      ],
+      "judge": {
+        "relevance_score": 5,
+        "completeness_score": 5,
+        "groundedness_score": 5,
+        "format_score": 5,
+        "overall_pass": true,
+        "feedback": "The answer directly and comprehensively addresses the question by identifying vector similarity search (semantic search) as the core problem Qdrant solves, along with supporting capabilities like production-ready service, payload management, and unstructured data processing. All claims are accurately grounded in the provided evidence [1], [2], and [5], including specific applications such as neural network matching, faceted search, and recommendation. The response is well-structured with clear key evidence citations."
+      },
+      "passed": true,
+      "failures": [],
+      "answer_duration_seconds": 18.18,
+      "judge_duration_seconds": 24.56,
+      "total_duration_seconds": 42.74
+    },
+    {
+      "id": "rag_memory_paraphrase",
+      "question": "RAG 里的参数化记忆和非参数化记忆分别是什么？",
+      "answer": "在 RAG（检索增强生成）中：\n\n**参数化记忆**指预训练语言模型本身存储的知识；**非参数化记忆**指可访问的外部数据源（如知识库或文档索引）。[4]\n\n关键证据：\n- \"Retrieval-Augmented Generation (RAG) combines a pretrained language model (parametric memory) with access to an external data source (non-parametric memory) by means of a pretrained neural retriever.\" [4]",
+      "sources": [
+        {
+          "source": "data/raw/retrieval_augmented_generation_for_knowledge_intensive_nlp.pdf",
+          "section_path": "page_2",
+          "snippet": "basis (where different documents are responsible for different tokens). Like T5 [51] or BART, RAG\ncan be ﬁne-tuned on any seq2seq task, whereby both the generator and retriever are jointly learned.\nThere has been extensive previous work proposing architectures to enrich systems with non-parametric\nmemory which are trained from scratch for speciﬁc tasks, e.g. memory networks [ 64, 55], stack-\naugmented networks [25] and memory layers [ 30]. In contrast, we explore a setting where both\nparametric and non-parametric memory components are pre-trained and pre-loaded with extensive\nknowledge. Crucially, by using pre-trained access mechanisms, the ability to access knowledge is\npresent without additional training."
+        },
+        {
+          "source": "data/raw/postgresql__postgresql__postgresql-18-4-documentation.pdf",
+          "section_path": "page_721",
+          "snippet": "typically 8kB. The default value is 16. This parameter can only be set at server start.\nnotify_buffers (integer) \nSpecifies the amount of shared memory to use to cache the contents of pg_notify (see Table 66.1).\nIf this value is specified without units, it is taken as blocks, that is BLCKSZ bytes, typically 8kB. The\ndefault value is 16. This parameter can only be set at server start.\nserializable_buffers (integer) \nSpecifies the amount of shared memory to use to cache the contents of pg_serial (see Table 66.1).\nIf this value is specified without units, it is taken as blocks, that is BLCKSZ bytes, typically 8kB. The\ndefault value is 32. This parameter can only be set at server start.\nsubtransaction_buffers (integer)"
+        },
+        {
+          "source": "data/raw/aiapp-20-self-rag.pdf",
+          "section_path": "page_22",
+          "snippet": "(used as secondary memory) and ROM, PROM, EPROM and EEPROM memory (used for storing firmware\nsuch as BIOS). Examples of volatile memory are primary storage, which is typically dynamic random-access\nmemory (DRAM), and fast CPU cache memory, which is typically static random-access memory (SRAM)\nthat is fast but energy-consuming, offering lower memory<p>[ ISREL =Relevant]Primary memory can be\naccessed quickly, but it is volatile, meaning that the data is lost if the power is turned off.[ ISSUP =Partially\nSupported]...[ ISUSE :5]\nInput Give an example of a situation where you have to delegate tasks (from gpt4 alpaca)\nOutput [ Retrieve =No]The manager realizes that there is an extensive list of tasks that need to be completed in"
+        },
+        {
+          "source": "data/raw/transformers__hugging-face-transformers__rag.md",
+          "section_path": "",
+          "snippet": "This model was released on 2020-05-22 and added to Hugging Face Transformers on 2020-11-16.  \nRAG  \nFlashAttention  \nRetrieval-Augmented Generation (RAG) combines a pretrained language model (parametric memory) with access to an external data source (non-parametric memory) by means of a pretrained neural retriever. RAG fetches relevant passages and conditions its generation on them during inference. This often makes the answers more factual and lets you update knowledge by changing the index instead of retraining the whole model.  \nYou can find all the original RAG checkpoints under the AI at Meta organization.  \n[!TIP] This model was contributed by ola13.  \nClick on the RAG models in the right sidebar for more examples of how to apply RAG to different language tasks."
+        },
+        {
+          "source": "data/raw/qlora_efficient_finetuning_of_quantized_llms.pdf",
+          "section_path": "page_3",
+          "snippet": "performance without significantly increasing the total memory used. While LoRA was designed as a\n3"
+        },
+        {
+          "source": "data/raw/postgresql__postgresql__postgresql-18-4-documentation.pdf",
+          "section_path": "page_798",
+          "snippet": "the buffers modified by the record match the stored images. In certain cases (such as hint bits), minor\nvariations are acceptable, and will be ignored. Any unexpected differences will result in a fatal error,\nterminating recovery.\nThe default value of this setting is the empty string, which disables the feature. It can be set to all\nto check all records, or to a comma-separated list of resource managers to check only records origi-\nnating from those resource managers. Currently, the supported resource managers are heap, heap2,\nbtree, hash, gin, gist, sequence, spgist, brin, and generic. Extensions may define ad-\nditional resource managers. Only superusers and users with the appropriate SET privilege can change\nthis setting.\nwal_debug (boolean)"
+        },
+        {
+          "source": "data/raw/postgresql__postgresql__postgresql-18-4-documentation.pdf",
+          "section_path": "page_473",
+          "snippet": "NOT_IN_SAMPLE Parameters with this flag are not included in\npostgresql.conf by default.\nRUNTIME_COMPUTED Parameters with this flag are runtime-computed\nones.\n433"
+        }
+      ],
+      "judge": {
+        "relevance_score": 5,
+        "completeness_score": 5,
+        "groundedness_score": 5,
+        "format_score": 5,
+        "overall_pass": true,
+        "feedback": "The answer directly addresses the question by clearly defining both parametric memory (pretrained language model) and non-parametric memory (external data source), which is explicitly supported by evidence [4]. The answer is complete, accurately grounded in the retrieved evidence, and well-formatted with appropriate use of bold text and citation."
+      },
+      "passed": true,
+      "failures": [],
+      "answer_duration_seconds": 8.45,
+      "judge_duration_seconds": 21.57,
+      "total_duration_seconds": 30.02
+    },
+    {
+      "id": "langchain_llamaindex_comparison",
+      "question": "LangChain 和 LlamaIndex 分别适合做什么？",
+      "answer": "LangChain 适合用于将语言模型提示词链接成序列，构建能可靠处理复杂任务的代理，提供模型、嵌入和向量存储的标准接口，实现实时数据增强，以及进行代理的评估、可观察性、调试和部署。LlamaIndex 适合用于在数据上构建 LLM 驱动的代理和工作流，进行上下文增强，以及构建涉及数据摄取、索引、检索和查询的代理应用。\n\n关键证据：\n- LangChain 是用于链接语言模型提示词序列的流行库[2]，并提供低级别代理编排框架（LangGraph）以构建处理复杂任务的代理，同时通过标准接口连接模型、嵌入、向量存储等，支持实时数据增强和代理评估与部署[3]。\n- LlamaIndex 是构建 LLM 驱动代理和工作流的主要框架，专注于上下文增强[1]，适用于构建代理应用（agentic applications）[6]，并提供从初学者友好的简单数据查询到高级用户定制的数据连接器、索引、检索器和查询引擎的 API[7]。",
+      "sources": [
+        {
+          "source": "data/raw/llamaindex-docs.md",
+          "section_path": "",
+          "snippet": "LlamaIndex Docs  \nSource: https://docs.llamaindex.ai/  \nLlamaIndex is the leading framework for building LLM-powered agents over your data with LLMs and workflows.  \nIntroduction  \nWhat is context augmentation? What are agents and workflows? How does LlamaIndex help build them?  \nUse cases  \nWhat kind of apps can you build with LlamaIndex? Who should use it?  \nGetting started  \nGet started in Python or TypeScript in just 5 lines of code!  \nLlamaCloud  \nManaged services for LlamaIndex including LlamaParse, the world’s best document parser.  \nCommunity  \nGet help and meet collaborators on Discord, Twitter, LinkedIn, and learn how to contribute to the project.  \nRelated projects"
+        },
+        {
+          "source": "data/raw/openai__openai-cookbook__related-resources-from-around-the-web.md",
+          "section_path": "",
+          "snippet": "Embedchain: A Python library for managing and syncing unstructured data with LLMs.  \nFLAML (A Fast Library for Automated Machine Learning & Tuning): A Python library for automating selection of models, hyperparameters, and other tunable choices.  \nGuidance: A handy looking Python library from Microsoft that uses Handlebars templating to interleave generation, prompting, and logical control.  \nHaystack: Open-source LLM orchestration framework to build customizable, production-ready LLM applications in Python.  \nHoneyHive: An enterprise platform to evaluate, debug, and monitor LLM apps.  \nLangChain: A popular Python/JavaScript library for chaining sequences of language model prompts.  \nLiteLLM: A minimal Python library for calling LLM APIs with a consistent format."
+        },
+        {
+          "source": "data/raw/03-langchain-README.md",
+          "section_path": "or",
+          "snippet": "LangGraph — Build agents that can reliably handle complex tasks with our low-level agent orchestration framework  \nIntegrations — Chat & embedding models, tools & toolkits, and more  \nLangSmith — Agent evals, observability, and debugging for LLM apps  \nLangSmith Deployment — Deploy and scale agents with a purpose-built platform for long-running, stateful workflows  \nWhy use LangChain?  \nLangChain helps developers build applications powered by LLMs through a standard interface for models, embeddings, vector stores, and more.  \nReal-time data augmentation — Easily connect LLMs to diverse data sources and external/internal systems, drawing from LangChain's vast library of integrations with model providers, tools, vector stores, retrievers, and more"
+        },
+        {
+          "source": "data/raw/llama2_open_foundation_and_fine_tuned_chat_models.pdf",
+          "section_path": "page_70",
+          "snippet": "Llama 2\n7B 33.29 39.53 93.02\n13B 41.86 45.65 96.08\n34B 43.45 46.14 96.7\n70B 50.18 53.37 96.21\nFine-tuned\nChatGPT 78.46 79.92 98.53\nMPT-instruct 7B 29.99 35.13 94.37\nFalcon-instruct 7B 28.03 41.00 85.68\nLlama 2-Chat\n7B 57.04 60.59 96.45\n13B 62.18 65.73 96.45\n34B 67.2 70.01 97.06\n70B 64.14 67.07 97.06\nTable 44: Evaluation results on TruthfulQA across different model generations.\nLimitations of Benchmarks. It is important to note that these evaluations using automatic metrics are by\nno means fully comprehensive, due to the complex nature of toxicity and bias in LLMs, but the benchmarks\nwe selected are representative of our understanding thatLlama 2-Chat improves on critical aspects of LLM\nsafety. Benchmark evaluation is important for assessing AI models, including chat-oriented LLMs, because"
+        },
+        {
+          "source": "data/raw/agent__arxiv__autogen-enabling-next-gen-llm.pdf",
+          "section_path": "page_12",
+          "snippet": "2018.\nJerry Liu. LlamaIndex, November 2022. URLhttps://github.com/jerryjliu/llama_index.\nV olodymyr Mnih, Koray Kavukcuoglu, David Silver, Alex Graves, Ioannis Antonoglou, Daan Wier-\nstra, and Martin Riedmiller. Playing atari with deep reinforcement learning. arXiv preprint\narXiv:1312.5602, 2013.\nRoberto Navigli, Simone Conia, and Bj ¨orn Ross. Biases in large language models: Origins, inven-\ntory and discussion. ACM Journal of Data and Information Quality, 2023.\nOpenAI. ChatGPT plugins. https://openai.com/blog/chatgpt-plugins, 2023.\nJoon Sung Park, Joseph C O’Brien, Carrie J Cai, Meredith Ringel Morris, Percy Liang, and\nMichael S Bernstein. Generative agents: Interactive simulacra of human behavior. arXiv preprint\narXiv:2304.03442, 2023."
+        },
+        {
+          "source": "data/raw/aiapp-03-llamaindex-readme.md",
+          "section_path": "",
+          "snippet": "🗂️ LlamaIndex 🦙  \nPyPI - Downloads  \nBuild  \nGitHub contributors  \nDiscord  \nTwitter  \nReddit  \nAsk AI  \nLlamaIndex OSS (by LlamaIndex) is an open-source framework to build agentic applications. Parse is our enterprise platform for agentic OCR, parsing, extraction, indexing and more. You can use LlamaParse with this framework or on its own; see LlamaParse below for signup and product links.  \n📚 Documentation:  \nLlamaParse  \nLlamaIndex OSS  \nLlamaAgents  \nBuilding with LlamaIndex typically involves working with LlamaIndex core and a chosen set of integrations (or plugins). There are two ways to start building with LlamaIndex in Python:  \nStarter: llama-index. A starter Python package that includes core LlamaIndex as well as a selection of integrations."
+        },
+        {
+          "source": "data/raw/llamaindex-docs.md",
+          "section_path": "",
+          "snippet": "LlamaIndex provides tools for beginners, advanced users, and everyone in between.  \nOur high-level API allows beginner users to use LlamaIndex to ingest and query their data in 5 lines of code.  \nFor more complex applications, our lower-level APIs allow advanced users to customize and extend any module — data connectors, indices, retrievers, query engines, and reranking modules — to fit their needs.  \nLlamaIndex is available in Python (these docs) and Typescript. If you’re not sure where to start, we recommend reading how to read these docs which will point you to the right place based on your experience level.  \nSet an environment variable called OPENAI_API_KEY with an OpenAI API key. Install the Python library:  \npip install llama-index"
+        }
+      ],
+      "judge": {
+        "relevance_score": 5,
+        "completeness_score": 5,
+        "groundedness_score": 5,
+        "format_score": 5,
+        "overall_pass": true,
+        "feedback": "The answer directly addresses the question by clearly distinguishing the suitable use cases for both LangChain and LlamaIndex. It comprehensively covers LangChain's capabilities in prompt chaining, complex agent orchestration (LangGraph), standard interfaces for models/embeddings/vector stores, real-time data augmentation, and evaluation/deployment features as supported by evidence [2] and [3]. For LlamaIndex, it accurately captures its focus on building data-centric LLM agents and workflows, context augmentation, and data pipeline components (ingestion, indexing, retrieval, querying) as supported by evidence [1], [6], and [7]. All claims are fully grounded in the provided evidence, and the answer is well-structured with clear citations."
+      },
+      "passed": true,
+      "failures": [],
+      "answer_duration_seconds": 27.99,
+      "judge_duration_seconds": 27.1,
+      "total_duration_seconds": 55.09
+    }
+  ],
+  "case_source": "default",
+  "retrieval_config": {
+    "top_k": 7,
+    "search_type": "mmr",
+    "fetch_k": 50,
+    "lambda_mult": 0.3
+  }
+}

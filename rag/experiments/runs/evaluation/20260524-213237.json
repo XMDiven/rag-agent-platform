@@ -1,0 +1,372 @@
+{
+  "run_id": "20260524-213237",
+  "retrieval_top_k": 7,
+  "retrieval": {
+    "passed": 11,
+    "total": 11,
+    "cases": [
+      {
+        "id": "gpt4_report_scope",
+        "question": "What does the GPT-4 technical report say about its scope and limitations?",
+        "passed": true,
+        "expected_source_contains": [
+          "gpt4_technical_report.pdf"
+        ],
+        "retrieved_sources": [
+          "data/raw/gpt4_technical_report.pdf",
+          "data/raw/gpt4_technical_report.pdf",
+          "data/raw/gpt4_technical_report.pdf",
+          "data/raw/gpt4_technical_report.pdf",
+          "data/raw/gpt4_technical_report.pdf",
+          "data/raw/gpt4_technical_report.pdf",
+          "data/raw/gpt4_technical_report.pdf"
+        ]
+      },
+      {
+        "id": "qdrant_usage",
+        "question": "What is Qdrant used for in vector search?",
+        "passed": true,
+        "expected_source_contains": [
+          "qdrant-docs.md"
+        ],
+        "retrieved_sources": [
+          "data/raw/aiapp-05-qdrant-readme.md",
+          "data/raw/qdrant-docs.md",
+          "data/raw/aiapp-05-qdrant-readme.md",
+          "data/raw/aiapp-05-qdrant-readme.md",
+          "data/raw/aiapp-05-qdrant-readme.md",
+          "data/raw/aiapp-05-qdrant-readme.md",
+          "data/raw/aiapp-05-qdrant-readme.md"
+        ]
+      },
+      {
+        "id": "langchain_usage",
+        "question": "What is LangChain used for?",
+        "passed": true,
+        "expected_source_contains": [
+          "langchain"
+        ],
+        "retrieved_sources": [
+          "data/raw/03-langchain-README.md",
+          "data/raw/03-langchain-README.md",
+          "data/raw/langchain-docs.md",
+          "data/raw/03-langchain-README.md",
+          "data/raw/aiapp-02-langserve-readme.md",
+          "data/raw/03-langchain-README.md",
+          "data/raw/aiapp-01-langgraph-readme.md"
+        ]
+      },
+      {
+        "id": "rag_paper_definition",
+        "question": "In the original Retrieval-Augmented Generation paper, what does RAG combine?",
+        "passed": true,
+        "expected_source_contains": [
+          "retrieval_augmented_generation_for_knowledge_intensive_nlp.pdf"
+        ],
+        "retrieved_sources": [
+          "data/raw/retrieval_augmented_generation_for_knowledge_intensive_nlp.pdf",
+          "data/raw/transformers__hugging-face-transformers__rag.md",
+          "data/raw/agent__arxiv__autogen-enabling-next-gen-llm.pdf",
+          "data/raw/aiapp-16-owasp-top-10-llm-2025.pdf",
+          "data/raw/retrieval_augmented_generation_for_knowledge_intensive_nlp.pdf",
+          "data/raw/rag__arxiv__corrective-retrieval-augmented-generation.pdf",
+          "data/raw/rag__arxiv__corrective-retrieval-augmented-generation.pdf"
+        ]
+      },
+      {
+        "id": "qlora_memory",
+        "question": "How does QLoRA reduce memory usage during finetuning?",
+        "passed": true,
+        "expected_source_contains": [
+          "qlora_efficient_finetuning_of_quantized_llms.pdf"
+        ],
+        "retrieved_sources": [
+          "data/raw/qlora_efficient_finetuning_of_quantized_llms.pdf",
+          "data/raw/qlora_efficient_finetuning_of_quantized_llms.pdf",
+          "data/raw/qlora_efficient_finetuning_of_quantized_llms.pdf",
+          "data/raw/qlora_efficient_finetuning_of_quantized_llms.pdf",
+          "data/raw/qlora_efficient_finetuning_of_quantized_llms.pdf",
+          "data/raw/qlora_efficient_finetuning_of_quantized_llms.pdf",
+          "data/raw/qlora_efficient_finetuning_of_quantized_llms.pdf"
+        ]
+      },
+      {
+        "id": "lora_low_rank",
+        "question": "What is the main idea of low-rank adaptation in LoRA?",
+        "passed": true,
+        "expected_source_contains": [
+          "lora_low_rank_adaptation_of_large_language_models.pdf"
+        ],
+        "retrieved_sources": [
+          "data/raw/lora_low_rank_adaptation_of_large_language_models.pdf",
+          "data/raw/lora_low_rank_adaptation_of_large_language_models.pdf",
+          "data/raw/lora_low_rank_adaptation_of_large_language_models.pdf",
+          "data/raw/lora_low_rank_adaptation_of_large_language_models.pdf",
+          "data/raw/peft__hugging-face-peft__lora-methods.md",
+          "data/raw/lora_low_rank_adaptation_of_large_language_models.pdf",
+          "data/raw/peft__hugging-face-peft__lora.md"
+        ]
+      },
+      {
+        "id": "self_consistency_reasoning",
+        "question": "What is self-consistency in chain-of-thought reasoning?",
+        "passed": true,
+        "expected_source_contains": [
+          "self_consistency_improves_chain_of_thought_reasoning_in_language_models.pdf"
+        ],
+        "retrieved_sources": [
+          "data/raw/self_consistency_improves_chain_of_thought_reasoning_in_language_models.pdf",
+          "data/raw/self_consistency_improves_chain_of_thought_reasoning_in_language_models.pdf",
+          "data/raw/self_consistency_improves_chain_of_thought_reasoning_in_language_models.pdf",
+          "data/raw/self_consistency_improves_chain_of_thought_reasoning_in_language_models.pdf",
+          "data/raw/self_consistency_improves_chain_of_thought_reasoning_in_language_models.pdf",
+          "data/raw/self_consistency_improves_chain_of_thought_reasoning_in_language_models.pdf",
+          "data/raw/self_consistency_improves_chain_of_thought_reasoning_in_language_models.pdf"
+        ]
+      },
+      {
+        "id": "vllm_paged_attention",
+        "question": "What problem does PagedAttention solve in vLLM?",
+        "passed": true,
+        "expected_source_contains": [
+          "02-vllm-README.md",
+          "vllm-docs.md"
+        ],
+        "retrieved_sources": [
+          "data/raw/02-vllm-README.md",
+          "data/raw/vllm-docs.md",
+          "data/raw/llama3_the_herd_of_models.pdf",
+          "data/raw/vllm-docs.md",
+          "data/raw/02-vllm-README.md",
+          "data/raw/transformers__hugging-face-transformers__smollm3.md",
+          "data/raw/02-vllm-README.md"
+        ]
+      },
+      {
+        "id": "qdrant_chinese_paraphrase",
+        "question": "向量数据库 Qdrant 主要解决什么问题？",
+        "passed": true,
+        "expected_source_contains": [
+          "qdrant-docs.md"
+        ],
+        "retrieved_sources": [
+          "data/raw/aiapp-05-qdrant-readme.md",
+          "data/raw/qdrant-docs.md",
+          "data/raw/aiapp-05-qdrant-readme.md",
+          "data/raw/aiapp-05-qdrant-readme.md",
+          "data/raw/aiapp-05-qdrant-readme.md",
+          "data/raw/aiapp-05-qdrant-readme.md",
+          "data/raw/aiapp-05-qdrant-readme.md"
+        ]
+      },
+      {
+        "id": "rag_memory_paraphrase",
+        "question": "RAG 里的参数化记忆和非参数化记忆分别是什么？",
+        "passed": true,
+        "expected_source_contains": [
+          "retrieval_augmented_generation_for_knowledge_intensive_nlp.pdf"
+        ],
+        "retrieved_sources": [
+          "data/raw/retrieval_augmented_generation_for_knowledge_intensive_nlp.pdf",
+          "data/raw/retrieval_augmented_generation_for_knowledge_intensive_nlp.pdf",
+          "data/raw/transformers__hugging-face-transformers__rag.md",
+          "data/raw/retrieval_augmented_generation_for_knowledge_intensive_nlp.pdf",
+          "data/raw/retrieval_augmented_generation_for_knowledge_intensive_nlp.pdf",
+          "data/raw/retrieval_augmented_generation_for_knowledge_intensive_nlp.pdf",
+          "data/raw/retrieval_augmented_generation_for_knowledge_intensive_nlp.pdf"
+        ]
+      },
+      {
+        "id": "langchain_llamaindex_comparison",
+        "question": "LangChain 和 LlamaIndex 分别适合做什么？",
+        "passed": true,
+        "expected_source_contains": [
+          "langchain",
+          "llamaindex"
+        ],
+        "retrieved_sources": [
+          "data/raw/llamaindex-docs.md",
+          "data/raw/llamaindex-docs.md",
+          "data/raw/aiapp-03-llamaindex-readme.md",
+          "data/raw/aiapp-03-llamaindex-readme.md",
+          "data/raw/llamaindex-docs.md",
+          "data/raw/llamaindex-docs.md",
+          "data/raw/03-langchain-README.md"
+        ]
+      }
+    ]
+  },
+  "answer": {
+    "passed": 11,
+    "total": 11,
+    "cases": [
+      {
+        "id": "gpt4_report_scope",
+        "question": "What does the GPT-4 technical report say about its scope and limitations?",
+        "passed": true,
+        "failures": [],
+        "sources": [
+          "data/raw/gpt4_technical_report.pdf",
+          "data/raw/gpt4_technical_report.pdf",
+          "data/raw/gpt4_technical_report.pdf",
+          "data/raw/gpt4_technical_report.pdf",
+          "data/raw/gpt4_technical_report.pdf",
+          "data/raw/gpt4_technical_report.pdf",
+          "data/raw/gpt4_technical_report.pdf"
+        ]
+      },
+      {
+        "id": "qdrant_usage",
+        "question": "What is Qdrant used for in vector search?",
+        "passed": true,
+        "failures": [],
+        "sources": [
+          "data/raw/aiapp-05-qdrant-readme.md",
+          "data/raw/qdrant-docs.md",
+          "data/raw/aiapp-05-qdrant-readme.md",
+          "data/raw/aiapp-05-qdrant-readme.md",
+          "data/raw/aiapp-05-qdrant-readme.md",
+          "data/raw/aiapp-05-qdrant-readme.md",
+          "data/raw/aiapp-05-qdrant-readme.md"
+        ]
+      },
+      {
+        "id": "langchain_usage",
+        "question": "What is LangChain used for?",
+        "passed": true,
+        "failures": [],
+        "sources": [
+          "data/raw/03-langchain-README.md",
+          "data/raw/03-langchain-README.md",
+          "data/raw/langchain-docs.md",
+          "data/raw/03-langchain-README.md",
+          "data/raw/aiapp-02-langserve-readme.md",
+          "data/raw/03-langchain-README.md",
+          "data/raw/aiapp-01-langgraph-readme.md"
+        ]
+      },
+      {
+        "id": "rag_paper_definition",
+        "question": "In the original Retrieval-Augmented Generation paper, what does RAG combine?",
+        "passed": true,
+        "failures": [],
+        "sources": [
+          "data/raw/retrieval_augmented_generation_for_knowledge_intensive_nlp.pdf",
+          "data/raw/transformers__hugging-face-transformers__rag.md",
+          "data/raw/agent__arxiv__autogen-enabling-next-gen-llm.pdf",
+          "data/raw/aiapp-16-owasp-top-10-llm-2025.pdf",
+          "data/raw/retrieval_augmented_generation_for_knowledge_intensive_nlp.pdf",
+          "data/raw/rag__arxiv__corrective-retrieval-augmented-generation.pdf",
+          "data/raw/rag__arxiv__corrective-retrieval-augmented-generation.pdf"
+        ]
+      },
+      {
+        "id": "qlora_memory",
+        "question": "How does QLoRA reduce memory usage during finetuning?",
+        "passed": true,
+        "failures": [],
+        "sources": [
+          "data/raw/qlora_efficient_finetuning_of_quantized_llms.pdf",
+          "data/raw/qlora_efficient_finetuning_of_quantized_llms.pdf",
+          "data/raw/qlora_efficient_finetuning_of_quantized_llms.pdf",
+          "data/raw/qlora_efficient_finetuning_of_quantized_llms.pdf",
+          "data/raw/qlora_efficient_finetuning_of_quantized_llms.pdf",
+          "data/raw/qlora_efficient_finetuning_of_quantized_llms.pdf",
+          "data/raw/qlora_efficient_finetuning_of_quantized_llms.pdf"
+        ]
+      },
+      {
+        "id": "lora_low_rank",
+        "question": "What is the main idea of low-rank adaptation in LoRA?",
+        "passed": true,
+        "failures": [],
+        "sources": [
+          "data/raw/lora_low_rank_adaptation_of_large_language_models.pdf",
+          "data/raw/lora_low_rank_adaptation_of_large_language_models.pdf",
+          "data/raw/lora_low_rank_adaptation_of_large_language_models.pdf",
+          "data/raw/lora_low_rank_adaptation_of_large_language_models.pdf",
+          "data/raw/peft__hugging-face-peft__lora-methods.md",
+          "data/raw/lora_low_rank_adaptation_of_large_language_models.pdf",
+          "data/raw/peft__hugging-face-peft__lora.md"
+        ]
+      },
+      {
+        "id": "self_consistency_reasoning",
+        "question": "What is self-consistency in chain-of-thought reasoning?",
+        "passed": true,
+        "failures": [],
+        "sources": [
+          "data/raw/self_consistency_improves_chain_of_thought_reasoning_in_language_models.pdf",
+          "data/raw/self_consistency_improves_chain_of_thought_reasoning_in_language_models.pdf",
+          "data/raw/self_consistency_improves_chain_of_thought_reasoning_in_language_models.pdf",
+          "data/raw/self_consistency_improves_chain_of_thought_reasoning_in_language_models.pdf",
+          "data/raw/self_consistency_improves_chain_of_thought_reasoning_in_language_models.pdf",
+          "data/raw/self_consistency_improves_chain_of_thought_reasoning_in_language_models.pdf",
+          "data/raw/self_consistency_improves_chain_of_thought_reasoning_in_language_models.pdf"
+        ]
+      },
+      {
+        "id": "vllm_paged_attention",
+        "question": "What problem does PagedAttention solve in vLLM?",
+        "passed": true,
+        "failures": [],
+        "sources": [
+          "data/raw/02-vllm-README.md",
+          "data/raw/vllm-docs.md",
+          "data/raw/llama3_the_herd_of_models.pdf",
+          "data/raw/vllm-docs.md",
+          "data/raw/02-vllm-README.md",
+          "data/raw/transformers__hugging-face-transformers__smollm3.md",
+          "data/raw/02-vllm-README.md"
+        ]
+      },
+      {
+        "id": "qdrant_chinese_paraphrase",
+        "question": "向量数据库 Qdrant 主要解决什么问题？",
+        "passed": true,
+        "failures": [],
+        "sources": [
+          "data/raw/aiapp-05-qdrant-readme.md",
+          "data/raw/qdrant-docs.md",
+          "data/raw/aiapp-05-qdrant-readme.md",
+          "data/raw/aiapp-05-qdrant-readme.md",
+          "data/raw/aiapp-05-qdrant-readme.md",
+          "data/raw/aiapp-05-qdrant-readme.md",
+          "data/raw/aiapp-05-qdrant-readme.md"
+        ]
+      },
+      {
+        "id": "rag_memory_paraphrase",
+        "question": "RAG 里的参数化记忆和非参数化记忆分别是什么？",
+        "passed": true,
+        "failures": [],
+        "sources": [
+          "data/raw/retrieval_augmented_generation_for_knowledge_intensive_nlp.pdf",
+          "data/raw/transformers__hugging-face-transformers__rag.md",
+          "data/raw/retrieval_augmented_generation_for_knowledge_intensive_nlp.pdf",
+          "data/raw/retrieval_augmented_generation_for_knowledge_intensive_nlp.pdf",
+          "data/raw/retrieval_augmented_generation_for_knowledge_intensive_nlp.pdf",
+          "data/raw/retrieval_augmented_generation_for_knowledge_intensive_nlp.pdf",
+          "data/raw/retrieval_augmented_generation_for_knowledge_intensive_nlp.pdf"
+        ]
+      },
+      {
+        "id": "langchain_llamaindex_comparison",
+        "question": "LangChain 和 LlamaIndex 分别适合做什么？",
+        "passed": true,
+        "failures": [],
+        "sources": [
+          "data/raw/llamaindex-docs.md",
+          "data/raw/aiapp-03-llamaindex-readme.md",
+          "data/raw/03-langchain-README.md",
+          "data/raw/llamaindex-docs.md",
+          "data/raw/aiapp-03-llamaindex-readme.md",
+          "data/raw/llamaindex-docs.md",
+          "data/raw/llamaindex-docs.md"
+        ]
+      }
+    ]
+  },
+  "failed_cases": [],
+  "prompt_version": "qa_prompt_v1"
+}
