@@ -2,6 +2,46 @@
 
 这是一个从 RAG 知识库问答逐步演进到轻量 Agent 编排的 AI 应用工程项目。
 
+## 一次多步自主编排长什么样
+
+问 `LangChain 和 LlamaIndex 有什么区别？`，模型在**一次** `/agent/run` 请求里**自主跑了 4 轮**（基于 native function calling，循环方向由模型决定，不是写死的 if/else）：
+
+| 轮次 | 模型自主决策 | 调用的工具 |
+| --- | --- | --- |
+| 1 | 先把对比问题拆解 | `question_decompose_tool` |
+| 2 | 检索框架 A | `retrieval_tool`（"什么是 LangChain"） |
+| 3 | 检索框架 B | `retrieval_tool`（"LlamaIndex 框架的主要功能"） |
+| 4 | 信息够了，综合作答 | —（`final_answer`） |
+
+结果 `termination_reason = final_answer`，跨轮聚合 6 个来源，全程 `steps` 逐轮可观测。
+真实命令与完整响应见 [`docs/demo/end_to_end.md`](docs/demo/end_to_end.md)。
+
+## 架构
+
+```mermaid
+flowchart TD
+    U[用户提问] --> EP[POST /agent/run]
+    EP --> AQ[analyze_query 问题分析]
+    AQ -->|空问题 / loop 异常 → 降级| ONCE[单步编排 run_agent_once]
+    AQ --> LOOP[多步 Agent Loop<br/>run_agent_loop]
+
+    LOOP -->|bind_tools, tool_choice=auto| DEC{模型每轮决策}
+    DEC -->|选择调工具| DISP[run_tool 工具派发]
+    DISP --> RTOOL[retrieval_tool]
+    DISP --> STOOL[summary_tool]
+    DISP --> QTOOL[question_decompose_tool]
+    DISP -->|结果/失败 结构化回灌 ToolMessage| DEC
+    DEC -->|不再调工具 / 收尾| OUT[最终答案 + sources<br/>+ steps + termination_reason]
+
+    RTOOL --> RAG
+
+    subgraph RAG [RAG 检索生成链路 /ask]
+        direction LR
+        ING[摄入 MD/PDF] --> CHK[切分] --> EMB[向量化] --> VDB[(Qdrant)]
+        VDB --> RET[相似度检索 top-k] --> GEN[grounded 生成] --> CITE[来源引用]
+    end
+```
+
 当前仓库结构把 RAG 作为 Agent 系统的第一个可运行子项目。`rag` 子项目已经支持文档摄入、批量上传、向量检索、问答生成、流式问答、来源返回、轻量问题分析、检索规划、执行 trace、Prompt 版本管理、离线评测、LLM-as-Judge 结构化评分和 Prompt A/B 对比报告。`agent` 子项目在 RAG 之上提供编排层：默认走基于 native function calling 的多步 agent loop（模型自主多轮选择并调用工具、工具结果与失败都回灌模型，由模型决定继续调工具还是收尾），并保留规则式单步编排作为降级路径；支持问题分析、工具规划、工具执行、Agent trace、摘要工具、工具失败状态返回、FastAPI `/agent/run` 接口和 `/health` 健康检查接口。
 
 后续扩展方向是继续在当前 RAG 和轻量 Agent 基线上补齐工程证据，例如大文档处理报告、延迟 benchmark、Agent 目录结构整理、问题拆解工具和 Prompt 评测对比报告。
