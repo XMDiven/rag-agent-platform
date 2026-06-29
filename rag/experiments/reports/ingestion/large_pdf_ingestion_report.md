@@ -69,7 +69,7 @@ conda run -n AI_DEV python -c "from qdrant_client import QdrantClient, models; f
 最新代表性 evaluation report：
 
 ```text
-experiments/evaluation_runs/20260524-213237.json
+experiments/runs/evaluation/20260524-213237.json
 ```
 
 其中 retrieval case `gpt4_report_scope` 通过，并命中了目标 PDF：

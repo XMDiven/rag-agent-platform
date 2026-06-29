@@ -136,7 +136,7 @@ def save_report(
     output_dir: Path | None = None,
 ) -> Path:
     if output_dir is None:
-        output_dir = config.PROJECT_ROOT / "experiments" / "judge_runs"
+        output_dir = config.PROJECT_ROOT / "experiments" / "runs" / "judge"
 
     output_dir.mkdir(parents=True, exist_ok=True)
 

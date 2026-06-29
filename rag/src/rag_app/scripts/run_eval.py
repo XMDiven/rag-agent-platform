@@ -6,7 +6,7 @@ from rag_app.scripts import evaluate_answers, evaluate_retrieval
 
 
 def save_report(report: dict) -> None:
-    output_dir = config.PROJECT_ROOT / "experiments" / "evaluation_runs"
+    output_dir = config.PROJECT_ROOT / "experiments" / "runs" / "evaluation"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     output_path = output_dir / f"{report['run_id']}.json"

@@ -14,8 +14,8 @@
 - 评分范围：1-5 分
 - 通过标准：四个维度都达到 4 分及以上
 - 对比报告：
-  - `qa_prompt_v1`：`experiments/judge_runs/20260526-211450.json`
-  - `qa_prompt_v2`：`experiments/judge_runs/20260526-212913.json`
+  - `qa_prompt_v1`：`experiments/runs/judge/20260526-211450.json`
+  - `qa_prompt_v2`：`experiments/runs/judge/20260526-212913.json`
 
 ## 结果
 

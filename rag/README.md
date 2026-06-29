@@ -38,7 +38,10 @@
 
 ```text
 data/raw/            原始来源文档
-experiments/         检索和回答质量实验记录
+experiments/             实验目录（详见 experiments/README.md）
+experiments/datasets/    评测输入数据集（golden set 等）
+experiments/runs/        脚本自动生成的评测运行产物（judge/、evaluation/）
+experiments/reports/     人工撰写的实验报告（按主题分类：retrieval/generation/latency/ingestion）
 src/rag_app/app/                 FastAPI 路由和应用入口
 src/rag_app/config/              运行时配置
 src/rag_app/ingestion/           加载器、切分器和元数据处理
@@ -173,7 +176,7 @@ pytest tests/ -q
 python -m rag_app.scripts.run_eval
 ```
 
-说明：`run_eval` 依赖已经构建好的 Qdrant 索引和本地实验语料。若你使用自己的文档，需要同步调整 `experiments/retrieval_eval_cases.json`。
+说明：`run_eval` 依赖已经构建好的 Qdrant 索引和本地实验语料。若你使用自己的文档，需要同步调整 `experiments/datasets/retrieval_eval_cases.json`。
 
 ## 构建索引
 
@@ -380,7 +383,7 @@ conda run -n AI_DEV env QA_PROMPT_VERSION=qa_prompt_v2 python -m rag_app.scripts
 每次运行还会生成一份 JSON 评估报告：
 
 ```text
-experiments/evaluation_runs/
+experiments/runs/evaluation/
 ```
 
 报告包含当前 `RETRIEVAL_TOP_K`、`prompt_version`、检索评估汇总、回答评估汇总、每个 case 的来源路径，以及失败 case 列表。`prompt_version` 用来标识当前回答生成 prompt 的版本；只有当 prompt 策略发生变化时，才需要升级版本号，例如 `qa_prompt_v1` 到 `qa_prompt_v2`。该文件用于保留可复现的评估证据，方便后续比较不同检索配置或 prompt 版本的效果。
@@ -396,11 +399,11 @@ conda run --no-capture-output -n AI_DEV python -m rag_app.scripts.evaluate_answe
 LLM-as-Judge 报告默认写入：
 
 ```text
-experiments/judge_runs/
+experiments/runs/judge/
 ```
 
-当前代表性报告说明见 `experiments/llm_judge_report.md`。
-Prompt A/B 对比结论见 `experiments/prompt_comparison_report.md`。
+当前代表性报告说明见 `experiments/reports/generation/llm_judge_report.md`。
+Prompt A/B 对比结论见 `experiments/reports/generation/prompt_comparison_report.md`。
 
 API 启动后，也可以通过 Prompt Eval API 查询历史评测结果：
 
@@ -420,7 +423,7 @@ curl http://127.0.0.1:8001/prompt-evals/reports/<run_id>
 curl http://127.0.0.1:8001/prompt-evals/comparison/latest
 ```
 
-同步触发一次小样本 LLM-as-Judge 评测，并将报告写入 `experiments/judge_runs/`：
+同步触发一次小样本 LLM-as-Judge 评测，并将报告写入 `experiments/runs/judge/`：
 
 ```bash
 curl -X POST http://127.0.0.1:8001/prompt-evals/run \
@@ -492,7 +495,10 @@ The project supports Markdown and PDF documents, saves source files either from 
 
 ```text
 data/raw/            Source documents
-experiments/         Retrieval and answer-quality experiment records
+experiments/             Experiments directory (see experiments/README.md)
+experiments/datasets/    Evaluation input datasets (golden sets, etc.)
+experiments/runs/        Auto-generated evaluation run artifacts (judge/, evaluation/)
+experiments/reports/     Hand-written experiment reports, grouped by topic (retrieval/generation/latency/ingestion)
 src/rag_app/app/                 FastAPI routers and app entrypoint
 src/rag_app/config/              Runtime configuration
 src/rag_app/ingestion/           Loaders, chunkers, and metadata handling
@@ -627,7 +633,7 @@ pytest tests/ -q
 python -m rag_app.scripts.run_eval
 ```
 
-Note: `run_eval` depends on a built Qdrant index and the local experiment corpus. If you use your own documents, update `experiments/retrieval_eval_cases.json` accordingly.
+Note: `run_eval` depends on a built Qdrant index and the local experiment corpus. If you use your own documents, update `experiments/datasets/retrieval_eval_cases.json` accordingly.
 
 ## Build The Index
 
@@ -834,7 +840,7 @@ When `QA_PROMPT_VERSION=qa_prompt_v2`, answer evaluation also checks the structu
 Each run also writes a JSON evaluation report:
 
 ```text
-experiments/evaluation_runs/
+experiments/runs/evaluation/
 ```
 
 The report includes the current `RETRIEVAL_TOP_K`, `prompt_version`, retrieval and answer evaluation summaries, per-case source paths, and failed cases. `prompt_version` identifies the answer-generation prompt version; update it only when the prompt strategy changes, for example from `qa_prompt_v1` to `qa_prompt_v2`. These reports preserve reproducible evaluation evidence for comparing retrieval settings or prompt versions over time.
@@ -850,11 +856,11 @@ This script reuses the online question-answering flow for the golden questions, 
 LLM-as-Judge reports are written to:
 
 ```text
-experiments/judge_runs/
+experiments/runs/judge/
 ```
 
-The current representative report is summarized in `experiments/llm_judge_report.md`.
-The Prompt A/B comparison is summarized in `experiments/prompt_comparison_report.md`.
+The current representative report is summarized in `experiments/reports/generation/llm_judge_report.md`.
+The Prompt A/B comparison is summarized in `experiments/reports/generation/prompt_comparison_report.md`.
 
 After the API starts, you can also query historical evaluation results through the Prompt Eval API:
 
@@ -874,7 +880,7 @@ Query the latest `qa_prompt_v1` and `qa_prompt_v2` comparison metrics:
 curl http://127.0.0.1:8001/prompt-evals/comparison/latest
 ```
 
-Trigger a synchronous small-sample LLM-as-Judge run and write the report to `experiments/judge_runs/`:
+Trigger a synchronous small-sample LLM-as-Judge run and write the report to `experiments/runs/judge/`:
 
 ```bash
 curl -X POST http://127.0.0.1:8001/prompt-evals/run \

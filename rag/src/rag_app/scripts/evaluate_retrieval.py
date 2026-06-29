@@ -15,7 +15,9 @@ from rag_app.retrieval.retriever import (
     get_retriever,
 )
 
-DEFAULT_CASES_PATH = config.PROJECT_ROOT / "experiments" / "retrieval_eval_cases.json"
+DEFAULT_CASES_PATH = (
+    config.PROJECT_ROOT / "experiments" / "datasets" / "retrieval_eval_cases.json"
+)
 
 
 @dataclass(frozen=True)

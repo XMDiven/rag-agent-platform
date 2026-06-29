@@ -39,7 +39,7 @@ conda run --no-capture-output -n AI_DEV python -m rag_app.scripts.evaluate_answe
 报告文件：
 
 ```text
-rag/experiments/judge_runs/20260526-162728.json
+rag/experiments/runs/judge/20260526-162728.json
 ```
 
 汇总结果：

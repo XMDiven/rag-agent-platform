@@ -11,7 +11,7 @@ from rag_app.scripts.evaluate_answers_with_judge import (
     save_report,
 )
 
-JUDGE_RUNS_DIR = config.PROJECT_ROOT / "experiments" / "judge_runs"
+JUDGE_RUNS_DIR = config.PROJECT_ROOT / "experiments" / "runs" / "judge"
 
 
 def list_report_files() -> list[Path]:
