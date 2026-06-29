@@ -8,6 +8,7 @@ DATA_DIR: Path = PROJECT_ROOT / "data"
 RAW_DATA_DIR: Path = DATA_DIR / "raw"
 
 RetrievalSearchType = Literal["similarity", "mmr" , "hybrid"]
+LlmThinkingType = Literal["enabled", "disabled"]
 
 
 class Settings(BaseSettings):
@@ -37,6 +38,7 @@ class Settings(BaseSettings):
 
     llm_base_url: str | None = None
     llm_model_id: str | None = None
+    llm_thinking_type: LlmThinkingType | None = None
     moonshot_api_key: str | None = None
     openai_api_key: str | None = None
 

@@ -34,6 +34,14 @@ def test_settings_reads_environment_variables(monkeypatch) -> None:
     assert settings.qdrant_collection == "documents"
 
 
+def test_settings_reads_llm_thinking_type(monkeypatch) -> None:
+    monkeypatch.setenv("LLM_THINKING_TYPE", "disabled")
+
+    settings = Settings(_env_file=None)
+
+    assert settings.llm_thinking_type == "disabled"
+
+
 def test_settings_reads_hybrid_retrieval_search_type(monkeypatch) -> None:
     monkeypatch.setenv("RETRIEVAL_SEARCH_TYPE", "hybrid")
 
