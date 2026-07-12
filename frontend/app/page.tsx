@@ -8,7 +8,8 @@ interface AgentRunResponse{
   sources: Array<Record<string , unknown>>
 }
 
-const AGENT_API = "http://localhost:8001/agent/run";
+const AGENT_API =
+  process.env.NEXT_PUBLIC_AGENT_API ?? "http://localhost:8002/agent/run";
 
 export default function Home() {
   const [question, setQuestion] = useState("");
