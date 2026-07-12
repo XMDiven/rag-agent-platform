@@ -77,7 +77,10 @@ async function handleSubmit(e: React.FormEvent) {
               <h2 className="font-medium">来源({result.sources.length})</h2>
               <ul className="mt-1 space-y-2">
                 {result.sources.map((src, i) => (
-                  <li key={i} className="rounded bg-zinc-100 p-2 text-xs font-mono break-all">
+                  <li
+                    key={i}
+                    className="rounded border border-zinc-700 bg-black p-2 text-xs font-mono text-white break-all"
+                  >
                     {JSON.stringify(src)}
                   </li>
                 ))}
