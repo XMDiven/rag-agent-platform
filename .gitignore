@@ -20,6 +20,8 @@ rag/data/raw/*
 # 评估运行产物
 rag/experiments/evaluation_runs/*.json
 rag/experiments/judge_runs/*.json
+rag/experiments/runs/evaluation/*.json
+rag/experiments/runs/judge/*.json
 
 # 环境变量
 .env
@@ -40,6 +42,7 @@ agent_ai_app_interview_prep.html
 # 测试
 .pytest_cache/
 .coverage
+.playwright-cli/
 
 # 包管理器本地锁文件
 agent/uv.lock
@@ -50,3 +53,4 @@ scripts/collect_rag_docs.py
 #杂项
 .DS_Store
 resume_alignment.md
+interview_prep_progress.md
