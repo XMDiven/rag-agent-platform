@@ -16,6 +16,8 @@ rag/data/vector_db/
 rag/qdrant_storage/
 rag/data/raw/*
 !rag/data/raw/.gitkeep
+!rag/data/raw/*.md
+!rag/data/raw/*.pdf
 
 # 评估运行产物
 rag/experiments/evaluation_runs/*.json
