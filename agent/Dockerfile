@@ -5,7 +5,7 @@ WORKDIR /app
 ENV PYTHONUNBUFFERED=1
 
 COPY rag/requirements.txt ./rag/requirements.txt
-RUN pip install --no-cache-dir -r ./rag/requirements.txt
+RUN pip install --no-cache-dir --timeout 120 --retries 5 -r ./rag/requirements.txt
 
 COPY rag ./rag
 RUN pip install --no-cache-dir ./rag --no-deps

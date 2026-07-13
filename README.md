@@ -68,6 +68,69 @@ flowchart TD
 - AutoGen、网络搜索工具。
 - 完整 A/B Prompt 对比平台、300+ 样本或 80+ 组实验。
 
+## Docker Compose 一键启动
+
+根目录的 `compose.yaml` 会统一启动以下服务，并通过一次性初始化任务确保 Qdrant collection 存在：
+
+| 服务 | 地址 | 说明 |
+| --- | --- | --- |
+| Frontend | <http://localhost:3000> | Next.js 问答页面 |
+| RAG API | <http://localhost:8001> | `/ask`、文档上传和摄入接口 |
+| Agent API | <http://localhost:8002> | `/agent/run` 和工具编排接口 |
+| Qdrant | <http://localhost:6333> | 本地向量数据库 |
+
+### 前置条件
+
+- 已安装并启动 Docker。
+- 宿主机已安装并启动 Ollama。
+- 已下载项目使用的 embedding 模型：
+
+```bash
+ollama pull nomic-embed-text
+```
+
+Compose 中的后端容器通过 `host.docker.internal:11434` 访问宿主机 Ollama。Linux 如果无法连接，需要让 Ollama 监听容器可访问的地址；只应在可信的本地开发环境中这样配置：
+
+```bash
+OLLAMA_HOST=0.0.0.0:11434 ollama serve
+```
+
+### 启动项目
+
+1. 创建本地环境变量文件：
+
+```bash
+cp .env.example .env
+```
+
+2. 编辑 `.env`，至少填写一个可用的 `MOONSHOT_API_KEY` 或 `OPENAI_API_KEY`。真实 `.env` 已被 Git 忽略，不要把密钥提交到仓库。
+
+3. 构建并启动全部服务：
+
+```bash
+docker compose up --build -d
+```
+
+如果之前通过 `rag/compose.yaml` 启动过独立 Qdrant，需要先执行 `docker compose -f rag/compose.yaml stop qdrant`，避免宿主机 `6333`、`6334` 端口冲突。停止容器不会删除原有 Qdrant 数据。
+
+4. 检查服务状态：
+
+```bash
+docker compose ps
+curl http://localhost:8001/health
+curl http://localhost:8002/health
+```
+
+首次启动会创建空的 Qdrant collection，但不会自动包含知识库文档。服务启动后，需要按照 [`rag/README.md`](rag/README.md) 上传并摄入文档，然后才能进行有知识库上下文的问答。后续启动会保留已有 collection 和索引数据。
+
+停止服务但保留 Qdrant 和上传数据：
+
+```bash
+docker compose down
+```
+
+如需同时删除本地 Qdrant 索引和上传数据，可以执行 `docker compose down -v`。这是破坏性操作，已有数据会被清除。
+
 ## 当前运行方式
 
 端到端演示记录见 [`docs/demo/end_to_end.md`](docs/demo/end_to_end.md)，包含
