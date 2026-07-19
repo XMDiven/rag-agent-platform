@@ -2,20 +2,10 @@
 
 import {useState} from "react";
 
-interface TraceItem {
-  step: string;
-  status: string;
-  detail?: Record<string, unknown>;
-}
-
-interface RagAskResponse {
-  answer: string;
-  trace: TraceItem[];
-  sources: Array<Record<string, unknown>>;
-}
-
-const RAG_API =
-  process.env.NEXT_PUBLIC_RAG_API ?? "http://localhost:8001/ask";
+import {
+  buildAgentStepViewModel,
+  type AgentRunResponse,
+} from "./agent-view-model";
 
 const EXAMPLE_QUESTIONS = [
   "Qdrant 在向量检索中有什么作用？",
@@ -32,13 +22,9 @@ function optionalSourceText(source: Record<string, unknown>, key: string): strin
   return typeof value === "string" && value.trim() ? value : null;
 }
 
-function statusLabel(status: string): string {
-  return status.replaceAll("_", " ");
-}
-
 export default function Home() {
   const [question, setQuestion] = useState("");
-  const [result, setResult] = useState<RagAskResponse | null>(null);
+  const [result, setResult] = useState<AgentRunResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -51,13 +37,13 @@ export default function Home() {
     setResult(null);
 
     try {
-      const res = await fetch(RAG_API, {
+      const res = await fetch("/api/agent", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({question}),
       });
       if (!res.ok) throw new Error(`后端返回 ${res.status}`);
-      const data: RagAskResponse = await res.json();
+      const data: AgentRunResponse = await res.json();
       setResult(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "请求失败");
@@ -80,7 +66,7 @@ export default function Home() {
             基于文档解析、向量检索与大模型生成的问答系统，返回可追溯来源与完整执行轨迹。
           </p>
           <div className="mt-5 flex flex-wrap gap-2 text-sm text-slate-600">
-            {['RAG', 'Qdrant', 'Sources', 'Trace'].map((item) => (
+            {['RAG', 'Agent Loop', 'Sources', 'Tool Steps'].map((item) => (
               <span key={item} className="rounded-full border border-slate-200 bg-white px-3 py-1 shadow-sm">
                 {item}
               </span>
@@ -92,7 +78,7 @@ export default function Home() {
           <div className="flex items-center justify-between gap-4">
             <div>
               <h2 className="text-lg font-semibold text-slate-950">向知识库提问</h2>
-              <p className="mt-1 text-sm text-slate-500">系统会完成问题分析、检索规划、向量召回与答案生成。</p>
+              <p className="mt-1 text-sm text-slate-500">Agent 会自主选择工具、执行多轮检索，并基于来源生成答案。</p>
             </div>
             <span className="hidden items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 sm:flex">
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
@@ -136,7 +122,7 @@ export default function Home() {
           {loading && (
             <div className="mt-6 flex items-center gap-3 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-800">
               <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-blue-500" />
-              系统正在检索知识库并基于召回内容生成答案。
+              Agent 正在规划并执行工具调用，复杂问题可能需要多轮处理。
             </div>
           )}
 
@@ -153,7 +139,7 @@ export default function Home() {
             <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/50 sm:p-8">
               <div className="flex flex-col gap-4 border-b border-slate-100 pb-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-xs font-semibold tracking-wide text-blue-600 uppercase">RAG result</p>
+                  <p className="text-xs font-semibold tracking-wide text-blue-600 uppercase">Agent result</p>
                   <h2 className="mt-1 text-2xl font-semibold text-slate-950">回答结果</h2>
                 </div>
                 <div className="flex flex-wrap gap-2 text-xs font-medium">
@@ -161,13 +147,21 @@ export default function Home() {
                     来源 · {result.sources.length}
                   </span>
                   <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700">
-                    链路步骤 · {result.trace.length}
+                    编排轮次 · {result.steps.length}
                   </span>
                 </div>
               </div>
 
               <div className="pt-6">
                 <p className="whitespace-pre-wrap text-[15px] leading-7 text-slate-700">{result.answer}</p>
+                <div className="mt-5 flex flex-wrap gap-2 text-xs">
+                  <span className="rounded-full bg-slate-100 px-3 py-1.5 text-slate-600">
+                    最终工具 · {result.selected_tool}
+                  </span>
+                  <span className="rounded-full bg-violet-50 px-3 py-1.5 text-violet-700">
+                    终止原因 · {result.termination_reason.replaceAll("_", " ")}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -201,28 +195,53 @@ export default function Home() {
                 </div>
               )}
 
-              {!!result.trace.length && (
-                <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/50 sm:p-8">
-                  <p className="text-xs font-semibold tracking-wide text-blue-600 uppercase">Observability</p>
-                  <h2 className="mt-1 text-xl font-semibold text-slate-950">执行轨迹</h2>
-                  <ul className="mt-5 divide-y divide-slate-100">
-                    {result.trace.map((item, index) => (
-                      <li key={`${item.step}-${index}`} className="flex items-center justify-between gap-4 py-3 text-sm">
-                        <span className="font-medium text-slate-700">{item.step}</span>
-                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-500">
-                          {statusLabel(item.status)}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/50 sm:p-8">
+                <p className="text-xs font-semibold tracking-wide text-blue-600 uppercase">Agent orchestration</p>
+                <h2 className="mt-1 text-xl font-semibold text-slate-950">多步工具编排</h2>
+                {result.steps.length ? (
+                  <ol className="mt-5 space-y-3">
+                    {result.steps.map((step, index) => {
+                      const stepView = buildAgentStepViewModel(step);
+
+                      return (
+                        <li key={`${step.round}-${step.status}-${index}`} className="rounded-2xl border border-slate-200 p-4">
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                              <p className="text-xs font-medium text-blue-600">{stepView.roundLabel}</p>
+                              <p className="mt-1 font-semibold text-slate-900">{stepView.toolLabel}</p>
+                            </div>
+                            <div className="flex flex-wrap gap-2 text-xs">
+                              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">
+                                {stepView.statusLabel}
+                              </span>
+                              {stepView.toolStatusLabel && (
+                                <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">
+                                  {stepView.toolStatusLabel}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          {stepView.argsLabel && (
+                            <p className="mt-3 break-all rounded-lg bg-slate-50 px-3 py-2 font-mono text-xs leading-5 text-slate-600">
+                              {stepView.argsLabel}
+                            </p>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ol>
+                ) : (
+                  <p className="mt-5 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                    本次请求未产生多步调用，最终工具为 {result.selected_tool}。
+                  </p>
+                )}
+              </div>
             </div>
           </section>
         )}
 
         <footer className="mt-10 text-center text-xs text-slate-400">
-          Local engineering demo · FastAPI · LangChain · Qdrant
+          Local engineering demo · Next.js BFF · FastAPI · LangChain · Qdrant
         </footer>
       </div>
     </main>
