@@ -20,7 +20,8 @@
 
 ```mermaid
 flowchart TD
-    U[用户提问] --> EP[POST /agent/run]
+    U[用户提问] --> BFF[Next.js BFF<br/>POST /api/agent]
+    BFF --> EP[FastAPI<br/>POST /agent/run]
     EP --> AQ[analyze_query 问题分析]
     AQ -->|空问题 / loop 异常 → 降级| ONCE[单步编排 run_agent_once]
     AQ --> LOOP[多步 Agent Loop<br/>run_agent_loop]
@@ -52,6 +53,7 @@ flowchart TD
 | --- | --- | --- |
 | `rag` | RAG MVP + 轻量编排基线 | 支持 Markdown/PDF 入库、单文件/批量上传、Qdrant 检索、FastAPI 问答、流式返回、来源引用、执行 trace、Prompt 版本、离线评测、LLM-as-Judge 结构化评分和 Prompt A/B 对比报告 |
 | `agent` | 多步 Agent loop 编排 | 支持工具注册、问题分析、工具规划、工具执行、摘要工具、结构化 Agent trace、工具失败处理、基于 native function calling 的多步 agent loop（自主多轮工具编排 + 规则式单步降级）、FastAPI `/agent/run` 接口和 `/health` 健康检查接口 |
+| `frontend` | Agent 演示界面 | 使用 Next.js App Router + TypeScript；浏览器通过同源 `/api/agent` BFF 调用 Agent，界面展示回答、来源、终止原因和逐轮工具编排步骤 |
 
 ## 当前能力边界
 
@@ -59,6 +61,7 @@ flowchart TD
 
 - RAG：Markdown/PDF 摄入、单文件上传、批量上传、Qdrant 索引、`/ask`、`/ask/stream`、来源引用、RAG trace、Prompt 版本、离线评估、LLM-as-Judge 评分报告和 Prompt A/B 对比报告。
 - Agent：`retrieval_tool`、`summary_tool`、`question_decompose_tool`、`fallback_tool`、基于 native function calling 的多步 agent loop（`run_agent_loop`，工具失败回灌模型由其自主恢复）+ 规则式单步降级（`run_agent_once`）、`run_tool` 工具派发、executor、AgentState、Agent trace、工具失败结构化返回。
+- Frontend：Next.js Route Handler BFF、服务端 Agent 地址、回答和来源展示、多轮 `steps` 可视化；当前 Agent 接口仍是一次性 JSON 响应，不声称 Agent 流式输出。
 
 仍需要补证据后再写进简历的能力：
 
@@ -74,7 +77,7 @@ flowchart TD
 
 | 服务 | 地址 | 说明 |
 | --- | --- | --- |
-| Frontend | <http://localhost:3000> | Next.js 问答页面 |
+| Frontend | <http://localhost:3000> | Next.js Agent 问答页面；通过服务端 BFF 访问 Agent API |
 | RAG API | <http://localhost:8001> | `/ask`、文档上传和摄入接口 |
 | Agent API | <http://localhost:8002> | `/agent/run` 和工具编排接口 |
 | Qdrant | <http://localhost:6333> | 本地向量数据库 |
@@ -159,6 +162,15 @@ conda run -n AI_DEV uvicorn agent_app.app.main:app --reload
 ```
 
 更多说明见 [`agent/README.md`](agent/README.md)。
+
+前端本地开发默认由服务端 Route Handler 访问
+`http://localhost:8002/agent/run`。如需覆盖地址，只把它设置为服务端环境变量，
+不要使用 `NEXT_PUBLIC_` 前缀：
+
+```bash
+cd frontend
+AGENT_API_URL=http://localhost:8002/agent/run npm run dev
+```
 
 ## English
 
