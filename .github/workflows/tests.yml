@@ -10,22 +10,11 @@ jobs:
     steps:
       - name: check out repository
         uses: actions/checkout@v4
-      - name: use python 3.11 environment
-        uses: actions/setup-python@v5
+      - name: install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: "3.11"
-      - name: Install dependencies
-        working-directory: rag
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt
-          pip install -e . --no-deps
-      - name: run rag test
-        working-directory: rag
-        run: pytest tests/ -q
-      - name: install agent package
-        working-directory: agent
-        run: pip install -e . pytest
-      - name: run agent tests
-        working-directory: agent
-        run: pytest tests/ -q
+          enable-cache: true
+      - name: install dependencies
+        run: uv sync --frozen
+      - name: run tests
+        run: uv run pytest -q
