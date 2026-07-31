@@ -39,13 +39,13 @@ experiments/
 
 ```bash
 # 检索 + 回答评估 → runs/evaluation/<timestamp>.json
-conda run -n AI_DEV python -m rag_app.scripts.run_eval
+uv run python -m rag_app.scripts.run_eval
 
 # LLM-as-Judge → runs/judge/<timestamp>.json
-conda run -n AI_DEV python -m rag_app.scripts.evaluate_answers_with_judge
+uv run python -m rag_app.scripts.evaluate_answers_with_judge
 
 # 延迟 benchmark（结果记入 reports/latency/latency_benchmark.md）
-conda run -n AI_DEV python -m rag_app.scripts.benchmark_latency
+uv run python -m rag_app.scripts.benchmark_latency
 ```
 
 ## 约定

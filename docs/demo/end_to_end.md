@@ -7,7 +7,7 @@
 
 - 运行时间：2026-06-14 CST
 - 仓库：`/Users/mdiven/Code/Projects/rag-agent-platform`
-- Conda 环境：`AI_DEV`
+- Python 环境：仓库根目录的 uv workspace（`uv sync`）
 - RAG 服务：`http://127.0.0.1:8001`
 - Agent 服务：`http://127.0.0.1:8002`
 - LLM：Kimi（OpenAI 兼容接口）
@@ -23,15 +23,15 @@
 ```bash
 cd /Users/mdiven/Code/Projects/rag-agent-platform/rag
 docker compose up -d qdrant
-conda run -n AI_DEV python -m rag_app.scripts.reset_index
-conda run -n AI_DEV python -m rag_app.scripts.build_index
+uv run python -m rag_app.scripts.reset_index
+uv run python -m rag_app.scripts.build_index
 ```
 
 启动 RAG 服务：
 
 ```bash
 cd /Users/mdiven/Code/Projects/rag-agent-platform/rag
-conda run -n AI_DEV uvicorn rag_app.app.main:app --host 127.0.0.1 --port 8001
+uv run uvicorn rag_app.app.main:app --host 127.0.0.1 --port 8001
 ```
 
 启动 Agent 服务：
@@ -39,7 +39,7 @@ conda run -n AI_DEV uvicorn rag_app.app.main:app --host 127.0.0.1 --port 8001
 ```bash
 cd /Users/mdiven/Code/Projects/rag-agent-platform/agent
 PYTHONPATH=/Users/mdiven/Code/Projects/rag-agent-platform/agent/src:/Users/mdiven/Code/Projects/rag-agent-platform/rag/src \
-  conda run -n AI_DEV uvicorn agent_app.app.main:app --host 127.0.0.1 --port 8002
+  uv run uvicorn agent_app.app.main:app --host 127.0.0.1 --port 8002
 ```
 
 健康检查：

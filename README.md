@@ -136,6 +136,14 @@ docker compose down
 端到端演示记录见 [`docs/demo/end_to_end.md`](docs/demo/end_to_end.md)，包含
 upload、ingest、ask、stream ask 和 agent run 的真实 `curl` 命令与响应摘录。
 
+本地开发的 Python 依赖由仓库根目录的 uv workspace 统一管理，先同步环境：
+
+```bash
+uv sync
+```
+
+之后所有 Python 命令都用 `uv run` 前缀执行，不需要手动激活虚拟环境。
+
 进入 RAG 子项目：
 
 ```bash
@@ -148,14 +156,14 @@ cd rag
 
 ```bash
 cd agent
-conda run -n AI_DEV pytest tests/ -q
+uv run pytest tests/ -q
 ```
 
 Agent API 入口：
 
 ```bash
 cd agent
-conda run -n AI_DEV uvicorn agent_app.app.main:app --reload
+uv run uvicorn agent_app.app.main:app --reload
 ```
 
 更多说明见 [`agent/README.md`](agent/README.md)。

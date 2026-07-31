@@ -55,10 +55,10 @@ tests/               单元测试和脚本测试
 
 ## 环境
 
-使用 `AI_DEV` conda 环境：
+依赖由仓库根目录的 uv workspace 统一管理，在仓库任意位置执行以下命令即可同步环境：
 
 ```bash
-conda activate AI_DEV
+uv sync
 ```
 
 应用需要以下环境变量：
@@ -79,10 +79,10 @@ MOONSHOT_API_KEY or OPENAI_API_KEY
 docker compose up -d qdrant
 ```
 
-也可以构建 RAG 应用镜像：
+也可以构建 RAG 应用镜像（镜像基于 uv workspace 构建，需要在仓库根目录执行）：
 
 ```bash
-docker build -t rag-app .
+docker build -t rag-app -f rag/Dockerfile .
 ```
 
 从容器启动 RAG API：
@@ -99,13 +99,10 @@ docker run --rm --env-file .env \
 
 ## 快速开始
 
-1. 创建并激活 Python 环境：
+1. 安装依赖（uv 会自动准备 Python 3.11 和虚拟环境）：
 
 ```bash
-conda create -n AI_DEV python=3.11 -y
-conda activate AI_DEV
-pip install -r requirements-dev.txt
-pip install -e . --no-deps
+uv sync
 ```
 
 2. 配置环境变量：
@@ -183,13 +180,13 @@ python -m rag_app.scripts.run_eval
 重置当前 Qdrant collection：
 
 ```bash
-conda run -n AI_DEV python -m rag_app.scripts.reset_index
+uv run python -m rag_app.scripts.reset_index
 ```
 
 从支持的原始文档构建向量索引：
 
 ```bash
-conda run -n AI_DEV python -m rag_app.scripts.build_index
+uv run python -m rag_app.scripts.build_index
 ```
 
 ## 运行 API
@@ -197,7 +194,7 @@ conda run -n AI_DEV python -m rag_app.scripts.build_index
 启动 FastAPI：
 
 ```bash
-conda run -n AI_DEV uvicorn rag_app.app.main:app --host 127.0.0.1 --port 8001 --reload
+uv run uvicorn rag_app.app.main:app --host 127.0.0.1 --port 8001 --reload
 ```
 
 上传 Markdown 或 PDF 文件：
@@ -357,20 +354,20 @@ curl -N -X POST http://127.0.0.1:8001/ask/stream \
 运行测试套件：
 
 ```bash
-conda run -n AI_DEV pytest tests/ -q
+uv run pytest tests/ -q
 ```
 
 运行统一 RAG 评估：
 
 ```bash
-conda run -n AI_DEV python -m rag_app.scripts.run_eval
+uv run python -m rag_app.scripts.run_eval
 ```
 
 按 Prompt 版本运行评估：
 
 ```bash
-conda run -n AI_DEV env QA_PROMPT_VERSION=qa_prompt_v1 python -m rag_app.scripts.run_eval
-conda run -n AI_DEV env QA_PROMPT_VERSION=qa_prompt_v2 python -m rag_app.scripts.run_eval
+QA_PROMPT_VERSION=qa_prompt_v1 uv run python -m rag_app.scripts.run_eval
+QA_PROMPT_VERSION=qa_prompt_v2 uv run python -m rag_app.scripts.run_eval
 ```
 
 `run_eval` 会执行两类检查：
@@ -391,7 +388,7 @@ experiments/runs/evaluation/
 运行 LLM-as-Judge 回答质量评估：
 
 ```bash
-conda run --no-capture-output -n AI_DEV python -m rag_app.scripts.evaluate_answers_with_judge
+uv run python -m rag_app.scripts.evaluate_answers_with_judge
 ```
 
 该脚本会复用 golden questions 的在线问答流程，再把问题、回答和本次检索返回的 sources 交给 judge prompt，输出 relevance、completeness、groundedness 和 format 四个维度的 1-5 分结构化结果。
@@ -512,10 +509,10 @@ tests/               Unit and script tests
 
 ## Environment
 
-Use the `AI_DEV` conda environment:
+Dependencies are managed by the uv workspace at the repository root. Sync the environment from anywhere in the repository:
 
 ```bash
-conda activate AI_DEV
+uv sync
 ```
 
 The application expects these environment variables:
@@ -536,10 +533,10 @@ Qdrant can be started with Docker Compose:
 docker compose up -d qdrant
 ```
 
-You can also build the RAG application image:
+You can also build the RAG application image (it builds from the uv workspace, so run this from the repository root):
 
 ```bash
-docker build -t rag-app .
+docker build -t rag-app -f rag/Dockerfile .
 ```
 
 Start the RAG API from the image:
@@ -556,13 +553,10 @@ Note: `localhost` inside a container points to the container itself, not the hos
 
 ## Quickstart
 
-1. Create and activate the Python environment:
+1. Install dependencies (uv provisions Python 3.11 and the virtual environment automatically):
 
 ```bash
-conda create -n AI_DEV python=3.11 -y
-conda activate AI_DEV
-pip install -r requirements-dev.txt
-pip install -e . --no-deps
+uv sync
 ```
 
 2. Configure environment variables:
@@ -640,13 +634,13 @@ Note: `run_eval` depends on a built Qdrant index and the local experiment corpus
 Reset the current Qdrant collection:
 
 ```bash
-conda run -n AI_DEV python -m rag_app.scripts.reset_index
+uv run python -m rag_app.scripts.reset_index
 ```
 
 Build the vector index from supported raw documents:
 
 ```bash
-conda run -n AI_DEV python -m rag_app.scripts.build_index
+uv run python -m rag_app.scripts.build_index
 ```
 
 ## Run The API
@@ -654,7 +648,7 @@ conda run -n AI_DEV python -m rag_app.scripts.build_index
 Start FastAPI:
 
 ```bash
-conda run -n AI_DEV uvicorn rag_app.app.main:app --host 127.0.0.1 --port 8001 --reload
+uv run uvicorn rag_app.app.main:app --host 127.0.0.1 --port 8001 --reload
 ```
 
 Upload a Markdown or PDF file:
@@ -814,20 +808,20 @@ The streaming response uses NDJSON, with one event per line:
 Run the test suite:
 
 ```bash
-conda run -n AI_DEV pytest tests/ -q
+uv run pytest tests/ -q
 ```
 
 Run the unified RAG evaluation:
 
 ```bash
-conda run -n AI_DEV python -m rag_app.scripts.run_eval
+uv run python -m rag_app.scripts.run_eval
 ```
 
 Run evaluation by Prompt version:
 
 ```bash
-conda run -n AI_DEV env QA_PROMPT_VERSION=qa_prompt_v1 python -m rag_app.scripts.run_eval
-conda run -n AI_DEV env QA_PROMPT_VERSION=qa_prompt_v2 python -m rag_app.scripts.run_eval
+QA_PROMPT_VERSION=qa_prompt_v1 uv run python -m rag_app.scripts.run_eval
+QA_PROMPT_VERSION=qa_prompt_v2 uv run python -m rag_app.scripts.run_eval
 ```
 
 `run_eval` performs two checks:
@@ -848,7 +842,7 @@ The report includes the current `RETRIEVAL_TOP_K`, `prompt_version`, retrieval a
 Run the LLM-as-Judge answer-quality evaluation:
 
 ```bash
-conda run --no-capture-output -n AI_DEV python -m rag_app.scripts.evaluate_answers_with_judge
+uv run python -m rag_app.scripts.evaluate_answers_with_judge
 ```
 
 This script reuses the online question-answering flow for the golden questions, then sends the question, generated answer, and retrieved sources to the judge prompt. The judge returns structured 1-5 scores for relevance, completeness, groundedness, and format.

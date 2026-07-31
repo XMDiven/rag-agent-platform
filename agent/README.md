@@ -199,7 +199,7 @@ query analysis、retrieval planning、retrieve、generate answer
 
 ```bash
 cd agent
-conda run -n AI_DEV pytest tests/ -q
+uv run pytest tests/ -q
 ```
 
 ## CLI 演示
@@ -208,7 +208,7 @@ conda run -n AI_DEV pytest tests/ -q
 
 ```bash
 cd agent
-conda run -n AI_DEV python -m agent_app.scripts.run_agent ""
+uv run python -m agent_app.scripts.run_agent ""
 ```
 
 空字符串会走 `fallback_tool`，适合验证 CLI 和 Agent trace 输出。普通知识问题会走 `retrieval_tool`，可能触发 RAG 检索和 LLM 调用。
@@ -216,7 +216,7 @@ conda run -n AI_DEV python -m agent_app.scripts.run_agent ""
 总结类问题会走 `summary_tool`：
 
 ```bash
-conda run -n AI_DEV python -m agent_app.scripts.run_agent "请总结 LangChain 的用途"
+uv run python -m agent_app.scripts.run_agent "请总结 LangChain 的用途"
 ```
 
 响应中的 `tool_result` 会包含：
@@ -237,7 +237,7 @@ conda run -n AI_DEV python -m agent_app.scripts.run_agent "请总结 LangChain �
 
 ```bash
 cd agent
-conda run -n AI_DEV uvicorn agent_app.app.main:app --host 127.0.0.1 --port 8002 --reload
+uv run uvicorn agent_app.app.main:app --host 127.0.0.1 --port 8002 --reload
 ```
 
 调用 `POST /agent/run`：
