@@ -53,8 +53,8 @@ services:
   rag-api:
     image: rag-agent-platform-rag-api
     build:
-      context: ./rag
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: rag/Dockerfile
     environment:
       <<: *backend-environment
     extra_hosts:
@@ -62,7 +62,7 @@ services:
     ports:
       - "8001:8001"
     volumes:
-      - rag_data:/app/data
+      - rag_data:/app/rag/data
     depends_on:
       qdrant-init:
         condition: service_completed_successfully

@@ -6,15 +6,21 @@
 **/__pycache__/
 **/*.py[cod]
 **/.pytest_cache/
+**/.venv/
+**/*.egg-info/
 
 rag/.env
 rag/.env.*
 rag/qdrant_storage/
 rag/data/
 rag/experiments/
+rag/tests/
 
-agent/.venv/
-agent/.pytest_cache/
 agent/.idea/
+agent/tests/
+
+frontend/
+docs/
+output/
 
 agent_ai_app_interview_prep.html
