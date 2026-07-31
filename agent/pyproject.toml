@@ -13,10 +13,12 @@ dependencies = [
     "uvicorn[standard]",
 ]
 
+[tool.uv.sources]
+agent-rag = { workspace = true }
+
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["agent_app*"]
 
 [tool.pytest.ini_options]
-pythonpath = ["src", "../rag/src"]
 testpaths = ["tests"]

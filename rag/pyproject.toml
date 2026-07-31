@@ -7,15 +7,27 @@ name = "agent-rag"
 version = "0.1.0"
 description = "Learning-focused RAG application."
 requires-python = ">=3.11"
-dynamic = ["dependencies"]
-
-[tool.setuptools.dynamic]
-dependencies = { file = ["requirements.in"] }
+dependencies = [
+    "fastapi",
+    "python-multipart",
+    "uvicorn[standard]",
+    "python-dotenv",
+    "langchain",
+    "langchain-community",
+    "langchain-openai",
+    "langchain-ollama",
+    "langchain-qdrant",
+    "langchain-text-splitters",
+    "rank-bm25",
+    "qdrant-client",
+    "markdown",
+    "pypdf",
+    "unstructured",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["rag_app*"]
 
 [tool.pytest.ini_options]
-pythonpath = ["src"]
 testpaths = ["tests"]

@@ -46,9 +46,6 @@ agent_ai_app_interview_prep.html
 .coverage
 .playwright-cli/
 
-# 包管理器本地锁文件
-agent/uv.lock
-
 # 本地数据采集脚本
 scripts/collect_rag_docs.py
 
