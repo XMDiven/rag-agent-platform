@@ -1,7 +1,7 @@
 from typing import Any, Sequence
 
 import pytest
-from langchain_core.messages import AIMessage
+from langchain_core.messages import AIMessage, AIMessageChunk
 
 
 class FakeChatModel:
@@ -23,6 +23,26 @@ class FakeChatModel:
 
     def invoke(self, messages: Any) -> AIMessage:
         return self._responses.pop(0)
+
+
+class FakeStreamingChatModel:
+    def __init__(
+        self,
+        responses: Sequence[Sequence[AIMessageChunk]],
+    ) -> None:
+        self._responses = [list(response) for response in responses]
+        self.tool_choices: list[str] = []
+
+    def bind_tools(
+        self,
+        tools: Any,
+        tool_choice: str = "auto",
+    ) -> "FakeStreamingChatModel":
+        self.tool_choices.append(tool_choice)
+        return self
+
+    def stream(self, messages: Any):
+        yield from self._responses.pop(0)
 
 
 @pytest.fixture
@@ -50,3 +70,13 @@ def patch_loop_llm(monkeypatch):
         return model
 
     return _install
+
+
+@pytest.fixture
+def make_streaming_llm():
+    def _make(
+        responses: Sequence[Sequence[AIMessageChunk]],
+    ) -> FakeStreamingChatModel:
+        return FakeStreamingChatModel(responses)
+
+    return _make
