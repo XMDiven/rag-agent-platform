@@ -185,8 +185,11 @@ def summarize_results(results: list[dict[str, Any]]) -> dict[str, Any]:
         for name, field in score_names.items()
     }
 
-    def duration_metrics(field: str) -> tuple[float, float]:
-        values = [float(result[field]) for result in results]
+    def duration_metrics(
+        field: str,
+        metric_results: list[dict[str, Any]] = results,
+    ) -> tuple[float, float]:
+        values = [float(result[field]) for result in metric_results]
         if not values:
             return 0.0, 0.0
         return (
@@ -195,7 +198,16 @@ def summarize_results(results: list[dict[str, Any]]) -> dict[str, Any]:
         )
 
     average_agent, p95_agent = duration_metrics("agent_duration_seconds")
-    average_judge, p95_judge = duration_metrics("judge_duration_seconds")
+    judge_attempted_results = [
+        result
+        for result in results
+        if isinstance(result.get("judge"), dict)
+        or result.get("failure_stage") == "judge"
+    ]
+    average_judge, p95_judge = duration_metrics(
+        "judge_duration_seconds",
+        judge_attempted_results,
+    )
     average_total, p95_total = duration_metrics("total_duration_seconds")
     passed = sum(bool(result.get("passed")) for result in results)
 

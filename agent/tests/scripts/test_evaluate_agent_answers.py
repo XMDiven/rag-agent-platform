@@ -324,6 +324,42 @@ def test_summarize_results_uses_valid_judges_for_score_averages() -> None:
     }
 
 
+def test_summarize_results_excludes_unattempted_judges_from_latency() -> None:
+    results = [
+        quality_result(
+            passed=True,
+            judge={
+                "relevance_score": 5,
+                "completeness_score": 5,
+                "groundedness_score": 5,
+                "format_score": 5,
+            },
+            failure_stage=None,
+            agent_duration=1.0,
+            judge_duration=10.0,
+        ),
+        quality_result(
+            passed=False,
+            judge=None,
+            failure_stage="agent",
+            agent_duration=2.0,
+            judge_duration=0.0,
+        ),
+        quality_result(
+            passed=False,
+            judge=None,
+            failure_stage="empty_answer",
+            agent_duration=3.0,
+            judge_duration=0.0,
+        ),
+    ]
+
+    summary = summarize_results(results)
+
+    assert summary["average_judge_duration_seconds"] == 10.0
+    assert summary["p95_judge_duration_seconds"] == 10.0
+
+
 def test_run_evaluation_runs_all_cases_and_prints_progress(capsys) -> None:
     cases = [
         eval_case(),
