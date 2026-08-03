@@ -10,11 +10,12 @@ from agent_app.streaming_service import stream_agent_events
 def single_step_result(
     answer: str = "No retrieval is needed for this question.",
     output: dict | None = None,
+    status: str = "success",
 ):
     return SimpleNamespace(
         plan=SimpleNamespace(tool=SimpleNamespace(name="fallback_tool")),
         tool_result=SimpleNamespace(
-            status="success",
+            status=status,
             output=output or {"answer": answer, "sources": []},
         ),
     )
@@ -151,6 +152,46 @@ def test_stream_agent_events_hides_fallback_failure() -> None:
             analyze_fn=lambda question: retrieval_analysis(),
             run_once_fn=fail_fallback,
             stream_loop_fn=fail_before_event,
+            get_llm_fn=lambda: object(),
+            execute_tool_fn=lambda name, args: None,
+        )
+    )
+    serialized = "\n".join(event.model_dump_json() for event in events)
+
+    assert [event.type for event in events] == ["error", "done"]
+    assert "api_key" not in serialized
+    assert "secret" not in serialized
+
+
+def test_stream_agent_events_hides_analysis_failure() -> None:
+    def fail_analysis(question):
+        raise RuntimeError("api_key=secret")
+
+    events = list(
+        stream_agent_events(
+            "RAG?",
+            analyze_fn=fail_analysis,
+            run_once_fn=lambda question, analysis: single_step_result(),
+            get_llm_fn=lambda: object(),
+            execute_tool_fn=lambda name, args: None,
+        )
+    )
+    serialized = "\n".join(event.model_dump_json() for event in events)
+
+    assert [event.type for event in events] == ["error", "done"]
+    assert "api_key" not in serialized
+    assert "secret" not in serialized
+
+
+def test_stream_agent_events_hides_failed_single_step_output() -> None:
+    events = list(
+        stream_agent_events(
+            "",
+            analyze_fn=lambda question: empty_analysis(),
+            run_once_fn=lambda question, analysis: single_step_result(
+                output={"error": "api_key=secret"},
+                status="failed",
+            ),
             get_llm_fn=lambda: object(),
             execute_tool_fn=lambda name, args: None,
         )

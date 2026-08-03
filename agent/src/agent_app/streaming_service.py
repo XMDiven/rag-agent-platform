@@ -66,6 +66,10 @@ def _failure_events(
 def _events_from_single_result(
     result: AgentRunResult,
 ) -> Iterator[AgentStreamEvent]:
+    if result.tool_result.status == "failed":
+        yield from _failure_events()
+        return
+
     output = _result_output(result)
     answer = _result_answer(output)
     sources = output.get("sources")
@@ -110,7 +114,15 @@ def stream_agent_events(
     get_llm_fn: Callable[[], Any] = get_client,
     execute_tool_fn: Callable[..., Any] = run_tool,
 ) -> Iterator[AgentStreamEvent]:
-    analysis = analyze_fn(question)
+    try:
+        analysis = analyze_fn(question)
+    except Exception as error:
+        logger.warning(
+            "agent.stream analysis failed error_type=%s",
+            type(error).__name__,
+        )
+        yield from _failure_events()
+        return
 
     if should_skip_loop(analysis):
         try:

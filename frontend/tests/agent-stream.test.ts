@@ -73,6 +73,24 @@ test("rejects unsupported versions and malformed events", () => {
       error instanceof AgentStreamProtocolError &&
       error.code === "invalid_event",
   );
+  assert.throws(
+    () =>
+      parseAgentEvent(
+        '{"version":1,"type":"done","data":{"termination_reason":"invented","selected_tool":"x","tool_status":"success"}}',
+      ),
+    (error) =>
+      error instanceof AgentStreamProtocolError &&
+      error.code === "invalid_event",
+  );
+  assert.throws(
+    () =>
+      parseAgentEvent(
+        '{"version":1,"type":"step","data":{"round":1,"status":"invented","tool_name":"x","tool_args":{},"tool_status":"success"}}',
+      ),
+    (error) =>
+      error instanceof AgentStreamProtocolError &&
+      error.code === "invalid_event",
+  );
 });
 
 test("reads multiple lines split across arbitrary chunks", async () => {

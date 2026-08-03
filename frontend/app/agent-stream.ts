@@ -74,6 +74,10 @@ function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.length > 0;
 }
 
+function isOneOf(value: unknown, allowed: readonly string[]): value is string {
+  return typeof value === "string" && allowed.includes(value);
+}
+
 export function parseAgentEvent(line: string): AgentStreamEvent {
   let value: unknown;
   try {
@@ -101,13 +105,10 @@ export function parseAgentEvent(line: string): AgentStreamEvent {
         typeof data.round !== "number" ||
         !Number.isInteger(data.round) ||
         data.round < 1 ||
-        !isNonEmptyString(data.status) ||
-        (data.tool_name !== undefined &&
-          data.tool_name !== null &&
-          typeof data.tool_name !== "string") ||
-        (data.tool_args !== undefined && !isRecord(data.tool_args)) ||
-        (data.tool_status !== undefined &&
-          typeof data.tool_status !== "string")
+        !isOneOf(data.status, ["tool_executed", "tool_failed"]) ||
+        typeof data.tool_name !== "string" ||
+        !isRecord(data.tool_args) ||
+        !isOneOf(data.tool_status, ["success", "failed"])
       ) {
         invalidEvent();
       }
@@ -121,15 +122,27 @@ export function parseAgentEvent(line: string): AgentStreamEvent {
       }
       return value as unknown as SourcesEvent;
     case "error":
-      if (!isNonEmptyString(data.code) || !isNonEmptyString(data.message)) {
+      if (
+        !isOneOf(data.code, [
+          "agent_stream_failed",
+          "mixed_model_output",
+          "empty_model_output",
+        ]) ||
+        !isNonEmptyString(data.message)
+      ) {
         invalidEvent();
       }
       return value as unknown as ErrorEvent;
     case "done":
       if (
-        !isNonEmptyString(data.termination_reason) ||
+        !isOneOf(data.termination_reason, [
+          "final_answer",
+          "max_steps",
+          "failed",
+          "single_step",
+        ]) ||
         typeof data.selected_tool !== "string" ||
-        typeof data.tool_status !== "string"
+        !isOneOf(data.tool_status, ["success", "failed"])
       ) {
         invalidEvent();
       }
