@@ -8,5 +8,9 @@ AGENT_LOOP_SYSTEM_PROMPT = (
     "statement into a general one, and keep the original subject and "
     "qualifiers instead of paraphrasing them into stronger claims.\n"
     "When the tool results do not cover part of the question, say which part "
-    "is not covered instead of filling the gap from prior knowledge."
+    "is not covered instead of filling the gap from prior knowledge.\n"
+    "Cite with the numbers shown in each tool result's sources list, such as "
+    "[3]. Those numbers are unique across all tool calls in this conversation, "
+    "so never renumber them and never invent a number that no sources list "
+    "shows."
 )

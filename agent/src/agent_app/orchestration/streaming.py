@@ -19,6 +19,7 @@ from agent_app.orchestration.loop import (
     build_loop_tools,
     collect_tool_sources,
     compact_tool_payload,
+    count_tool_sources,
 )
 from agent_app.prompts import AGENT_LOOP_SYSTEM_PROMPT
 from agent_app.schemas.stream import (
@@ -59,6 +60,7 @@ def stream_agent_loop(
         HumanMessage(content=question),
     ]
     tool_results: list[ToolResult] = []
+    next_source_index = 1
     selected_tool = "fallback_tool"
     tool_calling_llm = llm.bind_tools(
         build_loop_tools(),
@@ -141,12 +143,13 @@ def stream_agent_loop(
         messages.append(
             ToolMessage(
                 content=json.dumps(
-                    compact_tool_payload(tool_result),
+                    compact_tool_payload(tool_result, next_source_index),
                     ensure_ascii=False,
                 ),
                 tool_call_id=str(tool_call["id"]),
             )
         )
+        next_source_index += count_tool_sources(tool_result)
 
         for skipped_call in tool_calls[1:]:
             messages.append(

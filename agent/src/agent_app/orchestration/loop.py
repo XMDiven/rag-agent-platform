@@ -1,4 +1,5 @@
 import json
+import re
 from dataclasses import dataclass
 from typing import Any, Callable, Literal
 
@@ -104,20 +105,35 @@ def build_failed_tool_result(
     )
 
 
-def compact_source_labels(sources: Any) -> list[str]:
+# 每次 retrieval_tool 调用返回的 [1]-[7] 只在那一次调用的来源列表里有效。
+# 多轮检索的来源会被聚合成一个更长的列表，沿用原编号必然指向错误的证据，
+# 所以回灌给模型前先剥离，并给来源标上聚合列表中的全局序号。
+CITATION_MARKER_PATTERN = re.compile(r"\s*\[\d+\]")
+
+
+def strip_citation_markers(text: str) -> str:
+    return CITATION_MARKER_PATTERN.sub("", text)
+
+
+def compact_source_labels(sources: Any, start_index: int = 1) -> list[str]:
     if not isinstance(sources, list):
         return []
 
     labels: list[str] = []
+    next_index = start_index
 
     for source in sources:
         if isinstance(source, dict) and source.get("source"):
-            labels.append(str(source["source"]))
+            labels.append(f"[{next_index}] {source['source']}")
+            next_index += 1
 
     return labels
 
 
-def compact_tool_payload(tool_result: ToolResult) -> dict[str, Any]:
+def compact_tool_payload(
+    tool_result: ToolResult,
+    start_index: int = 1,
+) -> dict[str, Any]:
     output = tool_result.output if isinstance(tool_result.output, dict) else {}
 
     if tool_result.status == "failed":
@@ -141,11 +157,25 @@ def compact_tool_payload(tool_result: ToolResult) -> dict[str, Any]:
 
     answer = output.get("answer")
     if isinstance(answer, str):
-        payload["answer"] = answer
+        payload["answer"] = strip_citation_markers(answer)
 
-    payload["sources"] = compact_source_labels(output.get("sources"))
+    payload["sources"] = compact_source_labels(
+        output.get("sources"),
+        start_index,
+    )
 
     return payload
+
+
+def count_tool_sources(tool_result: ToolResult) -> int:
+    if not isinstance(tool_result.output, dict):
+        return 0
+
+    sources = tool_result.output.get("sources")
+    if not isinstance(sources, list):
+        return 0
+
+    return sum(1 for source in sources if isinstance(source, dict))
 
 
 def run_agent_loop(
@@ -160,6 +190,7 @@ def run_agent_loop(
     ]
 
     tool_results: list[ToolResult] = []
+    next_source_index = 1
     steps: list[dict[str, Any]] = []
 
     tool_calling_llm = llm.bind_tools(
@@ -220,12 +251,13 @@ def run_agent_loop(
         messages.append(
             ToolMessage(
                 content=json.dumps(
-                    compact_tool_payload(tool_result),
+                    compact_tool_payload(tool_result, next_source_index),
                     ensure_ascii=False,
                 ),
                 tool_call_id=str(tool_call["id"]),
             )
         )
+        next_source_index += count_tool_sources(tool_result)
 
         for skipped_call in tool_calls[1:]:
             messages.append(

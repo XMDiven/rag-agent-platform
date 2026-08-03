@@ -6,7 +6,11 @@ from langchain_core.messages import AIMessage, ToolMessage
 from langchain_openai import ChatOpenAI
 
 from agent_app.orchestration.executor import ToolResult
-from agent_app.orchestration.loop import run_agent_loop
+from agent_app.orchestration.loop import (
+    compact_tool_payload,
+    count_tool_sources,
+    run_agent_loop,
+)
 
 
 @dataclass(frozen=True)
@@ -214,7 +218,7 @@ def test_loop_appends_ai_message_and_tool_message_before_next_round() -> None:
     assert tool_payload == {
         "status": "success",
         "answer": "Retrieved RAG context.",
-        "sources": ["data/raw/rag.md"],
+        "sources": ["[1] data/raw/rag.md"],
     }
 
 
@@ -318,3 +322,49 @@ def test_loop_feeds_tool_error_back_to_model() -> None:
         "error_type": "RuntimeError",
         "error": "rag unavailable",
     }
+
+
+def test_citation_markers_are_stripped_from_tool_answers() -> None:
+    tool_result = ToolResult(
+        tool_name="retrieval_tool",
+        status="success",
+        output={
+            "answer": "LangGraph 支持 human-in-the-loop [1]，灵感来自 Pregel [2]。",
+            "sources": [
+                {"source": "langgraph.md"},
+                {"source": "pregel.md"},
+            ],
+        },
+        attempts=[],
+    )
+
+    payload = compact_tool_payload(tool_result)
+
+    assert payload["answer"] == (
+        "LangGraph 支持 human-in-the-loop，灵感来自 Pregel。"
+    )
+    assert payload["sources"] == ["[1] langgraph.md", "[2] pregel.md"]
+
+
+def test_source_numbering_continues_across_tool_calls() -> None:
+    def retrieval_result(*sources: str) -> ToolResult:
+        return ToolResult(
+            tool_name="retrieval_tool",
+            status="success",
+            output={
+                "answer": "context [1]",
+                "sources": [{"source": name} for name in sources],
+            },
+            attempts=[],
+        )
+
+    first = retrieval_result("a.md", "b.md")
+    second = retrieval_result("c.md")
+
+    first_payload = compact_tool_payload(first, 1)
+    next_index = 1 + count_tool_sources(first)
+    second_payload = compact_tool_payload(second, next_index)
+
+    assert first_payload["sources"] == ["[1] a.md", "[2] b.md"]
+    assert next_index == 3
+    assert second_payload["sources"] == ["[3] c.md"]
