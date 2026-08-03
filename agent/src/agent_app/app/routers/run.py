@@ -1,11 +1,25 @@
 from typing import Any
 
 from fastapi import APIRouter
+from fastapi.responses import StreamingResponse
 
 from agent_app.schemas.run import AgentRunRequest, AgentRunResponse
 from agent_app.service import run_agent
+from agent_app.streaming_service import stream_agent_ndjson
 
 router = APIRouter()
+
+
+@router.post("/agent/run/stream")
+def stream_agent_endpoint(request: AgentRunRequest) -> StreamingResponse:
+    return StreamingResponse(
+        stream_agent_ndjson(request.question),
+        media_type="application/x-ndjson",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
 
 
 def normalize_tool_output(output: Any) -> dict[str, Any]:

@@ -1,9 +1,53 @@
+import json
+
 from fastapi.testclient import TestClient
 from langchain_core.messages import AIMessage
 
 from agent_app.app.main import app
 
 client = TestClient(app)
+
+
+def test_stream_agent_endpoint_returns_ndjson_events(monkeypatch) -> None:
+    events = [
+        {
+            "version": 1,
+            "type": "answer_delta",
+            "data": {"text": "RAG answer"},
+        },
+        {"version": 1, "type": "sources", "data": {"sources": []}},
+        {
+            "version": 1,
+            "type": "done",
+            "data": {
+                "termination_reason": "final_answer",
+                "selected_tool": "fallback_tool",
+                "tool_status": "success",
+            },
+        },
+    ]
+    monkeypatch.setattr(
+        "agent_app.app.routers.run.stream_agent_ndjson",
+        lambda question: iter(
+            json.dumps(event, ensure_ascii=False) + "\n" for event in events
+        ),
+        raising=False,
+    )
+
+    response = client.post(
+        "/agent/run/stream",
+        json={"question": "RAG?"},
+    )
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith(
+        "application/x-ndjson"
+    )
+    assert response.headers["cache-control"] == "no-cache"
+    assert response.headers["x-content-type-options"] == "nosniff"
+    assert [
+        json.loads(line)["type"] for line in response.text.splitlines()
+    ] == ["answer_delta", "sources", "done"]
 
 
 def test_run_agent_endpoint_uses_fallback_tool_for_empty_question() -> None:
