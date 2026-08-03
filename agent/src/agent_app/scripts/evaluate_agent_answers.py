@@ -336,36 +336,89 @@ def summarize_results(results: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def summarize_case_stability(
+    results: list[dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    """按 case id 汇总重复运行结果，给出带分母的失败率与分数区间。
+
+    单次通过率会被 Agent 采样和 Judge 打分的波动淹没，只有重复运行
+    才能区分「稳定缺陷」和「一次运气」。
+    """
+    stability: dict[str, dict[str, Any]] = {}
+
+    for result in results:
+        if not result.get("judge_applicable", True):
+            continue
+
+        bucket = stability.setdefault(
+            str(result["id"]),
+            {
+                "task_type": result.get("task_type", "unknown"),
+                "runs": 0,
+                "passed": 0,
+                "scores": {name: [] for name in ALL_SCORED_DIMENSIONS},
+            },
+        )
+        bucket["runs"] += 1
+        bucket["passed"] += int(bool(result.get("passed")))
+
+        judge = result.get("judge")
+        if isinstance(judge, dict):
+            for name in ALL_SCORED_DIMENSIONS:
+                bucket["scores"][name].append(int(judge[name]))
+
+    for bucket in stability.values():
+        bucket["pass_rate"] = round(bucket["passed"] / bucket["runs"], 3)
+        bucket["scores"] = {
+            name: {
+                "min": min(values),
+                "max": max(values),
+                "mean": round(sum(values) / len(values), 3),
+            }
+            for name, values in bucket["scores"].items()
+            if values
+        }
+
+    return stability
+
+
 def run_evaluation(
     cases: list[AgentEvalCase],
     judge_llm: BaseChatModel,
     judge_model_id: str,
     evaluate_case_fn: Callable[..., dict[str, Any]] = evaluate_case,
     now: datetime | None = None,
+    repeat: int = 1,
 ) -> dict[str, Any]:
     results: list[dict[str, Any]] = []
 
-    for index, case in enumerate(cases, start=1):
-        print(
-            f"Evaluating Agent Judge case {index}/{len(cases)}: {case.id}",
-            flush=True,
-        )
-        result = evaluate_case_fn(case, judge_llm=judge_llm)
-        results.append(result)
-        print(
-            (
-                f"completed {case.id} passed={result['passed']} "
-                f"total={result['total_duration_seconds']}s"
-            ),
-            flush=True,
-        )
+    for repetition in range(1, repeat + 1):
+        for index, case in enumerate(cases, start=1):
+            print(
+                (
+                    f"Evaluating Agent Judge case {index}/{len(cases)} "
+                    f"(run {repetition}/{repeat}): {case.id}"
+                ),
+                flush=True,
+            )
+            result = evaluate_case_fn(case, judge_llm=judge_llm)
+            results.append({**result, "repetition": repetition})
+            print(
+                (
+                    f"completed {case.id} passed={result['passed']} "
+                    f"total={result['total_duration_seconds']}s"
+                ),
+                flush=True,
+            )
 
     timestamp = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
     return {
         "run_id": timestamp.strftime("%Y%m%d-%H%M%S"),
         "judge_model_id": judge_model_id,
         "judge_independence": "same_model",
+        "repeat": repeat,
         "summary": summarize_results(results),
+        "case_stability": summarize_case_stability(results),
         "cases": results,
     }
 
@@ -399,18 +452,49 @@ def build_parser() -> argparse.ArgumentParser:
         default=DEFAULT_OUTPUT_DIR,
         help="Directory for timestamped Agent Judge reports.",
     )
+    parser.add_argument(
+        "--repeat",
+        type=int,
+        default=1,
+        help="How many times to run every selected case (default: 1).",
+    )
+    parser.add_argument(
+        "--only",
+        default="",
+        help="Comma separated case ids to evaluate (default: all cases).",
+    )
     return parser
+
+
+def select_cases(
+    cases: list[AgentEvalCase],
+    only: str,
+) -> list[AgentEvalCase]:
+    wanted = [case_id.strip() for case_id in only.split(",") if case_id.strip()]
+    if not wanted:
+        return cases
+
+    by_id = {case.id: case for case in cases}
+    missing = [case_id for case_id in wanted if case_id not in by_id]
+    if missing:
+        raise ValueError(f"unknown case ids: {missing}")
+
+    return [by_id[case_id] for case_id in wanted]
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    cases = load_cases(args.cases)
+    if args.repeat < 1:
+        raise ValueError("--repeat must be at least 1")
+
+    cases = select_cases(load_cases(args.cases), args.only)
     judge_llm = get_client()
     judge_model_id = config.settings.llm_model_id or "unknown"
     report = run_evaluation(
         cases,
         judge_llm=judge_llm,
         judge_model_id=judge_model_id,
+        repeat=args.repeat,
     )
     output_path = write_report(report, output_dir=args.output_dir)
     summary = report["summary"]

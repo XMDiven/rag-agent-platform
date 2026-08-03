@@ -2,11 +2,15 @@ import json
 from datetime import datetime, timezone
 from types import SimpleNamespace
 
+import pytest
+
 from rag_app.evaluation.judge_schema import AnswerJudgeResult
 
 from agent_app.scripts.evaluate_agent import AgentEvalCase
 from agent_app.scripts.evaluate_agent_answers import (
     evaluate_case,
+    select_cases,
+    summarize_case_stability,
     main,
     run_evaluation,
     summarize_results,
@@ -433,9 +437,9 @@ def test_run_evaluation_runs_all_cases_and_prints_progress(capsys) -> None:
         {"id": "rag_definition", "judge_llm": judge_llm},
         {"id": "qdrant_purpose", "judge_llm": judge_llm},
     ]
-    assert "Evaluating Agent Judge case 1/2: rag_definition" in output
+    assert "Evaluating Agent Judge case 1/2 (run 1/1): rag_definition" in output
     assert "completed rag_definition passed=True" in output
-    assert "Evaluating Agent Judge case 2/2: qdrant_purpose" in output
+    assert "Evaluating Agent Judge case 2/2 (run 1/1): qdrant_purpose" in output
     assert report["run_id"] == "20260803-120000"
     assert report["judge_model_id"] == "kimi-k2.6"
     assert report["judge_independence"] == "same_model"
@@ -476,7 +480,7 @@ def test_main_returns_nonzero_when_any_case_fails(tmp_path, monkeypatch) -> None
     )
     monkeypatch.setattr(
         "agent_app.scripts.evaluate_agent_answers.run_evaluation",
-        lambda cases, judge_llm, judge_model_id: report,
+        lambda cases, judge_llm, judge_model_id, repeat: report,
     )
     monkeypatch.setattr(
         "agent_app.scripts.evaluate_agent_answers.write_report",
@@ -506,7 +510,7 @@ def test_main_returns_zero_when_all_cases_pass(tmp_path, monkeypatch) -> None:
     )
     monkeypatch.setattr(
         "agent_app.scripts.evaluate_agent_answers.run_evaluation",
-        lambda cases, judge_llm, judge_model_id: report,
+        lambda cases, judge_llm, judge_model_id, repeat: report,
     )
     monkeypatch.setattr(
         "agent_app.scripts.evaluate_agent_answers.write_report",
@@ -687,3 +691,98 @@ def test_retrieval_case_still_requires_groundedness() -> None:
     )
 
     assert result["passed"] is False
+
+
+def judged_run(case_id: str, *, passed: bool, groundedness: int) -> dict[str, object]:
+    return {
+        "id": case_id,
+        "task_type": "retrieval",
+        "judge_applicable": True,
+        "passed": passed,
+        "judge": {
+            "relevance_score": 5,
+            "completeness_score": 4,
+            "groundedness_score": groundedness,
+            "format_score": 5,
+            "overall_pass": passed,
+            "feedback": "",
+        },
+    }
+
+
+def test_case_stability_reports_denominator_and_score_range() -> None:
+    stability = summarize_case_stability(
+        [
+            judged_run("chroma_vs_qdrant", passed=False, groundedness=2),
+            judged_run("chroma_vs_qdrant", passed=True, groundedness=4),
+            judged_run("chroma_vs_qdrant", passed=False, groundedness=3),
+            {
+                "id": "empty_question",
+                "task_type": "input_validation",
+                "judge_applicable": False,
+                "passed": None,
+                "judge": None,
+            },
+        ]
+    )
+
+    assert set(stability) == {"chroma_vs_qdrant"}
+    bucket = stability["chroma_vs_qdrant"]
+    assert bucket["runs"] == 3
+    assert bucket["passed"] == 1
+    assert bucket["pass_rate"] == 0.333
+    assert bucket["scores"]["groundedness_score"] == {
+        "min": 2,
+        "max": 4,
+        "mean": 3.0,
+    }
+
+
+def test_run_evaluation_repeats_every_case_and_tags_the_repetition() -> None:
+    seen: list[tuple[str, int]] = []
+
+    def fake_evaluate(case, judge_llm):
+        return {
+            "id": case.id,
+            **quality_result(
+                passed=True,
+                judge=passing_judge_result().model_dump(),
+                failure_stage=None,
+                agent_duration=1.0,
+                judge_duration=1.0,
+            ),
+        }
+
+    report = run_evaluation(
+        [eval_case()],
+        judge_llm=object(),
+        judge_model_id="kimi-k2.6",
+        evaluate_case_fn=fake_evaluate,
+        now=datetime(2026, 8, 3, 12, 0, tzinfo=timezone.utc),
+        repeat=3,
+    )
+    seen = [(item["id"], item["repetition"]) for item in report["cases"]]
+
+    assert seen == [
+        ("rag_definition", 1),
+        ("rag_definition", 2),
+        ("rag_definition", 3),
+    ]
+    assert report["repeat"] == 3
+    assert report["case_stability"]["rag_definition"]["runs"] == 3
+
+
+def test_select_cases_filters_by_id_and_rejects_unknown_ids() -> None:
+    cases = [eval_case(), summary_case(), direct_case()]
+
+    assert [case.id for case in select_cases(cases, "")] == [
+        "rag_definition",
+        "summary_literal_text",
+        "direct_greeting",
+    ]
+    assert [
+        case.id for case in select_cases(cases, "direct_greeting, rag_definition")
+    ] == ["direct_greeting", "rag_definition"]
+
+    with pytest.raises(ValueError, match="unknown case ids"):
+        select_cases(cases, "nope")
