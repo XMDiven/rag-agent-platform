@@ -12,7 +12,8 @@ experiments/
 │   └── evaluation/             # 人工复核并提交的 baseline 报告
 └── runs/
     ├── evaluation/             # 编排评测 JSON，默认被 Git 忽略
-    └── judge/                  # 答案质量 Judge JSON，默认被 Git 忽略
+    ├── judge/                  # 答案质量 Judge JSON，默认被 Git 忽略
+    └── streaming/              # 流协议与稳定性评测 JSON，默认被 Git 忽略
 ```
 
 ## 前置条件
@@ -35,6 +36,12 @@ uv run python -m agent_app.scripts.evaluate_agent
 
 ```bash
 uv run python -m agent_app.scripts.evaluate_agent_answers
+```
+
+运行 Agent 流式稳定性评测：
+
+```bash
+uv run python -m agent_app.scripts.evaluate_agent_stream
 ```
 
 指定其他数据集或输出目录：
@@ -68,7 +75,10 @@ uv run python -m agent_app.scripts.evaluate_agent \
 
 答案 Judge 第一版与 Agent 使用同一个配置模型，报告会标记 `judge_independence: same_model`。它适合作为内部回归信号，不等同于独立模型或人工评审。Judge 运行有额外模型成本和波动，因此不进入默认 CI。全部 case 通过时退出码为 `0`，任一 Agent/Judge case 失败时为 `1`。
 
+流式评测直接消费 `stream_agent_events()`，记录协议事件类型、工具名、计数、结束状态，以及首事件、首答案和完整流耗时。报告不会保存答案正文、来源对象、snippet、工具参数或异常消息。模型以稳定的 `error → done` 结束时会计入流失败率，例如 `mixed_model_output`，但不会被当作评测器损坏；缺少 `done`、事件顺序错误或未处理异常才属于协议无效，并使 CLI 返回非零。
+
 已人工复核的首次真实结果见：
 
 - [`reports/evaluation/baseline_2026-08-03.md`](reports/evaluation/baseline_2026-08-03.md)：编排契约 12/12；
-- [`reports/judge/baseline_2026-08-03.md`](reports/judge/baseline_2026-08-03.md)：答案 Judge 5/12，并区分 rubric 不适用与真实 groundedness 问题。
+- [`reports/judge/baseline_2026-08-03.md`](reports/judge/baseline_2026-08-03.md)：答案 Judge 5/12，并区分 rubric 不适用与真实 groundedness 问题；
+- [`reports/streaming/baseline_2026-08-03.md`](reports/streaming/baseline_2026-08-03.md)：流完成、协议有效和成功结束均为 12/12，并记录首事件、首答案和总耗时。
