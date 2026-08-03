@@ -195,7 +195,7 @@ export default function Home() {
               </div>
 
               <div className="pt-6">
-                <p className="whitespace-pre-wrap text-[15px] leading-7 text-slate-700">
+                <p className="text-[15px] leading-7 whitespace-pre-wrap break-words text-slate-700">
                   {streamState.answer || (loading ? "正在生成回答…" : "暂无回答")}
                 </p>
                 <div className="mt-5 flex flex-wrap gap-2 text-xs">
@@ -230,7 +230,7 @@ export default function Home() {
                           </span>
                         </div>
                         {optionalSourceText(source, "section_path") && (
-                          <p className="mt-2 text-xs text-slate-500">
+                          <p className="mt-2 text-xs break-words text-slate-500">
                             {optionalSourceText(source, "section_path")}
                           </p>
                         )}

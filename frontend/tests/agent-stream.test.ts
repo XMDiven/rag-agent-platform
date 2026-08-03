@@ -284,3 +284,26 @@ test("cleared stall watchdog never fires", async () => {
 
   assert.equal(stalls, 0);
 });
+
+test("maps a broken connection to the interrupted-stream error", async () => {
+  let reads = 0;
+  const stream = new ReadableStream<Uint8Array>({
+    pull(controller) {
+      reads += 1;
+      if (reads === 1) {
+        controller.enqueue(encoder.encode(line(answerEvent)));
+        return;
+      }
+      controller.error(new TypeError("terminated"));
+    },
+  });
+
+  const seen: AgentStreamEvent[] = [];
+  const error = await readAgentStream(stream, (event) => {
+    seen.push(event);
+  }).catch((err: unknown) => err);
+
+  assert.ok(error instanceof AgentStreamProtocolError);
+  assert.equal(error.code, "stream_ended_early");
+  assert.equal(seen.length, 1);
+});

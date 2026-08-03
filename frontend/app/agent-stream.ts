@@ -250,9 +250,23 @@ export async function readAgentStream(
     if (event.type === "done") sawDone = true;
   };
 
+  // 连接被真正切断时（上游进程被杀、网络中断），reader.read() 会以网络错误
+  // reject，而不是正常 EOF。对用户来说两者含义相同，统一成中断协议错误，
+  // 避免把 undici 的英文 message 直接显示到页面上。
+  const readChunk = async () => {
+    try {
+      return await reader.read();
+    } catch {
+      throw new AgentStreamProtocolError(
+        "stream_ended_early",
+        "Agent 流在完成前意外中断",
+      );
+    }
+  };
+
   try {
     while (true) {
-      const {done, value} = await reader.read();
+      const {done, value} = await readChunk();
       if (done) break;
       buffer += decoder.decode(value, {stream: true});
 
