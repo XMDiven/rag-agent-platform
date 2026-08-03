@@ -109,6 +109,7 @@ services:
       dockerfile: Dockerfile
     environment:
       AGENT_API_URL: http://agent-api:8002/agent/run
+      AGENT_STREAM_API_URL: http://agent-api:8002/agent/run/stream
     ports:
       - "3000:3000"
     depends_on:
