@@ -1,3 +1,8 @@
+import json
+from datetime import datetime, timezone
+
+import pytest
+
 from agent_app.schemas.stream import (
     AnswerDeltaData,
     AnswerDeltaEvent,
@@ -11,11 +16,6 @@ from agent_app.schemas.stream import (
     StepEvent,
 )
 from agent_app.scripts.evaluate_agent import AgentEvalCase
-import json
-from datetime import datetime, timezone
-
-import pytest
-
 from agent_app.scripts.evaluate_agent_stream import (
     evaluate_stream_case,
     main,
@@ -147,6 +147,37 @@ def test_evaluate_stream_case_flags_missing_done() -> None:
     assert result["completed"] is False
     assert result["protocol_valid"] is False
     assert result["protocol_errors"] == ["missing_done"]
+
+
+def test_evaluate_stream_case_flags_out_of_order_events() -> None:
+    events = iter(
+        [
+            SourcesEvent(data=SourcesData(sources=[])),
+            DoneEvent(
+                data=DoneData(
+                    termination_reason="final_answer",
+                    selected_tool="retrieval_tool",
+                    tool_status="success",
+                )
+            ),
+            AnswerDeltaEvent(data=AnswerDeltaData(text="late")),
+        ]
+    )
+
+    result = evaluate_stream_case(
+        eval_case(),
+        stream_fn=lambda question: events,
+        timer=timer_values(0.0, 1.0, 2.0, 3.0),
+    )
+
+    assert result["completed"] is False
+    assert result["protocol_valid"] is False
+    assert result["protocol_errors"] == [
+        "sources_out_of_order",
+        "event_after_done",
+        "answer_out_of_order",
+        "done_not_final",
+    ]
 
 
 def test_evaluate_stream_case_hides_unhandled_exception_message() -> None:
