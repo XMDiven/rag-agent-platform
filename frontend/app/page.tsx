@@ -1,11 +1,14 @@
 "use client";
 
-import {useState} from "react";
+import {useEffect, useRef, useState} from "react";
 
+import {buildAgentStepViewModel} from "./agent-view-model";
 import {
-  buildAgentStepViewModel,
-  type AgentRunResponse,
-} from "./agent-view-model";
+  AgentStreamProtocolError,
+  createInitialAgentStreamState,
+  readAgentStream,
+  reduceAgentStreamState,
+} from "./agent-stream";
 
 const EXAMPLE_QUESTIONS = [
   "Qdrant 在向量检索中有什么作用？",
@@ -24,31 +27,53 @@ function optionalSourceText(source: Record<string, unknown>, key: string): strin
 
 export default function Home() {
   const [question, setQuestion] = useState("");
-  const [result, setResult] = useState<AgentRunResponse | null>(null);
+  const [streamState, setStreamState] = useState(createInitialAgentStreamState);
+  const [hasStarted, setHasStarted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const controllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => () => controllerRef.current?.abort(), []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!question.trim() || loading) return;
 
+    const controller = new AbortController();
+    controllerRef.current?.abort();
+    controllerRef.current = controller;
     setLoading(true);
     setError("");
-    setResult(null);
+    setStreamState(createInitialAgentStreamState());
+    setHasStarted(true);
 
     try {
-      const res = await fetch("/api/agent", {
+      const res = await fetch("/api/agent/stream", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({question}),
+        signal: controller.signal,
       });
       if (!res.ok) throw new Error(`后端返回 ${res.status}`);
-      const data: AgentRunResponse = await res.json();
-      setResult(data);
+      if (!res.body) throw new Error("浏览器未收到响应流");
+
+      await readAgentStream(res.body, (event) => {
+        setStreamState((current) => reduceAgentStreamState(current, event));
+        if (event.type === "error") setError(event.data.message);
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "请求失败");
+      if (err instanceof DOMException && err.name === "AbortError") return;
+      if (
+        err instanceof AgentStreamProtocolError &&
+        err.code === "stream_ended_early"
+      ) {
+        setError("响应流意外中断，已保留当前收到的内容");
+      } else {
+        setError(err instanceof Error ? err.message : "请求失败");
+      }
     } finally {
       setLoading(false);
+      if (controllerRef.current === controller) controllerRef.current = null;
     }
   }
 
@@ -134,7 +159,7 @@ export default function Home() {
           )}
         </section>
 
-        {result && (
+        {hasStarted && (
           <section className="mt-8 space-y-6" aria-live="polite">
             <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/50 sm:p-8">
               <div className="flex flex-col gap-4 border-b border-slate-100 pb-5 sm:flex-row sm:items-center sm:justify-between">
@@ -144,34 +169,40 @@ export default function Home() {
                 </div>
                 <div className="flex flex-wrap gap-2 text-xs font-medium">
                   <span className="rounded-full bg-blue-50 px-3 py-1.5 text-blue-700">
-                    来源 · {result.sources.length}
+                    来源 · {streamState.sources.length}
                   </span>
                   <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700">
-                    编排轮次 · {result.steps.length}
+                    编排轮次 · {streamState.steps.length}
                   </span>
                 </div>
               </div>
 
               <div className="pt-6">
-                <p className="whitespace-pre-wrap text-[15px] leading-7 text-slate-700">{result.answer}</p>
+                <p className="whitespace-pre-wrap text-[15px] leading-7 text-slate-700">
+                  {streamState.answer || (loading ? "正在生成回答…" : "暂无回答")}
+                </p>
                 <div className="mt-5 flex flex-wrap gap-2 text-xs">
-                  <span className="rounded-full bg-slate-100 px-3 py-1.5 text-slate-600">
-                    最终工具 · {result.selected_tool}
-                  </span>
-                  <span className="rounded-full bg-violet-50 px-3 py-1.5 text-violet-700">
-                    终止原因 · {result.termination_reason.replaceAll("_", " ")}
-                  </span>
+                  {streamState.selectedTool && (
+                    <span className="rounded-full bg-slate-100 px-3 py-1.5 text-slate-600">
+                      最终工具 · {streamState.selectedTool}
+                    </span>
+                  )}
+                  {streamState.terminationReason && (
+                    <span className="rounded-full bg-violet-50 px-3 py-1.5 text-violet-700">
+                      终止原因 · {streamState.terminationReason.replaceAll("_", " ")}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-2">
-              {!!result.sources.length && (
+              {!!streamState.sources.length && (
                 <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/50 sm:p-8">
                   <p className="text-xs font-semibold tracking-wide text-blue-600 uppercase">Evidence</p>
-                  <h2 className="mt-1 text-xl font-semibold text-slate-950">检索来源 · {result.sources.length}</h2>
+                  <h2 className="mt-1 text-xl font-semibold text-slate-950">检索来源 · {streamState.sources.length}</h2>
                   <ul className="mt-5 space-y-3">
-                    {result.sources.map((source, index) => (
+                    {streamState.sources.map((source, index) => (
                       <li key={`${sourceText(source, "source")}-${index}`} className="rounded-2xl border border-slate-200 p-4">
                         <div className="flex items-center justify-between gap-3">
                           <p className="min-w-0 truncate font-medium text-slate-900">
@@ -198,9 +229,9 @@ export default function Home() {
               <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-200/50 sm:p-8">
                 <p className="text-xs font-semibold tracking-wide text-blue-600 uppercase">Agent orchestration</p>
                 <h2 className="mt-1 text-xl font-semibold text-slate-950">多步工具编排</h2>
-                {result.steps.length ? (
+                {streamState.steps.length ? (
                   <ol className="mt-5 space-y-3">
-                    {result.steps.map((step, index) => {
+                    {streamState.steps.map((step, index) => {
                       const stepView = buildAgentStepViewModel(step);
 
                       return (
@@ -232,7 +263,9 @@ export default function Home() {
                   </ol>
                 ) : (
                   <p className="mt-5 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                    本次请求未产生多步调用，最终工具为 {result.selected_tool}。
+                    {loading
+                      ? "Agent 正在决定是否调用工具。"
+                      : `本次请求未产生多步调用，最终工具为 ${streamState.selectedTool || "未选择"}。`}
                   </p>
                 )}
               </div>
