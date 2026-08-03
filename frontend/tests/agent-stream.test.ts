@@ -1,0 +1,219 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+
+import {
+  AgentStreamProtocolError,
+  createInitialAgentStreamState,
+  parseAgentEvent,
+  readAgentStream,
+  reduceAgentStreamState,
+  type AgentStreamEvent,
+} from "../app/agent-stream.ts";
+
+const encoder = new TextEncoder();
+
+function byteStream(chunks: Uint8Array[]): ReadableStream<Uint8Array> {
+  return new ReadableStream<Uint8Array>({
+    start(controller) {
+      for (const chunk of chunks) controller.enqueue(chunk);
+      controller.close();
+    },
+  });
+}
+
+function line(event: unknown): string {
+  return `${JSON.stringify(event)}\n`;
+}
+
+const answerEvent = {
+  version: 1,
+  type: "answer_delta",
+  data: {text: "你好"},
+} as const;
+
+const doneEvent = {
+  version: 1,
+  type: "done",
+  data: {
+    termination_reason: "final_answer",
+    selected_tool: "retrieval_tool",
+    tool_status: "success",
+  },
+} as const;
+
+test("parses a valid answer event", () => {
+  assert.deepEqual(parseAgentEvent(JSON.stringify(answerEvent)), answerEvent);
+});
+
+test("rejects unsupported versions and malformed events", () => {
+  assert.throws(
+    () =>
+      parseAgentEvent(
+        '{"version":2,"type":"answer_delta","data":{"text":"x"}}',
+      ),
+    (error) =>
+      error instanceof AgentStreamProtocolError &&
+      error.code === "unsupported_version",
+  );
+  assert.throws(
+    () =>
+      parseAgentEvent(
+        '{"version":1,"type":"unknown","data":{}}',
+      ),
+    (error) =>
+      error instanceof AgentStreamProtocolError &&
+      error.code === "invalid_event",
+  );
+  assert.throws(
+    () =>
+      parseAgentEvent(
+        '{"version":1,"type":"answer_delta","data":{"text":""}}',
+      ),
+    (error) =>
+      error instanceof AgentStreamProtocolError &&
+      error.code === "invalid_event",
+  );
+});
+
+test("reads multiple lines split across arbitrary chunks", async () => {
+  const payload = line(answerEvent) + line(doneEvent);
+  const bytes = encoder.encode(payload);
+  const received: AgentStreamEvent[] = [];
+
+  await readAgentStream(
+    byteStream([bytes.slice(0, 17), bytes.slice(17)]),
+    (event) => received.push(event),
+  );
+
+  assert.deepEqual(received, [answerEvent, doneEvent]);
+});
+
+test("decodes a Chinese character split between UTF-8 chunks", async () => {
+  const bytes = encoder.encode(line(answerEvent) + line(doneEvent));
+  const chineseStart = bytes.indexOf(0xe4);
+  assert.notEqual(chineseStart, -1);
+  const received: AgentStreamEvent[] = [];
+
+  await readAgentStream(
+    byteStream([
+      bytes.slice(0, chineseStart + 1),
+      bytes.slice(chineseStart + 1),
+    ]),
+    (event) => received.push(event),
+  );
+
+  assert.equal(received[0].type, "answer_delta");
+  assert.equal(received[0].data.text, "你好");
+});
+
+test("accepts a final done line without a trailing newline", async () => {
+  const payload = line(answerEvent) + JSON.stringify(doneEvent);
+  const received: AgentStreamEvent[] = [];
+
+  await readAgentStream(byteStream([encoder.encode(payload)]), (event) =>
+    received.push(event),
+  );
+
+  assert.equal(received.at(-1)?.type, "done");
+});
+
+test("rejects EOF before done", async () => {
+  await assert.rejects(
+    readAgentStream(byteStream([encoder.encode(line(answerEvent))]), () => {}),
+    (error) =>
+      error instanceof AgentStreamProtocolError &&
+      error.code === "stream_ended_early",
+  );
+});
+
+test("reduces a complete event sequence without losing partial data", () => {
+  const stepEvent = parseAgentEvent(
+    line({
+      version: 1,
+      type: "step",
+      data: {
+        round: 1,
+        status: "tool_executed",
+        tool_name: "retrieval_tool",
+        tool_args: {question: "RAG?"},
+        tool_status: "success",
+      },
+    }).trim(),
+  );
+  const sourcesEvent = parseAgentEvent(
+    line({
+      version: 1,
+      type: "sources",
+      data: {sources: [{source: "rag.md"}]},
+    }).trim(),
+  );
+  const events = [
+    stepEvent,
+    parseAgentEvent(
+      '{"version":1,"type":"answer_delta","data":{"text":"RAG "}}',
+    ),
+    parseAgentEvent(
+      '{"version":1,"type":"answer_delta","data":{"text":"answer"}}',
+    ),
+    sourcesEvent,
+    parseAgentEvent(JSON.stringify(doneEvent)),
+  ];
+  let state = createInitialAgentStreamState();
+
+  for (const event of events) {
+    state = reduceAgentStreamState(state, event);
+  }
+
+  assert.equal(state.answer, "RAG answer");
+  assert.equal(state.steps.length, 1);
+  assert.deepEqual(state.sources, [{source: "rag.md"}]);
+  assert.equal(state.terminationReason, "final_answer");
+  assert.equal(state.selectedTool, "retrieval_tool");
+  assert.equal(state.completed, true);
+});
+
+test("publishes partial state before the stream closes", async () => {
+  let controller!: ReadableStreamDefaultController<Uint8Array>;
+  const stream = new ReadableStream<Uint8Array>({
+    start(value) {
+      controller = value;
+    },
+  });
+  let state = createInitialAgentStreamState();
+  let resolveStep!: () => void;
+  const stepSeen = new Promise<void>((resolve) => {
+    resolveStep = resolve;
+  });
+
+  const reading = readAgentStream(stream, (event) => {
+    state = reduceAgentStreamState(state, event);
+    if (event.type === "step") resolveStep();
+  });
+
+  controller.enqueue(
+    encoder.encode(
+      line({
+        version: 1,
+        type: "step",
+        data: {
+          round: 1,
+          status: "tool_executed",
+          tool_name: "retrieval_tool",
+          tool_args: {question: "RAG?"},
+          tool_status: "success",
+        },
+      }),
+    ),
+  );
+  await stepSeen;
+
+  assert.equal(state.steps.length, 1);
+  assert.equal(state.completed, false);
+
+  controller.enqueue(encoder.encode(line(answerEvent) + line(doneEvent)));
+  controller.close();
+  await reading;
+
+  assert.equal(state.answer, "你好");
+  assert.equal(state.completed, true);
+});
