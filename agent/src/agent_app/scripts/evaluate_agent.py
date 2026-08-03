@@ -22,6 +22,7 @@ DEFAULT_OUTPUT_DIR = AGENT_PROJECT_ROOT / "experiments" / "runs" / "evaluation"
 CASE_FIELDS = {
     "id",
     "question",
+    "task_type",
     "allowed_tools",
     "required_tools",
     "allowed_termination_reasons",
@@ -29,11 +30,21 @@ CASE_FIELDS = {
     "max_steps",
 }
 
+# 答案质量评测的判分口径由任务类型决定：只有 retrieval 类问题才该用
+# 「答案是否有检索证据支撑」来打 groundedness。
+TASK_TYPES = {
+    "retrieval",
+    "summary",
+    "direct",
+    "input_validation",
+}
+
 
 @dataclass(frozen=True)
 class AgentEvalCase:
     id: str
     question: str
+    task_type: str
     allowed_tools: list[str]
     required_tools: list[str]
     allowed_termination_reasons: list[str]
@@ -74,6 +85,12 @@ def parse_case(raw: Any, index: int) -> AgentEvalCase:
     if not isinstance(question, str):
         raise ValueError(f"{label}: question must be a string")
 
+    task_type = raw["task_type"]
+    if task_type not in TASK_TYPES:
+        raise ValueError(
+            f"{label}: task_type must be one of {sorted(TASK_TYPES)}"
+        )
+
     allowed_tools = validate_string_list(
         raw["allowed_tools"],
         "allowed_tools",
@@ -111,6 +128,7 @@ def parse_case(raw: Any, index: int) -> AgentEvalCase:
     return AgentEvalCase(
         id=case_id,
         question=question,
+        task_type=task_type,
         allowed_tools=allowed_tools,
         required_tools=required_tools,
         allowed_termination_reasons=allowed_termination_reasons,

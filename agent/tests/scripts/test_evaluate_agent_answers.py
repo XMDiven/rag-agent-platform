@@ -18,6 +18,7 @@ def eval_case() -> AgentEvalCase:
     return AgentEvalCase(
         id="rag_definition",
         question="What is RAG?",
+        task_type="retrieval",
         allowed_tools=["retrieval_tool"],
         required_tools=["retrieval_tool"],
         allowed_termination_reasons=["final_answer"],
@@ -116,6 +117,14 @@ def test_evaluate_case_judges_agent_answer_once_and_sanitizes_sources() -> None:
     assert result == {
         "id": "rag_definition",
         "question": "What is RAG?",
+        "task_type": "retrieval",
+        "judge_applicable": True,
+        "scored_dimensions": [
+            "relevance_score",
+            "completeness_score",
+            "groundedness_score",
+            "format_score",
+        ],
         "answer": "RAG grounds answers with retrieved context.",
         "sources": [
             {
@@ -237,6 +246,8 @@ def quality_result(
     return {
         "passed": passed,
         "judge": judge,
+        "task_type": "retrieval",
+        "judge_applicable": True,
         "failure_stage": failure_stage,
         "agent_duration_seconds": agent_duration,
         "judge_duration_seconds": judge_duration,
@@ -247,9 +258,12 @@ def quality_result(
 def test_summarize_results_returns_zero_metrics_for_empty_cases() -> None:
     assert summarize_results([]) == {
         "total": 0,
+        "judged_total": 0,
+        "skipped_total": 0,
         "passed": 0,
         "failed": 0,
         "pass_rate": 0.0,
+        "pass_rate_by_task_type": {},
         "average_scores": {
             "relevance": 0.0,
             "completeness": 0.0,
@@ -304,9 +318,14 @@ def test_summarize_results_uses_valid_judges_for_score_averages() -> None:
 
     assert summarize_results(results) == {
         "total": 3,
+        "judged_total": 3,
+        "skipped_total": 0,
         "passed": 2,
         "failed": 1,
         "pass_rate": 0.667,
+        "pass_rate_by_task_type": {
+            "retrieval": {"total": 3, "passed": 2, "pass_rate": 0.667},
+        },
         "average_scores": {
             "relevance": 4.5,
             "completeness": 4.0,
@@ -366,6 +385,7 @@ def test_run_evaluation_runs_all_cases_and_prints_progress(capsys) -> None:
         AgentEvalCase(
             id="qdrant_purpose",
             question="What is Qdrant used for?",
+            task_type="retrieval",
             allowed_tools=["retrieval_tool"],
             required_tools=["retrieval_tool"],
             allowed_termination_reasons=["final_answer"],
@@ -429,7 +449,7 @@ def test_run_evaluation_runs_all_cases_and_prints_progress(capsys) -> None:
 def test_write_report_creates_output_directory_and_round_trips_json(tmp_path) -> None:
     report = {
         "run_id": "20260803-120000",
-        "summary": {"total": 1, "passed": 1, "failed": 0},
+        "summary": {"total": 1, "judged_total": 1, "skipped_total": 0, "passed": 1, "failed": 0},
         "cases": [],
     }
 
@@ -442,7 +462,7 @@ def test_write_report_creates_output_directory_and_round_trips_json(tmp_path) ->
 def test_main_returns_nonzero_when_any_case_fails(tmp_path, monkeypatch) -> None:
     report = {
         "run_id": "20260803-120000",
-        "summary": {"total": 2, "passed": 1, "failed": 1},
+        "summary": {"total": 2, "judged_total": 2, "skipped_total": 0, "passed": 1, "failed": 1},
         "cases": [],
     }
     judge_llm = object()
@@ -473,7 +493,7 @@ def test_main_returns_nonzero_when_any_case_fails(tmp_path, monkeypatch) -> None
 def test_main_returns_zero_when_all_cases_pass(tmp_path, monkeypatch) -> None:
     report = {
         "run_id": "20260803-120000",
-        "summary": {"total": 1, "passed": 1, "failed": 0},
+        "summary": {"total": 1, "judged_total": 1, "skipped_total": 0, "passed": 1, "failed": 0},
         "cases": [],
     }
     monkeypatch.setattr(
@@ -494,3 +514,176 @@ def test_main_returns_zero_when_all_cases_pass(tmp_path, monkeypatch) -> None:
     )
 
     assert main(["--cases", "cases.json", "--output-dir", str(tmp_path)]) == 0
+
+
+def summary_case() -> AgentEvalCase:
+    return AgentEvalCase(
+        id="summary_literal_text",
+        question="请总结这段文字：RAG 先检索，再生成。",
+        task_type="summary",
+        allowed_tools=["summary_tool"],
+        required_tools=["summary_tool"],
+        allowed_termination_reasons=["final_answer"],
+        requires_sources=False,
+        max_steps=4,
+    )
+
+
+def input_validation_case() -> AgentEvalCase:
+    return AgentEvalCase(
+        id="empty_question",
+        question="",
+        task_type="input_validation",
+        allowed_tools=["fallback_tool"],
+        required_tools=["fallback_tool"],
+        allowed_termination_reasons=["single_step"],
+        requires_sources=False,
+        max_steps=0,
+    )
+
+
+def test_summary_case_is_judged_against_the_user_supplied_text() -> None:
+    judge_calls: list[list[dict[str, object]]] = []
+
+    def fake_judge(question, answer, sources, llm):
+        judge_calls.append(sources)
+        return passing_judge_result()
+
+    times = iter([0.0, 1.0, 1.0, 2.0])
+    result = evaluate_case(
+        summary_case(),
+        judge_llm=object(),
+        run_agent_fn=lambda question: agent_result(answer="RAG 先检索再生成。"),
+        judge_fn=fake_judge,
+        timer=lambda: next(times),
+    )
+
+    assert judge_calls == [
+        [
+            {
+                "source": "user_input",
+                "section_path": "question",
+                "snippet": "请总结这段文字：RAG 先检索，再生成。",
+            }
+        ]
+    ]
+    assert result["task_type"] == "summary"
+    assert result["judge_applicable"] is True
+    assert result["passed"] is True
+
+
+def test_input_validation_case_is_not_judged_for_answer_quality() -> None:
+    judge_calls: list[str] = []
+
+    def fake_judge(question, answer, sources, llm):
+        judge_calls.append(question)
+        return passing_judge_result()
+
+    times = iter([0.0, 1.0])
+    result = evaluate_case(
+        input_validation_case(),
+        judge_llm=object(),
+        run_agent_fn=lambda question: agent_result(answer="请输入有效问题。"),
+        judge_fn=fake_judge,
+        timer=lambda: next(times),
+    )
+
+    assert judge_calls == []
+    assert result["judge"] is None
+    assert result["judge_applicable"] is False
+    assert result["passed"] is None
+    assert result["failure_stage"] is None
+
+
+def test_pass_rate_excludes_cases_that_are_not_judged() -> None:
+    summary = summarize_results(
+        [
+            {
+                **quality_result(
+                    passed=True,
+                    judge=passing_judge_result().model_dump(),
+                    failure_stage=None,
+                    agent_duration=1.0,
+                    judge_duration=1.0,
+                ),
+                "task_type": "retrieval",
+            },
+            {
+                **quality_result(
+                    passed=None,
+                    judge=None,
+                    failure_stage=None,
+                    agent_duration=1.0,
+                    judge_duration=0.0,
+                ),
+                "task_type": "input_validation",
+                "judge_applicable": False,
+            },
+        ]
+    )
+
+    assert summary["total"] == 2
+    assert summary["judged_total"] == 1
+    assert summary["skipped_total"] == 1
+    assert summary["pass_rate"] == 1.0
+    assert summary["pass_rate_by_task_type"] == {
+        "retrieval": {"total": 1, "passed": 1, "pass_rate": 1.0},
+    }
+
+
+def direct_case() -> AgentEvalCase:
+    return AgentEvalCase(
+        id="direct_greeting",
+        question="请用一句话打个招呼。",
+        task_type="direct",
+        allowed_tools=[],
+        required_tools=[],
+        allowed_termination_reasons=["final_answer"],
+        requires_sources=False,
+        max_steps=4,
+    )
+
+
+def test_direct_case_passes_without_a_groundedness_score() -> None:
+    ungrounded_greeting = AnswerJudgeResult(
+        relevance_score=5,
+        completeness_score=5,
+        groundedness_score=3,
+        format_score=5,
+        overall_pass=False,
+        feedback="No retrieved evidence was provided.",
+    )
+    times = iter([0.0, 1.0, 1.0, 2.0])
+
+    result = evaluate_case(
+        direct_case(),
+        judge_llm=object(),
+        run_agent_fn=lambda question: agent_result(answer="你好！"),
+        judge_fn=lambda question, answer, sources, llm: ungrounded_greeting,
+        timer=lambda: next(times),
+    )
+
+    assert result["passed"] is True
+    assert "groundedness_score" not in result["scored_dimensions"]
+
+
+def test_retrieval_case_still_requires_groundedness() -> None:
+    times = iter([0.0, 1.0, 1.0, 2.0])
+    ungrounded = AnswerJudgeResult(
+        relevance_score=5,
+        completeness_score=5,
+        groundedness_score=3,
+        format_score=5,
+        overall_pass=False,
+        feedback="The answer adds claims the evidence does not support.",
+    )
+
+    result = evaluate_case(
+        eval_case(),
+        judge_llm=object(),
+        run_agent_fn=lambda question: agent_result(),
+        judge_fn=lambda question, answer, sources, llm: ungrounded,
+        timer=lambda: next(times),
+    )
+
+    assert result["passed"] is False

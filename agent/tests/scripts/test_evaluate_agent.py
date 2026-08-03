@@ -21,6 +21,7 @@ def valid_case(**overrides: object) -> dict[str, object]:
     case: dict[str, object] = {
         "id": "retrieval_case",
         "question": "What is RAG?",
+        "task_type": "retrieval",
         "allowed_tools": ["retrieval_tool"],
         "required_tools": ["retrieval_tool"],
         "allowed_termination_reasons": ["final_answer"],
@@ -44,6 +45,7 @@ def test_load_cases_returns_typed_cases(tmp_path) -> None:
         AgentEvalCase(
             id="retrieval_case",
             question="What is RAG?",
+            task_type="retrieval",
             allowed_tools=["retrieval_tool"],
             required_tools=["retrieval_tool"],
             allowed_termination_reasons=["final_answer"],

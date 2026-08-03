@@ -21,11 +21,67 @@ from agent_app.scripts.evaluate_agent import (
 from agent_app.service import run_agent
 from rag_app.config import config
 from rag_app.evaluation.answer_judge import judge_answer
-from rag_app.evaluation.judge_schema import AnswerJudgeResult
+from rag_app.evaluation.judge_schema import (
+    PASSING_SCORE_THRESHOLD,
+    AnswerJudgeResult,
+)
 from rag_app.infrastructure.llm_client import get_client
 
 
 DEFAULT_OUTPUT_DIR = AGENT_PROJECT_ROOT / "experiments" / "runs" / "judge"
+
+# 输入校验类 case 验证的是空输入降级行为，没有可评的答案质量，
+# 用 RAG 的 groundedness 尺子量它只会得到无意义的失败。
+JUDGE_SKIPPED_TASK_TYPES = {"input_validation"}
+
+ALL_SCORED_DIMENSIONS = (
+    "relevance_score",
+    "completeness_score",
+    "groundedness_score",
+    "format_score",
+)
+
+# direct 类问题（如打招呼）不依赖任何证据，groundedness 对它没有意义：
+# 同一个回答在不同轮次会被打成 3 或 5，纯粹是噪声。
+SCORED_DIMENSIONS_BY_TASK_TYPE = {
+    "direct": (
+        "relevance_score",
+        "completeness_score",
+        "format_score",
+    ),
+}
+
+
+def scored_dimensions(task_type: str) -> tuple[str, ...]:
+    return SCORED_DIMENSIONS_BY_TASK_TYPE.get(task_type, ALL_SCORED_DIMENSIONS)
+
+
+def judge_passes(
+    judge_result: AnswerJudgeResult,
+    task_type: str,
+) -> bool:
+    scores = judge_result.model_dump()
+    return all(
+        scores[dimension] >= PASSING_SCORE_THRESHOLD
+        for dimension in scored_dimensions(task_type)
+    )
+
+
+def build_judge_sources(
+    case: AgentEvalCase,
+    sources: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """总结类问题的依据是用户在提问里给出的原文，不是检索结果。"""
+    if case.task_type == "summary":
+        return [
+            {
+                "source": "user_input",
+                "section_path": "question",
+                "snippet": case.question,
+            }
+        ]
+
+    return sources
 
 
 def extract_answer(result: Any) -> str:
@@ -77,12 +133,14 @@ def evaluate_case(
         return {
             "id": case.id,
             "question": case.question,
+            "task_type": case.task_type,
             "answer": "",
             "sources": [],
             "termination_reason": "error",
             "tools": [],
             "step_count": 0,
             "judge": None,
+            "judge_applicable": True,
             "passed": False,
             "failure_stage": "agent",
             "error": {"type": type(error).__name__},
@@ -98,6 +156,7 @@ def evaluate_case(
     common_result = {
         "id": case.id,
         "question": case.question,
+        "task_type": case.task_type,
         "answer": answer,
         "sources": sanitize_sources(sources),
         "termination_reason": agent_result.termination_reason,
@@ -105,10 +164,24 @@ def evaluate_case(
         "step_count": len(agent_result.steps),
     }
 
+    if case.task_type in JUDGE_SKIPPED_TASK_TYPES:
+        return {
+            **common_result,
+            "judge": None,
+            "judge_applicable": False,
+            "passed": None,
+            "failure_stage": None,
+            "error": None,
+            "agent_duration_seconds": agent_duration_seconds,
+            "judge_duration_seconds": 0.0,
+            "total_duration_seconds": agent_duration_seconds,
+        }
+
     if not answer.strip():
         return {
             **common_result,
             "judge": None,
+            "judge_applicable": True,
             "passed": False,
             "failure_stage": "empty_answer",
             "error": None,
@@ -122,7 +195,7 @@ def evaluate_case(
         judge_result = judge_fn(
             question=case.question,
             answer=answer,
-            sources=sources,
+            sources=build_judge_sources(case, sources),
             llm=judge_llm,
         )
     except Exception as error:
@@ -130,6 +203,7 @@ def evaluate_case(
         return {
             **common_result,
             "judge": None,
+            "judge_applicable": True,
             "passed": False,
             "failure_stage": "judge",
             "error": {"type": type(error).__name__},
@@ -146,7 +220,9 @@ def evaluate_case(
     return {
         **common_result,
         "judge": judge_result.model_dump(),
-        "passed": judge_result.overall_pass,
+        "judge_applicable": True,
+        "scored_dimensions": list(scored_dimensions(case.task_type)),
+        "passed": judge_passes(judge_result, case.task_type),
         "failure_stage": None,
         "error": None,
         "agent_duration_seconds": agent_duration_seconds,
@@ -158,8 +234,29 @@ def evaluate_case(
     }
 
 
+def summarize_by_task_type(
+    judged_results: list[dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    breakdown: dict[str, dict[str, Any]] = {}
+
+    for result in judged_results:
+        task_type = str(result.get("task_type", "unknown"))
+        bucket = breakdown.setdefault(task_type, {"total": 0, "passed": 0})
+        bucket["total"] += 1
+        bucket["passed"] += int(bool(result.get("passed")))
+
+    for bucket in breakdown.values():
+        bucket["pass_rate"] = round(bucket["passed"] / bucket["total"], 3)
+
+    return breakdown
+
+
 def summarize_results(results: list[dict[str, Any]]) -> dict[str, Any]:
     total = len(results)
+    judged_results = [
+        result for result in results if result.get("judge_applicable", True)
+    ]
+    judged_total = len(judged_results)
     score_names = {
         "relevance": "relevance_score",
         "completeness": "completeness_score",
@@ -209,13 +306,18 @@ def summarize_results(results: list[dict[str, Any]]) -> dict[str, Any]:
         judge_attempted_results,
     )
     average_total, p95_total = duration_metrics("total_duration_seconds")
-    passed = sum(bool(result.get("passed")) for result in results)
+    passed = sum(bool(result.get("passed")) for result in judged_results)
 
     return {
         "total": total,
+        "judged_total": judged_total,
+        "skipped_total": total - judged_total,
         "passed": passed,
-        "failed": total - passed,
-        "pass_rate": round(passed / total, 3) if total else 0.0,
+        "failed": judged_total - passed,
+        "pass_rate": (
+            round(passed / judged_total, 3) if judged_total else 0.0
+        ),
+        "pass_rate_by_task_type": summarize_by_task_type(judged_results),
         "average_scores": average_scores,
         "average_agent_duration_seconds": average_agent,
         "p95_agent_duration_seconds": p95_agent,
@@ -316,6 +418,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Agent Judge report: {output_path}")
     print(
         f"passed={summary['passed']} failed={summary['failed']} "
+        f"judged={summary['judged_total']} skipped={summary['skipped_total']} "
         f"total={summary['total']}"
     )
     return 0 if summary["failed"] == 0 else 1

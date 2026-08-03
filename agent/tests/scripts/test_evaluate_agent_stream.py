@@ -29,6 +29,7 @@ def eval_case() -> AgentEvalCase:
     return AgentEvalCase(
         id="stream_case",
         question="What is RAG?",
+        task_type="retrieval",
         allowed_tools=["retrieval_tool"],
         required_tools=["retrieval_tool"],
         allowed_termination_reasons=["final_answer"],
@@ -278,6 +279,7 @@ def test_run_evaluation_runs_every_case_and_prints_progress(capsys) -> None:
         AgentEvalCase(
             id="second_case",
             question="What is Qdrant?",
+            task_type="retrieval",
             allowed_tools=["retrieval_tool"],
             required_tools=["retrieval_tool"],
             allowed_termination_reasons=["final_answer"],
