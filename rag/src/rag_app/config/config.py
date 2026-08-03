@@ -8,6 +8,7 @@ DATA_DIR: Path = PROJECT_ROOT / "data"
 RAW_DATA_DIR: Path = DATA_DIR / "raw"
 
 RetrievalSearchType = Literal["similarity", "mmr" , "hybrid"]
+RouterBackend = Literal["llm", "finetuned"]
 LlmThinkingType = Literal["enabled", "disabled"]
 
 
@@ -44,6 +45,12 @@ class Settings(BaseSettings):
 
     qa_prompt_version: str = "qa_prompt_v1"
 
+    # Default keeps the existing behaviour; "finetuned" routes knowledge-tool
+    # selection through the agent-toolcall-sft service and degrades back to
+    # "llm" on any failure.
+    router_backend: RouterBackend = "llm"
+    finetuned_router_url: str = "http://127.0.0.1:8000"
+
     @property
     def llm_api_key(self) -> str | None:
         return self.moonshot_api_key or self.openai_api_key
@@ -58,6 +65,8 @@ RETRIEVAL_SEARCH_TYPE: str = settings.retrieval_search_type
 RETRIEVAL_FETCH_K: int = settings.retrieval_fetch_k
 RETRIEVAL_LAMBDA_MULT: float = settings.retrieval_lambda_mult
 COLLECTION_NAME: str | None = settings.qdrant_collection
+ROUTER_BACKEND: str = settings.router_backend
+FINETUNED_ROUTER_URL: str = settings.finetuned_router_url
 
 RETRIEVAL_HYBRID_CANDIDATE_K: int = settings.retrieval_hybrid_candidate_k
 RETRIEVAL_HYBRID_BM25_WEIGHT: float = settings.retrieval_hybrid_bm25_weight
