@@ -220,9 +220,41 @@ curl -N -X POST http://127.0.0.1:8002/agent/run/stream \
 
 这次运行证明响应体会在请求结束前交付 `step` 和答案增量，而不是先拼成完整 JSON 再一次返回。模型每次的具体工具轨迹可能不同；本次选择一次拆解工具后直接生成答案。工具内部检索仍同步执行，所以首个可见事件需要等待第一轮工具结束。
 
+## 6. 经前端 BFF 的流式转发
+
+单元测试里的上游是 mock，所以 BFF 是否真的不缓冲需要真机验证。2026-08-03 起本地
+Next.js dev server，让它指向本地 Agent 服务，再直接请求同源 BFF 路由：
+
+```bash
+cd frontend
+AGENT_STREAM_API_URL=http://localhost:8002/agent/run/stream npm run dev
+
+curl -N -X POST http://localhost:3000/api/agent/stream \
+  -H "Content-Type: application/json" \
+  -d '{"question":"什么是 RAG？"}'
+```
+
+`Content-Type` 为 `application/x-ndjson`，本次实测时间线：
+
+| 相对时间 | 事件 | 结果 |
+| --- | --- | --- |
+| 10.92s | `step` | 第 1 轮 `retrieval_tool` 执行完成 |
+| 12.10s | 首个 `answer_delta` | 经 BFF 收到第一个答案增量 |
+| 27.05s | `sources` | 返回 7 条来源 |
+| 27.05s | `done` | `final_answer`，`tool_status=success` |
+
+同一次响应共收到 365 个 `answer_delta` 事件、约 803 个字符，答案增量在连接关闭前
+持续交付约 15 秒。这说明 Route Handler 是逐块转发上游响应体的，没有把整段流读完再返回。
+
+同日直连 `POST /agent/run/stream` 的对照运行（问题为对比题，走
+`question_decompose_tool`）为：22.87s 首个 `step`、27.23s 首个 `answer_delta`、
+47.40s `sources` 与 `done`，共 583 个 `answer_delta` 事件。两条路径的事件顺序一致，
+均为 `step` → `answer_delta` → `sources` → `done`。
+
 ## 已知边界
 
 - 本次为单一代表性问题的本地 demo，不是大规模质量或延迟基准。
 - 延迟未做优化：RAG 单次生成约 42s，Agent 多步 4 轮约 98s（瓶颈在 LLM 生成）。
 - Agent 每轮只执行第一个工具调用；无跨会话长期记忆。
+- 流式只覆盖第一轮工具执行之后的输出：首个事件前有 11–23s 无任何反馈，因为工具内部检索与生成仍是同步的。
 - 工具层无重试；向量检索的有限重试在 RAG 服务层（贴近真实失败点）。
