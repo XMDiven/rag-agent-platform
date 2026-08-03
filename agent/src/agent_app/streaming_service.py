@@ -20,6 +20,7 @@ from agent_app.schemas.stream import (
     ErrorEvent,
     SourcesData,
     SourcesEvent,
+    StepEvent,
     encode_event,
 )
 from agent_app.service import (
@@ -45,11 +46,11 @@ def _result_answer(output: dict[str, Any]) -> str:
     return ""
 
 
-def _failed_done_event() -> DoneEvent:
+def _failed_done_event(selected_tool: str = "fallback_tool") -> DoneEvent:
     return DoneEvent(
         data=DoneData(
             termination_reason="failed",
-            selected_tool="fallback_tool",
+            selected_tool=selected_tool,
             tool_status="failed",
         )
     )
@@ -58,9 +59,10 @@ def _failed_done_event() -> DoneEvent:
 def _failure_events(
     code: str = "agent_stream_failed",
     message: str = "Agent 流式执行失败，请重试",
+    selected_tool: str = "fallback_tool",
 ) -> Iterator[AgentStreamEvent]:
     yield ErrorEvent(data=ErrorData(code=code, message=message))
-    yield _failed_done_event()
+    yield _failed_done_event(selected_tool=selected_tool)
 
 
 def _events_from_single_result(
@@ -138,6 +140,7 @@ def stream_agent_events(
         return
 
     emitted = False
+    selected_tool = "fallback_tool"
     try:
         for event in stream_loop_fn(
             question=question,
@@ -146,11 +149,14 @@ def stream_agent_events(
             max_steps=AGENT_MAX_STEPS,
         ):
             emitted = True
+            if isinstance(event, StepEvent):
+                selected_tool = event.data.tool_name
             yield event
     except MixedModelOutputError:
         yield from _failure_events(
             code="mixed_model_output",
             message="模型返回了不兼容的混合流，请重试",
+            selected_tool=selected_tool,
         )
     except Exception as error:
         logger.warning(
@@ -158,7 +164,7 @@ def stream_agent_events(
             type(error).__name__,
         )
         if emitted:
-            yield from _failure_events()
+            yield from _failure_events(selected_tool=selected_tool)
             return
 
         try:

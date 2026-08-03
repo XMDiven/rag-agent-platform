@@ -86,6 +86,7 @@ def test_stream_agent_events_hides_error_after_partial_progress() -> None:
     assert [event.type for event in events] == ["step", "error", "done"]
     assert events[1].data.code == "agent_stream_failed"
     assert events[-1].data.termination_reason == "failed"
+    assert events[-1].data.selected_tool == "retrieval_tool"
     assert "api_key" not in serialized
     assert "secret" not in serialized
 
