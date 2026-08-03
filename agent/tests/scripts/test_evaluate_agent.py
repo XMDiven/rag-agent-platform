@@ -57,6 +57,7 @@ def test_load_cases_returns_typed_cases(tmp_path) -> None:
     ("cases", "message"),
     [
         ({"id": "not-a-list"}, "dataset root"),
+        ([], "at least one case"),
         ([valid_case(), valid_case()], "duplicate case id"),
         ([valid_case(unexpected=True)], "unknown fields"),
         ([valid_case(allowed_tools=["retrieval_tool", 3])], "allowed_tools"),
@@ -221,24 +222,28 @@ def test_summarize_results_calculates_quality_and_latency_metrics() -> None:
         {
             "passed": True,
             "latency_seconds": 0.1,
+            "expected": {"requires_sources": True},
             "actual": {"termination_reason": "final_answer"},
             "checks": {"tools": True, "sources": True},
         },
         {
             "passed": True,
             "latency_seconds": 0.2,
+            "expected": {"requires_sources": False},
             "actual": {"termination_reason": "single_step"},
             "checks": {"tools": True, "sources": True},
         },
         {
             "passed": False,
             "latency_seconds": 0.3,
+            "expected": {"requires_sources": True},
             "actual": {"termination_reason": "max_steps"},
             "checks": {"tools": False, "sources": True},
         },
         {
             "passed": False,
             "latency_seconds": 0.4,
+            "expected": {"requires_sources": True},
             "actual": {"termination_reason": "failed"},
             "checks": {"tools": True, "sources": False},
         },
@@ -251,7 +256,7 @@ def test_summarize_results_calculates_quality_and_latency_metrics() -> None:
         "pass_rate": 0.5,
         "normal_termination_rate": 0.5,
         "tool_constraint_pass_rate": 0.75,
-        "source_constraint_pass_rate": 0.75,
+        "source_constraint_pass_rate": 0.667,
         "average_latency_seconds": 0.25,
         "p95_latency_seconds": 0.4,
     }
@@ -299,8 +304,22 @@ def test_run_evaluation_continues_after_case_error() -> None:
     assert report["cases"][1]["failure_reasons"] == ["agent_error"]
     assert report["cases"][1]["error"] == {
         "type": "RuntimeError",
-        "message": "model unavailable",
     }
+
+
+def test_run_evaluation_does_not_persist_exception_message() -> None:
+    case = AgentEvalCase(**valid_case())
+
+    def fail_with_secret(question: str):
+        raise RuntimeError("api_key=super-secret-value")
+
+    report = run_evaluation(
+        [case],
+        run_agent_fn=fail_with_secret,
+        timer=lambda: 1.0,
+    )
+
+    assert "super-secret-value" not in json.dumps(report)
 
 
 def test_write_report_creates_directory_and_round_trips_json(tmp_path) -> None:
@@ -361,3 +380,17 @@ def test_default_dataset_has_representative_tool_coverage() -> None:
         "question_decompose_tool",
     }
     assert any(case.requires_sources for case in cases)
+
+
+def test_comparison_cases_require_only_observable_outer_tools() -> None:
+    comparison_cases = [
+        case
+        for case in load_cases()
+        if "question_decompose_tool" in case.required_tools
+    ]
+
+    assert comparison_cases
+    assert all(
+        case.required_tools == ["question_decompose_tool"]
+        for case in comparison_cases
+    )

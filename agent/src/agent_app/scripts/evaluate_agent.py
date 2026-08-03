@@ -123,6 +123,8 @@ def load_cases(path: Path = DEFAULT_CASES_PATH) -> list[AgentEvalCase]:
     raw_cases = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(raw_cases, list):
         raise ValueError(f"{path}: dataset root must be a list")
+    if not raw_cases:
+        raise ValueError(f"{path}: dataset must contain at least one case")
 
     cases = [parse_case(raw_case, index) for index, raw_case in enumerate(raw_cases)]
     seen_ids: set[str] = set()
@@ -233,9 +235,19 @@ def summarize_results(results: list[dict[str, Any]]) -> dict[str, Any]:
         bool(result.get("checks", {}).get("tools"))
         for result in results
     )
+    source_required_results = [
+        result
+        for result in results
+        if result.get("expected", {}).get("requires_sources") is True
+    ]
     source_constraints_passed = sum(
         bool(result.get("checks", {}).get("sources"))
-        for result in results
+        for result in source_required_results
+    )
+    source_constraint_pass_rate = (
+        round(source_constraints_passed / len(source_required_results), 3)
+        if source_required_results
+        else 0.0
     )
     latencies = [float(result["latency_seconds"]) for result in results]
 
@@ -246,7 +258,7 @@ def summarize_results(results: list[dict[str, Any]]) -> dict[str, Any]:
         "pass_rate": round(passed / total, 3),
         "normal_termination_rate": round(normal_terminations / total, 3),
         "tool_constraint_pass_rate": round(tool_constraints_passed / total, 3),
-        "source_constraint_pass_rate": round(source_constraints_passed / total, 3),
+        "source_constraint_pass_rate": source_constraint_pass_rate,
         "average_latency_seconds": round(sum(latencies) / total, 3),
         "p95_latency_seconds": round(
             nearest_rank_percentile(latencies, 0.95),
@@ -293,7 +305,6 @@ def run_evaluation(
                 "failure_reasons": ["agent_error"],
                 "error": {
                     "type": type(error).__name__,
-                    "message": str(error),
                 },
             }
 

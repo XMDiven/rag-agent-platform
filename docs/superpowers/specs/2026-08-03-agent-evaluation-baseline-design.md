@@ -74,7 +74,7 @@ golden set -> evaluate_agent runner -> run_agent(question)
 ## 错误处理
 
 - 数据集文件不存在、JSON 非法或字段类型错误：立即失败，不生成误导性报告。
-- 单个 Agent case 抛出异常：记录该 case 为失败并继续剩余 case，报告异常类型和消息。
+- 单个 Agent case 抛出异常：记录该 case 为失败并继续剩余 case，只持久化异常类型；异常消息可能包含密钥、认证 URL 或请求内容，不写入报告。
 - 输出目录不存在：runner 创建目标目录。
 - 不捕获 `KeyboardInterrupt` 等进程级中断。
 - 报告不得写入密钥、完整模型消息历史或文档正文，只保存问题、轨迹摘要、来源元数据、结果和耗时。

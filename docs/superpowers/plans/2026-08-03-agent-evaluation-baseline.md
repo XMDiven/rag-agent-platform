@@ -104,7 +104,7 @@ Inject a fake `run_agent_fn` and deterministic timer. Assert `run_evaluation()`:
 
 - invokes every case in order;
 - records latency;
-- converts a normal `Exception` into a failed case with `agent_error` plus error type/message;
+- converts a normal `Exception` into a failed case with `agent_error` plus the error type, without persisting the potentially sensitive error message;
 - continues to the next case;
 - returns `{generated_at, summary, cases}`.
 
