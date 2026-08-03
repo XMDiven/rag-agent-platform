@@ -50,6 +50,21 @@ groundedness 均值：
 
 保留本次改动。理由不是通过率上升，而是它修复了一个可独立论证的结构缺陷：在聚合 28 条来源的场景下，沿用单次检索的 `[5]` 在数据结构上就是有歧义的，与模型表现无关。通过率的变化是佐证。
 
+## 全量回归（12 case，单次）
+
+改动后跑一次完整数据集确认没有旁路回归，运行 `20260803-124427.json`：
+
+| 任务类型 | 通过 |
+|---|---:|
+| retrieval | 6/7 |
+| summary | 2/2 |
+| direct | 1/1 |
+| 合计（可判分） | 9/10 |
+
+**基线中通过的 case 无一回归**：`rag_definition`、`qdrant_purpose`、`langchain_vs_llamaindex`、`react_pattern`、`direct_greeting` 与两个 summary case 全部保持通过。唯一失败的是 `chroma_vs_qdrant`（相关性 3、完整性 2、groundedness 4），与上文描述的取舍一致——证据支撑度合格，但因语料缺失导致回答不完整。
+
+注意本轮 `agent_framework_multi_source` 单次通过（groundedness 4）。**这与它 1/5 的重复运行结果不矛盾，也不能据此认为它已修复**——单次结果正是本系列报告反复警告的噪声。以 1/5 为准。
+
 ## 下一步
 
 1. `paged_attention` 已稳定通过，可从优化目标中移除。
