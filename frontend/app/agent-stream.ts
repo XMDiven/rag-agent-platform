@@ -189,6 +189,45 @@ export function reduceAgentStreamState(
   }
 }
 
+// 首事件 P95 约 23.8s（agent/experiments/reports/streaming/baseline_2026-08-03.md），
+// 取约 2.5 倍作为「多久没有任何数据就判定卡死」的上限。
+export const AGENT_STREAM_STALL_TIMEOUT_MS = 60_000;
+
+export async function readAgentErrorMessage(response: Response): Promise<string> {
+  try {
+    const body: unknown = await response.json();
+    if (isRecord(body) && isNonEmptyString(body.error)) return body.error;
+  } catch {
+    // 上游可能返回非 JSON 响应体，此时回退到状态码文案。
+  }
+  return `后端返回 ${response.status}`;
+}
+
+export interface AgentStreamWatchdog {
+  reset: () => void;
+  clear: () => void;
+}
+
+export function createStallWatchdog(
+  onStall: () => void,
+  timeoutMs: number = AGENT_STREAM_STALL_TIMEOUT_MS,
+): AgentStreamWatchdog {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+
+  const clear = () => {
+    if (timer !== null) clearTimeout(timer);
+    timer = null;
+  };
+
+  return {
+    reset() {
+      clear();
+      timer = setTimeout(onStall, timeoutMs);
+    },
+    clear,
+  };
+}
+
 export async function readAgentStream(
   stream: ReadableStream<Uint8Array>,
   onEvent: (event: AgentStreamEvent) => void,

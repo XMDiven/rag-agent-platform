@@ -4,8 +4,11 @@ import {useEffect, useRef, useState} from "react";
 
 import {buildAgentStepViewModel} from "./agent-view-model";
 import {
+  AGENT_STREAM_STALL_TIMEOUT_MS,
   AgentStreamProtocolError,
   createInitialAgentStreamState,
+  createStallWatchdog,
+  readAgentErrorMessage,
   readAgentStream,
   reduceAgentStreamState,
 } from "./agent-stream";
@@ -47,6 +50,13 @@ export default function Home() {
     setStreamState(createInitialAgentStreamState());
     setHasStarted(true);
 
+    let stalled = false;
+    const watchdog = createStallWatchdog(() => {
+      stalled = true;
+      controller.abort();
+    });
+    watchdog.reset();
+
     try {
       const res = await fetch("/api/agent/stream", {
         method: "POST",
@@ -54,16 +64,22 @@ export default function Home() {
         body: JSON.stringify({question}),
         signal: controller.signal,
       });
-      if (!res.ok) throw new Error(`后端返回 ${res.status}`);
+      if (!res.ok) throw new Error(await readAgentErrorMessage(res));
       if (!res.body) throw new Error("浏览器未收到响应流");
 
       await readAgentStream(res.body, (event) => {
+        watchdog.reset();
         setStreamState((current) => reduceAgentStreamState(current, event));
         if (event.type === "error") setError(event.data.message);
       });
     } catch (err) {
-      if (err instanceof DOMException && err.name === "AbortError") return;
-      if (
+      if (stalled) {
+        setError(
+          `Agent 超过 ${AGENT_STREAM_STALL_TIMEOUT_MS / 1000} 秒没有响应，已中断本次请求`,
+        );
+      } else if (err instanceof DOMException && err.name === "AbortError") {
+        return;
+      } else if (
         err instanceof AgentStreamProtocolError &&
         err.code === "stream_ended_early"
       ) {
@@ -72,6 +88,7 @@ export default function Home() {
         setError(err instanceof Error ? err.message : "请求失败");
       }
     } finally {
+      watchdog.clear();
       setLoading(false);
       if (controllerRef.current === controller) controllerRef.current = null;
     }

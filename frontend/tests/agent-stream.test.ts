@@ -4,7 +4,9 @@ import test from "node:test";
 import {
   AgentStreamProtocolError,
   createInitialAgentStreamState,
+  createStallWatchdog,
   parseAgentEvent,
+  readAgentErrorMessage,
   readAgentStream,
   reduceAgentStreamState,
   type AgentStreamEvent,
@@ -234,4 +236,51 @@ test("publishes partial state before the stream closes", async () => {
 
   assert.equal(state.answer, "你好");
   assert.equal(state.completed, true);
+});
+
+test("uses the BFF error message instead of the raw status code", async () => {
+  const response = Response.json(
+    {error: "Agent 服务暂时不可用"},
+    {status: 502},
+  );
+
+  assert.equal(await readAgentErrorMessage(response), "Agent 服务暂时不可用");
+});
+
+test("falls back to the status code for non-JSON error bodies", async () => {
+  const html = new Response("<html>502 Bad Gateway</html>", {status: 502});
+  const missingField = Response.json({detail: "boom"}, {status: 500});
+
+  assert.equal(await readAgentErrorMessage(html), "后端返回 502");
+  assert.equal(await readAgentErrorMessage(missingField), "后端返回 500");
+});
+
+test("stall watchdog fires only after the configured silence", async () => {
+  let stalls = 0;
+  const watchdog = createStallWatchdog(() => {
+    stalls += 1;
+  }, 20);
+
+  watchdog.reset();
+  await new Promise((resolve) => setTimeout(resolve, 10));
+  watchdog.reset();
+  await new Promise((resolve) => setTimeout(resolve, 15));
+
+  assert.equal(stalls, 0);
+
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  assert.equal(stalls, 1);
+});
+
+test("cleared stall watchdog never fires", async () => {
+  let stalls = 0;
+  const watchdog = createStallWatchdog(() => {
+    stalls += 1;
+  }, 10);
+
+  watchdog.reset();
+  watchdog.clear();
+  await new Promise((resolve) => setTimeout(resolve, 30));
+
+  assert.equal(stalls, 0);
 });
