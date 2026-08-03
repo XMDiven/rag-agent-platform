@@ -20,8 +20,8 @@
 
 ```mermaid
 flowchart TD
-    U[用户提问] --> BFF[Next.js BFF<br/>POST /api/agent]
-    BFF --> EP[FastAPI<br/>POST /agent/run]
+    U[用户提问] --> BFF[Next.js BFF<br/>POST /api/agent/stream]
+    BFF --> EP[FastAPI<br/>POST /agent/run/stream]
     EP --> AQ[analyze_query 问题分析]
     AQ -->|空问题 / loop 异常 → 降级| ONCE[单步编排 run_agent_once]
     AQ --> LOOP[多步 Agent Loop<br/>run_agent_loop]
@@ -32,7 +32,7 @@ flowchart TD
     DISP --> STOOL[summary_tool]
     DISP --> QTOOL[question_decompose_tool]
     DISP -->|结果/失败 结构化回灌 ToolMessage| DEC
-    DEC -->|不再调工具 / 收尾| OUT[最终答案 + sources<br/>+ steps + termination_reason]
+    DEC -->|不再调工具 / 收尾| OUT[NDJSON 事件流<br/>step + answer_delta + sources + done]
 
     RTOOL --> RAG
 
@@ -43,7 +43,7 @@ flowchart TD
     end
 ```
 
-当前仓库结构把 RAG 作为 Agent 系统的第一个可运行子项目。`rag` 子项目已经支持文档摄入、批量上传、向量检索、问答生成、流式问答、来源返回、轻量问题分析、检索规划、执行 trace、Prompt 版本管理、离线评测、LLM-as-Judge 结构化评分和 Prompt A/B 对比报告。`agent` 子项目在 RAG 之上提供编排层：默认走基于 native function calling 的多步 agent loop（模型自主多轮选择并调用工具、工具结果与失败都回灌模型，由模型决定继续调工具还是收尾），并保留规则式单步编排作为降级路径；支持问题分析、工具规划、工具执行、Agent trace、摘要工具、工具失败状态返回、FastAPI `/agent/run` 接口和 `/health` 健康检查接口。
+当前仓库结构把 RAG 作为 Agent 系统的第一个可运行子项目。`rag` 子项目已经支持文档摄入、批量上传、向量检索、问答生成、流式问答、来源返回、轻量问题分析、检索规划、执行 trace、Prompt 版本管理、离线评测、LLM-as-Judge 结构化评分和 Prompt A/B 对比报告。`agent` 子项目在 RAG 之上提供编排层：默认走基于 native function calling 的多步 agent loop（模型自主多轮选择并调用工具、工具结果与失败都回灌模型，由模型决定继续调工具还是收尾），并保留规则式单步编排作为降级路径；同时提供兼容的一次性 JSON 接口 `/agent/run` 和真正逐块输出的 NDJSON 接口 `/agent/run/stream`。
 
 当前扩展重点是补齐 Agent 工程证据：用离线 golden set 持续评估工具轨迹、正常结束率、来源约束和延迟，再根据失败 case 优化 Prompt、步数预算或工具设计。
 
@@ -52,8 +52,8 @@ flowchart TD
 | 子项目 | 状态 | 说明 |
 | --- | --- | --- |
 | `rag` | RAG MVP + 轻量编排基线 | 支持 Markdown/PDF 入库、单文件/批量上传、Qdrant 检索、FastAPI 问答、流式返回、来源引用、执行 trace、Prompt 版本、离线评测、LLM-as-Judge 结构化评分和 Prompt A/B 对比报告 |
-| `agent` | 多步 Agent loop 编排 | 支持工具注册、问题分析、工具规划、工具执行、摘要工具、结构化 Agent trace、工具失败处理、基于 native function calling 的多步 agent loop（自主多轮工具编排 + 规则式单步降级）、12-case 编排评测和独立答案质量 Judge、FastAPI `/agent/run` 接口和 `/health` 健康检查接口 |
-| `frontend` | Agent 演示界面 | 使用 Next.js App Router + TypeScript；浏览器通过同源 `/api/agent` BFF 调用 Agent，界面展示回答、来源、终止原因和逐轮工具编排步骤 |
+| `agent` | 多步 Agent loop 编排 | 支持工具注册、问题分析、工具执行、结构化 trace、工具失败处理、native function calling 多步 loop、NDJSON 流式事件、12-case 编排评测和独立答案质量 Judge |
+| `frontend` | Agent 演示界面 | 使用 Next.js App Router + TypeScript；浏览器通过同源 `/api/agent/stream` BFF 消费流，在请求完成前逐步展示工具步骤与答案 |
 
 ## 当前能力边界
 
@@ -61,7 +61,7 @@ flowchart TD
 
 - RAG：Markdown/PDF 摄入、单文件上传、批量上传、Qdrant 索引、`/ask`、`/ask/stream`、来源引用、RAG trace、Prompt 版本、离线评估、LLM-as-Judge 评分报告和 Prompt A/B 对比报告。
 - Agent：`retrieval_tool`、`summary_tool`、`question_decompose_tool`、`fallback_tool`、基于 native function calling 的多步 agent loop（`run_agent_loop`，工具失败回灌模型由其自主恢复）+ 规则式单步降级（`run_agent_once`）、`run_tool` 工具派发、executor、AgentState、Agent trace、工具失败结构化返回，以及工具轨迹/结束原因/来源/延迟的离线评测 runner。
-- Frontend：Next.js Route Handler BFF、服务端 Agent 地址、回答和来源展示、多轮 `steps` 可视化；当前 Agent 接口仍是一次性 JSON 响应，不声称 Agent 流式输出。
+- Agent 与 Frontend：`/agent/run/stream` 输出版本化 NDJSON 事件，BFF 不缓冲地转发响应体；页面增量渲染 `step` 和 `answer_delta`，最终接收 `sources` 与 `done`。原 `/agent/run` JSON 接口保持兼容。
 
 仍需要补证据后再写进简历的能力：
 
@@ -79,7 +79,7 @@ flowchart TD
 | --- | --- | --- |
 | Frontend | <http://localhost:3000> | Next.js Agent 问答页面；通过服务端 BFF 访问 Agent API |
 | RAG API | <http://localhost:8001> | `/ask`、文档上传和摄入接口 |
-| Agent API | <http://localhost:8002> | `/agent/run` 和工具编排接口 |
+| Agent API | <http://localhost:8002> | `/agent/run` JSON 接口、`/agent/run/stream` NDJSON 流接口和工具编排 |
 | Qdrant | <http://localhost:6333> | 本地向量数据库 |
 
 ### 前置条件
@@ -172,12 +172,12 @@ uv run uvicorn agent_app.app.main:app --reload
 更多说明见 [`agent/README.md`](agent/README.md)。
 
 前端本地开发默认由服务端 Route Handler 访问
-`http://localhost:8002/agent/run`。如需覆盖地址，只把它设置为服务端环境变量，
+`http://localhost:8002/agent/run/stream`。如需覆盖地址，只把它设置为服务端环境变量，
 不要使用 `NEXT_PUBLIC_` 前缀：
 
 ```bash
 cd frontend
-AGENT_API_URL=http://localhost:8002/agent/run npm run dev
+AGENT_STREAM_API_URL=http://localhost:8002/agent/run/stream npm run dev
 ```
 
 ## English

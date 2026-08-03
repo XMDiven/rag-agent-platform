@@ -199,6 +199,27 @@ curl -sS -X POST http://127.0.0.1:8002/agent/run \
 - `/agent/run` 走多步 loop：模型自主拆题 → 多轮检索 → 综合作答，返回
   `selected_tool`、`tool_status`、`termination_reason`、逐轮 `steps` 与 Agent trace。
 
+## 5. Agent 真流式输出
+
+2026-08-03 使用同一个对比问题验证 `POST /agent/run/stream`。为避免终端缓冲，调用时使用 `curl -N`：
+
+```bash
+curl -N -X POST http://127.0.0.1:8002/agent/run/stream \
+  -H "Content-Type: application/json" \
+  -d '{"question":"LangChain 和 LlamaIndex 有什么区别？"}'
+```
+
+本次实测的事件时间线（只记录事件元数据，不记录答案或来源正文）：
+
+| 相对时间 | 事件 | 结果 |
+| --- | --- | --- |
+| 27.34s | `step` | 第 1 轮 `question_decompose_tool` 执行完成 |
+| 28.68s | 首个 `answer_delta` | 开始逐块收到最终回答，连接尚未关闭 |
+| 70.76s | `sources` | 返回 7 条来源 |
+| 70.76s | `done` | `final_answer`，`tool_status=success` |
+
+这次运行证明响应体会在请求结束前交付 `step` 和答案增量，而不是先拼成完整 JSON 再一次返回。模型每次的具体工具轨迹可能不同；本次选择一次拆解工具后直接生成答案。工具内部检索仍同步执行，所以首个可见事件需要等待第一轮工具结束。
+
 ## 已知边界
 
 - 本次为单一代表性问题的本地 demo，不是大规模质量或延迟基准。

@@ -23,7 +23,8 @@ analyze_question -> plan_tool -> execute_tool -> build AgentState -> return resu
 - 提供独立 Agent LLM-as-Judge runner，评价最终答案的相关性、完整性、证据支撑与格式
 - 使用 `AgentState` 保存 question、analysis、plan、tool_result 和 trace，明确 Agent 内部状态流转
 - Agent 层记录工具执行成功或失败；RAG 检索与生成重试由 RAG 服务内部处理
-- 通过 FastAPI 暴露 `POST /agent/run` 接口
+- 通过 FastAPI 暴露兼容的一次性 JSON 接口 `POST /agent/run`
+- 通过 `POST /agent/run/stream` 逐行输出版本化 NDJSON 事件；模型最终回答使用真实 token 流
 - 提供 `GET /health` 健康检查接口
 
 ## 模块结构
@@ -33,13 +34,14 @@ src/agent_app/
   app/
     main.py            # FastAPI 应用入口
     routers/health.py  # GET /health 健康检查接口
-    routers/run.py     # POST /agent/run 接口
+    routers/run.py     # JSON 与 NDJSON Agent 接口
     routers/tools.py   # GET /agent/tools 工具能力发现接口
   schemas/run.py    # Agent API 请求和响应结构
   orchestration/
     planner.py       # 根据问题分析结果选择工具
     executor.py      # 执行工具并包装 ToolResult
     state.py         # Agent 内部状态对象
+    streaming.py     # 流式 native function calling loop
   tools/
     registry.py      # 工具注册表和输入输出契约
     question_decompose.py  # 规则式问题拆解工具
@@ -49,6 +51,7 @@ src/agent_app/
     run_agent.py       # Agent CLI 演示入口
     evaluate_agent.py  # Agent 离线评测 runner
   service.py         # Agent 对外统一入口 run_agent(question)
+  streaming_service.py # 流事件编排、降级与安全错误映射
 ```
 
 目录边界：
@@ -252,6 +255,26 @@ curl -X POST http://127.0.0.1:8002/agent/run \
   -H "Content-Type: application/json" \
   -d '{"question": ""}'
 ```
+
+调用真正的流式接口时使用 `curl -N` 禁用客户端输出缓冲：
+
+```bash
+curl -N -X POST http://127.0.0.1:8002/agent/run/stream \
+  -H "Content-Type: application/json" \
+  -d '{"question":"LangChain 和 LlamaIndex 有什么区别？"}'
+```
+
+响应媒体类型是 `application/x-ndjson`，每行是一个完整 JSON 事件：
+
+| 事件 | 作用 |
+| --- | --- |
+| `step` | 一轮工具执行结束后立即报告工具名、参数和状态 |
+| `answer_delta` | 模型生成的答案增量，可直接追加到界面 |
+| `sources` | 回答结束后返回跨轮聚合来源 |
+| `error` | 返回稳定错误码和安全消息，不暴露内部异常文本 |
+| `done` | 流的终止哨兵，包含结束原因和最终工具状态 |
+
+所有事件都带 `version: 1`。调用方应一直读取到 `done`；若连接提前结束，应保留已收到的内容，同时将本次结果标为不完整。工具执行本身仍是同步的，因此 `step` 会在该轮工具完成后出现；真正逐 token 输出发生在最终答案生成阶段。
 
 空字符串会走 `fallback_tool`，适合验证 API、Agent trace 和响应结构。普通知识问题会走 `retrieval_tool`，可能触发 RAG 检索和 LLM 调用。
 
