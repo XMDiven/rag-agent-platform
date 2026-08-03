@@ -51,7 +51,7 @@ flowchart TD
 | 子项目 | 状态 | 说明 |
 | --- | --- | --- |
 | `rag` | RAG MVP + 轻量编排基线 | 支持 Markdown/PDF 入库、单文件/批量上传、Qdrant 检索、FastAPI 问答、流式返回、来源引用、执行 trace、Prompt 版本、离线评测、LLM-as-Judge 结构化评分和 Prompt A/B 对比报告 |
-| `agent` | 多步 Agent loop 编排 | 支持工具注册、问题分析、工具规划、工具执行、摘要工具、结构化 Agent trace、工具失败处理、基于 native function calling 的多步 agent loop（自主多轮工具编排 + 规则式单步降级）、12-case 离线评测基线、FastAPI `/agent/run` 接口和 `/health` 健康检查接口 |
+| `agent` | 多步 Agent loop 编排 | 支持工具注册、问题分析、工具规划、工具执行、摘要工具、结构化 Agent trace、工具失败处理、基于 native function calling 的多步 agent loop（自主多轮工具编排 + 规则式单步降级）、12-case 编排评测和独立答案质量 Judge、FastAPI `/agent/run` 接口和 `/health` 健康检查接口 |
 
 ## 当前能力边界
 

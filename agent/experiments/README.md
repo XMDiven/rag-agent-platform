@@ -8,8 +8,11 @@
 experiments/
 ├── datasets/
 │   └── agent_eval_cases.json   # 人工维护的 golden set
+├── reports/
+│   └── evaluation/             # 人工复核并提交的 baseline 报告
 └── runs/
-    └── evaluation/             # 自动生成的 JSON 报告，默认被 Git 忽略
+    ├── evaluation/             # 编排评测 JSON，默认被 Git 忽略
+    └── judge/                  # 答案质量 Judge JSON，默认被 Git 忽略
 ```
 
 ## 前置条件
@@ -26,6 +29,12 @@ experiments/
 
 ```bash
 uv run python -m agent_app.scripts.evaluate_agent
+```
+
+运行 Agent 最终答案 LLM-as-Judge：
+
+```bash
+uv run python -m agent_app.scripts.evaluate_agent_answers
 ```
 
 指定其他数据集或输出目录：
@@ -51,3 +60,15 @@ uv run python -m agent_app.scripts.evaluate_agent \
 - `average_latency_seconds`、`p95_latency_seconds`：完整 Agent run 的平均与 P95 延迟。
 
 运行结果默认不提交。需要保留代表性基线时，人工复核模型、语料、配置和报告内容后再使用 `git add -f` 添加。
+
+## 两层评测的区别
+
+- `evaluate_agent` 检查工具轨迹、结束原因、来源约束和延迟，不评价答案语义。
+- `evaluate_agent_answers` 重新运行相同 case，并复用 RAG Judge 评价相关性、完整性、证据支撑和格式。
+
+答案 Judge 第一版与 Agent 使用同一个配置模型，报告会标记 `judge_independence: same_model`。它适合作为内部回归信号，不等同于独立模型或人工评审。Judge 运行有额外模型成本和波动，因此不进入默认 CI。全部 case 通过时退出码为 `0`，任一 Agent/Judge case 失败时为 `1`。
+
+已人工复核的首次真实结果见：
+
+- [`reports/evaluation/baseline_2026-08-03.md`](reports/evaluation/baseline_2026-08-03.md)：编排契约 12/12；
+- [`reports/judge/baseline_2026-08-03.md`](reports/judge/baseline_2026-08-03.md)：答案 Judge 5/12，并区分 rubric 不适用与真实 groundedness 问题。

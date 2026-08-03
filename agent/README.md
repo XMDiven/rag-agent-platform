@@ -20,6 +20,7 @@ analyze_question -> plan_tool -> execute_tool -> build AgentState -> return resu
 - 通过 `GET /agent/tools` 暴露工具能力列表和输入输出契约，便于调试、前端能力发现和后续受控 tool calling
 - 返回 Agent 层 trace，记录分析、规划和执行步骤
 - 提供 12-case 离线评测集和评测 runner，检查工具轨迹、结束原因、来源约束与延迟
+- 提供独立 Agent LLM-as-Judge runner，评价最终答案的相关性、完整性、证据支撑与格式
 - 使用 `AgentState` 保存 question、analysis、plan、tool_result 和 trace，明确 Agent 内部状态流转
 - Agent 层记录工具执行成功或失败；RAG 检索与生成重试由 RAG 服务内部处理
 - 通过 FastAPI 暴露 `POST /agent/run` 接口
