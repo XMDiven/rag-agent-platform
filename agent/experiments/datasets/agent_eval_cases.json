@@ -1,0 +1,110 @@
+[
+  {
+    "id": "empty_question",
+    "question": "",
+    "allowed_tools": ["fallback_tool"],
+    "required_tools": ["fallback_tool"],
+    "allowed_termination_reasons": ["single_step"],
+    "requires_sources": false,
+    "max_steps": 0
+  },
+  {
+    "id": "whitespace_question",
+    "question": "   ",
+    "allowed_tools": ["fallback_tool"],
+    "required_tools": ["fallback_tool"],
+    "allowed_termination_reasons": ["single_step"],
+    "requires_sources": false,
+    "max_steps": 0
+  },
+  {
+    "id": "direct_greeting",
+    "question": "请用一句话打个招呼。",
+    "allowed_tools": [],
+    "required_tools": [],
+    "allowed_termination_reasons": ["final_answer"],
+    "requires_sources": false,
+    "max_steps": 1
+  },
+  {
+    "id": "summary_literal_text",
+    "question": "请总结这段文字：RAG 先检索外部知识，再让模型根据检索结果生成有依据的回答。",
+    "allowed_tools": ["summary_tool"],
+    "required_tools": ["summary_tool"],
+    "allowed_termination_reasons": ["final_answer"],
+    "requires_sources": false,
+    "max_steps": 4
+  },
+  {
+    "id": "summary_longer_literal_text",
+    "question": "总结以下内容：向量检索擅长语义匹配，BM25 擅长词法匹配。混合检索将两者结合，以提升不同类型查询的召回稳定性。",
+    "allowed_tools": ["summary_tool"],
+    "required_tools": ["summary_tool"],
+    "allowed_termination_reasons": ["final_answer"],
+    "requires_sources": false,
+    "max_steps": 4
+  },
+  {
+    "id": "rag_definition",
+    "question": "什么是检索增强生成（RAG）？",
+    "allowed_tools": ["retrieval_tool"],
+    "required_tools": ["retrieval_tool"],
+    "allowed_termination_reasons": ["final_answer"],
+    "requires_sources": true,
+    "max_steps": 4
+  },
+  {
+    "id": "qdrant_purpose",
+    "question": "Qdrant 在 AI 应用中主要解决什么问题？",
+    "allowed_tools": ["retrieval_tool"],
+    "required_tools": ["retrieval_tool"],
+    "allowed_termination_reasons": ["final_answer"],
+    "requires_sources": true,
+    "max_steps": 4
+  },
+  {
+    "id": "paged_attention",
+    "question": "PagedAttention 如何改善大模型推理时的 KV cache 管理？",
+    "allowed_tools": ["retrieval_tool"],
+    "required_tools": ["retrieval_tool"],
+    "allowed_termination_reasons": ["final_answer"],
+    "requires_sources": true,
+    "max_steps": 4
+  },
+  {
+    "id": "langchain_vs_llamaindex",
+    "question": "比较 LangChain 和 LlamaIndex 的定位与适用场景。",
+    "allowed_tools": ["question_decompose_tool", "retrieval_tool"],
+    "required_tools": ["question_decompose_tool", "retrieval_tool"],
+    "allowed_termination_reasons": ["final_answer"],
+    "requires_sources": true,
+    "max_steps": 4
+  },
+  {
+    "id": "chroma_vs_qdrant",
+    "question": "对比 Chroma 和 Qdrant，分别适合怎样的 RAG 项目？",
+    "allowed_tools": ["question_decompose_tool", "retrieval_tool"],
+    "required_tools": ["question_decompose_tool", "retrieval_tool"],
+    "allowed_termination_reasons": ["final_answer"],
+    "requires_sources": true,
+    "max_steps": 4
+  },
+  {
+    "id": "react_pattern",
+    "question": "ReAct 方法如何结合推理与行动？请根据论文或技术资料回答。",
+    "allowed_tools": ["retrieval_tool"],
+    "required_tools": ["retrieval_tool"],
+    "allowed_termination_reasons": ["final_answer"],
+    "requires_sources": true,
+    "max_steps": 4
+  },
+  {
+    "id": "agent_framework_multi_source",
+    "question": "综合比较 AutoGen、OpenAI Agents SDK 和 LangGraph 的编排思路与适用边界。",
+    "allowed_tools": ["question_decompose_tool", "retrieval_tool"],
+    "required_tools": ["question_decompose_tool", "retrieval_tool"],
+    "allowed_termination_reasons": ["final_answer", "max_steps"],
+    "requires_sources": true,
+    "max_steps": 5
+  }
+]

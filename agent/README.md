@@ -19,6 +19,7 @@ analyze_question -> plan_tool -> execute_tool -> build AgentState -> return resu
 - API 层返回适合前端和用户消费的 `answer`、`sources`、`selected_tool`、`tool_status`、`tool_output` 和 `trace`
 - 通过 `GET /agent/tools` 暴露工具能力列表和输入输出契约，便于调试、前端能力发现和后续受控 tool calling
 - 返回 Agent 层 trace，记录分析、规划和执行步骤
+- 提供 12-case 离线评测集和评测 runner，检查工具轨迹、结束原因、来源约束与延迟
 - 使用 `AgentState` 保存 question、analysis、plan、tool_result 和 trace，明确 Agent 内部状态流转
 - Agent 层记录工具执行成功或失败；RAG 检索与生成重试由 RAG 服务内部处理
 - 通过 FastAPI 暴露 `POST /agent/run` 接口
@@ -43,6 +44,9 @@ src/agent_app/
     question_decompose.py  # 规则式问题拆解工具
     retrieval.py     # 调用 RAG 问答服务的工具适配层
     summary.py       # 本地摘要工具
+  scripts/
+    run_agent.py       # Agent CLI 演示入口
+    evaluate_agent.py  # Agent 离线评测 runner
   service.py         # Agent 对外统一入口 run_agent(question)
 ```
 
@@ -528,11 +532,10 @@ curl http://127.0.0.1:8002/health
 
 当前 `agent` 是轻量编排层，不是完整 Agent 平台。它还没有实现：
 
-- LLM planner
-- ReAct 循环
-- 多轮工具调用
 - LLM 摘要工具
 - 网络搜索工具
+- 并行执行同一轮的多个工具调用
+- 跨会话长期记忆
 - 多 Agent 协作
 
-这些能力应在现有工具注册、规划、执行、trace 和失败处理稳定后再逐步扩展。
+现阶段应先用 [`experiments/README.md`](experiments/README.md) 中的离线评测基线验证真实模型的工具选择、正常结束率和延迟，再根据失败 case 决定是否扩展这些能力。
