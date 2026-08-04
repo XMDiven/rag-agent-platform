@@ -1,3 +1,4 @@
+import asyncio
 import inspect
 
 from rag_app.app.routers import documents as documents_router
@@ -246,3 +247,39 @@ def test_ingest_uses_safe_filename(
 
     assert response.status_code == 404
     assert response.json() == {"detail": "Document not found"}
+
+
+def test_upload_writes_the_file_off_the_event_loop(client, tmp_path, monkeypatch) -> None:
+    """同步写盘必须留在线程池里，否则大文件会卡住整个事件循环。
+
+    判据是写盘时能否拿到运行中的事件循环：拿得到说明它跑在 loop 线程上，
+    也就是阻塞了所有其他请求。
+    """
+    monkeypatch.setattr(config, "RAW_DATA_DIR", tmp_path)
+    monkeypatch.setattr(config, "PROJECT_ROOT", tmp_path.parent)
+
+    ran_on_event_loop: list[bool] = []
+    original_write = documents_router.write_uploaded_bytes
+
+    def recording_write(saved_path, content):
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            ran_on_event_loop.append(False)
+        else:
+            ran_on_event_loop.append(True)
+        original_write(saved_path, content)
+
+    monkeypatch.setattr(
+        documents_router,
+        "write_uploaded_bytes",
+        recording_write,
+    )
+
+    response = client.post(
+        "/documents/upload",
+        files={"file": ("example.md", b"# Example", "text/markdown")},
+    )
+
+    assert response.status_code == 200
+    assert ran_on_event_loop == [False]

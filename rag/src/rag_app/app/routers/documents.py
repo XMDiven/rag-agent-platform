@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from fastapi import APIRouter, File, HTTPException, Request, UploadFile
+from starlette.concurrency import run_in_threadpool
 
 from rag_app.config import config
 from rag_app.schemas.document_schema import (
@@ -35,12 +36,17 @@ def resolve_uploaded_document_path(filename: str) -> Path:
     return document_path
 
 
+def write_uploaded_bytes(saved_path: Path, content: bytes) -> None:
+    saved_path.parent.mkdir(parents=True, exist_ok=True)
+    saved_path.write_bytes(content)
+
+
 async def save_upload_file(file: UploadFile, filename: str) -> dict[str, str]:
     saved_path = config.RAW_DATA_DIR / filename
 
-    saved_path.parent.mkdir(parents=True, exist_ok=True)
     content = await file.read()
-    saved_path.write_bytes(content)
+    # 同步写盘会阻塞事件循环，一个上百页 PDF 会让整个进程的其他请求全部停摆。
+    await run_in_threadpool(write_uploaded_bytes, saved_path, content)
 
     return {
         "filename": filename,

@@ -56,3 +56,4 @@ scripts/collect_rag_docs.py
 .DS_Store
 resume_alignment.md
 interview_prep_progress.md
+agent/experiments/runs/concurrency/*.json
