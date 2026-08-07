@@ -2,6 +2,14 @@
 
 这是一个从 RAG 知识库问答逐步演进到轻量 Agent 编排的 AI 应用工程项目。
 
+## 本地演示
+
+![Agent 流式问答本地演示](docs/demo/assets/agent-streaming-demo.gif)
+
+上图来自本地真实运行环境：Next.js BFF 调用 FastAPI `POST /agent/run/stream`，页面在请求结束前逐步显示工具调用，随后增量展示回答、来源与终止原因。演示问题为“LangChain 和 LlamaIndex 有什么区别？”，本次运行最终以 `final_answer` 结束，并返回 2 轮工具编排与 14 个来源。
+
+当前没有长期运行服务器，因此仓库不提供公网 Demo URL，也不声称项目已经上线。完整系统可以通过下文的 Docker Compose 流程在本地复现；真实接口命令与响应记录见 [`docs/demo/end_to_end.md`](docs/demo/end_to_end.md)。
+
 ## 一次多步自主编排长什么样
 
 问 `LangChain 和 LlamaIndex 有什么区别？`，模型在**一次** `/agent/run` 请求里**自主跑了 4 轮**（基于 native function calling，循环方向由模型决定，不是写死的 if/else）：
@@ -36,6 +44,8 @@ flowchart TD
 
     RTOOL --> RAG
 
+    RAG <-->|Cache-Aside 精确答案缓存| CACHE[(Redis)]
+
     subgraph RAG [RAG 检索生成链路 /ask]
         direction LR
         ING[摄入 MD/PDF] --> CHK[切分] --> EMB[向量化] --> VDB[(Qdrant)]
@@ -45,7 +55,7 @@ flowchart TD
 
 当前仓库结构把 RAG 作为 Agent 系统的第一个可运行子项目。`rag` 子项目已经支持文档摄入、批量上传、向量检索、问答生成、流式问答、来源返回、轻量问题分析、检索规划、执行 trace、Prompt 版本管理、Redis Cache-Aside 精确答案缓存、离线评测、LLM-as-Judge 结构化评分和 Prompt A/B 对比报告。`agent` 子项目在 RAG 之上提供编排层：默认走基于 native function calling 的多步 agent loop（模型自主多轮选择并调用工具、工具结果与失败都回灌模型，由模型决定继续调工具还是收尾），并保留规则式单步编排作为降级路径；同时提供兼容的一次性 JSON 接口 `/agent/run` 和真正逐块输出的 NDJSON 接口 `/agent/run/stream`。
 
-当前扩展重点是补齐 Agent 工程证据：用离线 golden set 持续评估工具轨迹、正常结束率、来源约束和延迟，再根据失败 case 优化 Prompt、步数预算或工具设计。
+当前扩展重点是把现有能力整理成可复现的工程证据，并继续补齐 request-id、token/成本和轻量指标等可观测性能力。公网部署因暂无长期服务器资源暂缓，不影响本地运行、测试和评测证据。
 
 ## 子项目
 
@@ -62,6 +72,13 @@ flowchart TD
 - RAG：Markdown/PDF 摄入、单文件上传、批量上传、Qdrant 索引、`/ask`、`/ask/stream`、来源引用、RAG trace、Prompt 版本、Redis 共享精确答案缓存（TTL、索引版本失效、fail-open）、离线评估、LLM-as-Judge 评分报告和 Prompt A/B 对比报告。
 - Agent：`retrieval_tool`、`summary_tool`、`question_decompose_tool`、`fallback_tool`、基于 native function calling 的多步 agent loop（`run_agent_loop`，工具失败回灌模型由其自主恢复）+ 规则式单步降级（`run_agent_once`）、`run_tool` 工具派发、executor、AgentState、Agent trace、工具失败结构化返回，以及工具轨迹/结束原因/来源/延迟的离线评测 runner。
 - Agent 与 Frontend：`/agent/run/stream` 输出版本化 NDJSON 事件，BFF 不缓冲地转发响应体；页面增量渲染 `step` 和 `answer_delta`，最终接收 `sources` 与 `done`。原 `/agent/run` JSON 接口保持兼容。
+
+## 可复现工程数据
+
+- **测试与构建**：根目录 Python 测试 286 项；前端 Node 测试 23 项，并通过 ESLint、TypeScript 检查和 Next.js production build。
+- **Redis 精确缓存**：5 次相同问题实测为 1 次 miss + 4 次 hit，miss 5915.14 ms、hit P50 3.495 ms、命中率 80%，重复请求延迟下降 99.94%；Redis 停机时请求仍通过 fail-open 路径返回。详见 [`rag/experiments/reports/cache/redis_exact_cache_2026-08-05.md`](rag/experiments/reports/cache/redis_exact_cache_2026-08-05.md)。
+- **Agent 流式稳定性**：12 条 golden case 全部满足事件协议并正常结束，未出现 reasoning 与 answer 混流；平均首事件 7.796 s、平均首答案 11.683 s。详见 [`agent/experiments/reports/streaming/baseline_2026-08-03.md`](agent/experiments/reports/streaming/baseline_2026-08-03.md)。
+- **并发基线**：`/ask` 在并发 1→8 时吞吐从 0.065 提升到 0.427 rps、错误率为 0；结果表明当前并发范围内主要瓶颈是 LLM 生成延迟，而不是线程池。详见 [`agent/experiments/reports/concurrency/baseline_2026-08-04.md`](agent/experiments/reports/concurrency/baseline_2026-08-04.md)。
 
 仍需要补证据后再写进简历的能力：
 
@@ -183,4 +200,6 @@ AGENT_STREAM_API_URL=http://localhost:8002/agent/run/stream npm run dev
 
 ## English
 
-This repository is evolving from a RAG knowledge-base application into a lightweight Agent project. The [`rag`](rag/) module provides document ingestion, single and batch upload, Qdrant retrieval, FastAPI question answering, streaming responses, cited sources, lightweight query analysis, retrieval planning, execution traces, prompt versioning, and evaluation scripts. The [`agent`](agent/) module provides an orchestration layer with question analysis, tool planning, tool execution, a deterministic summary tool, Agent traces, structured tool failure handling, a multi-step agent loop built on native function calling (the model autonomously selects and calls tools across rounds, with tool results and failures fed back to it so it decides whether to keep calling tools or finish) plus a rule-based single-step fallback, a FastAPI `/agent/run` endpoint, and a `/health` endpoint.
+This repository is a locally reproducible RAG and Agent application built with FastAPI, LangChain, Qdrant, Redis, Next.js App Router, and TypeScript. The [`rag`](rag/) module provides document ingestion, Qdrant retrieval, cited and streaming answers, execution traces, evaluation pipelines, and a shared Redis Cache-Aside exact-answer cache with TTL, index-version invalidation, and fail-open behavior. The [`agent`](agent/) module provides native function-calling orchestration: the model selects tools across multiple rounds, receives structured tool results or failures, and decides whether to continue or produce the final answer. Its tools include retrieval, LLM-based summarization, and question decomposition, with a rule-based single-step fallback for degraded operation.
+
+The [`frontend`](frontend/) module consumes the versioned NDJSON `/agent/run/stream` protocol through a server-only Next.js BFF and renders tool steps, answer deltas, sources, and explicit interrupted-stream errors before the request completes. The animated demo above was captured from the real local stack. A permanent public URL is intentionally not claimed because long-running hosting is currently deferred.
