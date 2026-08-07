@@ -24,6 +24,8 @@ def test_settings_reads_environment_variables(monkeypatch) -> None:
     monkeypatch.setenv("RETRIEVAL_FETCH_K", "20")
     monkeypatch.setenv("RETRIEVAL_LAMBDA_MULT", "0.5")
     monkeypatch.setenv("QDRANT_COLLECTION", "documents")
+    monkeypatch.setenv("REDIS_URL", "redis://localhost:6379/0")
+    monkeypatch.setenv("ANSWER_CACHE_TTL_SECONDS", "600")
 
     settings = Settings(_env_file=None)
 
@@ -32,6 +34,8 @@ def test_settings_reads_environment_variables(monkeypatch) -> None:
     assert settings.retrieval_fetch_k == 20
     assert settings.retrieval_lambda_mult == 0.5
     assert settings.qdrant_collection == "documents"
+    assert settings.redis_url == "redis://localhost:6379/0"
+    assert settings.answer_cache_ttl_seconds == 600
 
 
 def test_settings_reads_llm_thinking_type(monkeypatch) -> None:

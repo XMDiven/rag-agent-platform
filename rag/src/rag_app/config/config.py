@@ -34,6 +34,10 @@ class Settings(BaseSettings):
     qdrant_url: str | None = None
     qdrant_collection: str | None = None
 
+    redis_url: str | None = None
+    answer_cache_ttl_seconds: int = 3600
+    redis_timeout_seconds: float = 0.2
+
     embedding_base_url: str | None = None
     embedding_model: str | None = None
 
@@ -65,6 +69,9 @@ RETRIEVAL_SEARCH_TYPE: str = settings.retrieval_search_type
 RETRIEVAL_FETCH_K: int = settings.retrieval_fetch_k
 RETRIEVAL_LAMBDA_MULT: float = settings.retrieval_lambda_mult
 COLLECTION_NAME: str | None = settings.qdrant_collection
+REDIS_URL: str | None = settings.redis_url
+ANSWER_CACHE_TTL_SECONDS: int = settings.answer_cache_ttl_seconds
+REDIS_TIMEOUT_SECONDS: float = settings.redis_timeout_seconds
 ROUTER_BACKEND: str = settings.router_backend
 FINETUNED_ROUTER_URL: str = settings.finetuned_router_url
 

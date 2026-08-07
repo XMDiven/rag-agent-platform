@@ -1,5 +1,6 @@
 import asyncio
 import inspect
+from unittest.mock import Mock
 
 from rag_app.app.routers import documents as documents_router
 from rag_app.config import config
@@ -186,6 +187,11 @@ def test_ingest_uploaded_markdown_document(
         "rag_app.app.routers.documents.ingest_file",
         fake_ingest_file,
     )
+    answer_cache = Mock()
+    monkeypatch.setattr(
+        "rag_app.app.routers.documents.get_answer_cache",
+        lambda: answer_cache,
+    )
 
     response = client.post(
         "/documents/ingest",
@@ -194,6 +200,7 @@ def test_ingest_uploaded_markdown_document(
 
     assert response.status_code == 200
     assert response.json() == expected_result
+    answer_cache.bump_index_version.assert_called_once_with()
 
 
 def test_ingest_rejects_missing_document(

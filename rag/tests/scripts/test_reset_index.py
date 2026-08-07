@@ -11,6 +11,7 @@ def test_reset_index_deletes_all_points_from_configured_collection(
     """Delete all points from the configured Qdrant collection."""
     mock_client = Mock()
     mock_qdrant_client = Mock(return_value=mock_client)
+    answer_cache = Mock()
 
     monkeypatch.setattr(
         reset_index.config.settings,
@@ -23,6 +24,11 @@ def test_reset_index_deletes_all_points_from_configured_collection(
         "documents",
     )
     monkeypatch.setattr(reset_index, "QdrantClient", mock_qdrant_client)
+    monkeypatch.setattr(
+        reset_index,
+        "get_answer_cache",
+        lambda: answer_cache,
+    )
 
     result = reset_index.reset_index()
 
@@ -33,3 +39,4 @@ def test_reset_index_deletes_all_points_from_configured_collection(
         points_selector=models.Filter(must=[]),
         wait=True,
     )
+    answer_cache.bump_index_version.assert_called_once_with()

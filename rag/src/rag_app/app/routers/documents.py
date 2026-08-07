@@ -4,6 +4,7 @@ from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 from starlette.concurrency import run_in_threadpool
 
 from rag_app.config import config
+from rag_app.infrastructure.answer_cache import get_answer_cache
 from rag_app.schemas.document_schema import (
     DocumentIngestRequest,
     DocumentIngestResponse,
@@ -99,4 +100,7 @@ def ingest_document(
         path=str(document_path),
         resources=request.app.state.resources,
     )
+    answer_cache = get_answer_cache()
+    if answer_cache is not None and result["stored_count"] > 0:
+        answer_cache.bump_index_version()
     return DocumentIngestResponse(**result)

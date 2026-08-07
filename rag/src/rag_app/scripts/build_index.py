@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from rag_app.config import config
+from rag_app.infrastructure.answer_cache import get_answer_cache
 from rag_app.services.ingest_service import ingest_file
 
 
@@ -31,6 +32,10 @@ def build_index():
             f"chunks={result['chunk_count']} "
             f"stored={result['stored_count']}"
         )
+
+    answer_cache = get_answer_cache()
+    if answer_cache is not None and total_stored > 0:
+        answer_cache.bump_index_version()
 
     return {
         "file_count": len(supported_files),

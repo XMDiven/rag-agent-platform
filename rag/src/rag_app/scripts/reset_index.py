@@ -1,6 +1,7 @@
 from qdrant_client import QdrantClient, models
 
 from rag_app.config import config
+from rag_app.infrastructure.answer_cache import get_answer_cache
 
 
 def reset_index() -> dict[str, str | bool]:
@@ -20,6 +21,9 @@ def reset_index() -> dict[str, str | bool]:
         points_selector=models.Filter(must=[]),
         wait=True,
     )
+    answer_cache = get_answer_cache()
+    if answer_cache is not None:
+        answer_cache.bump_index_version()
 
     return {
         "collection": collection_name,

@@ -25,6 +25,7 @@ dependencies = [
     # 0.19 起 unstructured 依赖 spaCy，并在首次解析时联网下载安装 en_core_web_sm，
     # 会破坏镜像的可复现性，暂时锁在 0.18.x
     "unstructured<0.19",
+    "redis>=5,<7",
 ]
 
 [tool.setuptools.packages.find]

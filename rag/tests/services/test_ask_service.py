@@ -3,6 +3,7 @@ from unittest.mock import Mock
 from langchain_core.documents import Document
 
 from rag_app.config import config
+from rag_app.infrastructure.answer_cache import CacheLookup
 from rag_app.infrastructure.resources import AppResources
 from rag_app.services.ask_service import (
     apply_retrieval_strategy,
@@ -136,6 +137,99 @@ def test_ask_question_returns_answer_and_sources(monkeypatch) -> None:
         "data/raw/langchain-docs.md"
     ]
     mock_retriever.invoke.assert_called_once_with("LangChain 是什么？")
+
+
+def test_ask_question_returns_cached_answer_without_retrieval(monkeypatch) -> None:
+    answer_cache = Mock()
+    answer_cache.get_answer.return_value = CacheLookup(
+        status="hit",
+        value={
+            "answer": "cached answer",
+            "sources": [
+                {
+                    "source": "cached.md",
+                    "section_path": "Overview",
+                    "snippet": "cached evidence",
+                }
+            ],
+        },
+    )
+    mock_get_retriever = Mock()
+    monkeypatch.setattr(
+        "rag_app.services.ask_service.get_retriever",
+        mock_get_retriever,
+    )
+
+    result = ask_question(
+        "  What   is LangChain? ",
+        answer_cache=answer_cache,
+    )
+
+    assert result["answer"] == "cached answer"
+    assert result["sources"][0]["source"] == "cached.md"
+    assert result["trace"][-1] == {
+        "step": "answer_cache",
+        "status": "hit",
+        "detail": {"backend": "redis"},
+    }
+    answer_cache.get_answer.assert_called_once()
+    assert answer_cache.get_answer.call_args.args[0] == "What is LangChain?"
+    mock_get_retriever.assert_not_called()
+
+
+def test_ask_question_caches_only_successful_generation(monkeypatch) -> None:
+    documents = [
+        Document(
+            page_content="LangChain is a framework.",
+            metadata={"source": "langchain.md", "section_path": "Overview"},
+        )
+    ]
+    mock_retriever = Mock()
+    mock_retriever.invoke.return_value = documents
+    answer_cache = Mock()
+    answer_cache.get_answer.return_value = CacheLookup(status="miss")
+
+    monkeypatch.setattr(
+        "rag_app.services.ask_service.get_retriever",
+        lambda **kwargs: mock_retriever,
+    )
+    monkeypatch.setattr(
+        "rag_app.services.ask_service.format_context",
+        lambda docs: "formatted context",
+    )
+    monkeypatch.setattr(
+        "rag_app.services.ask_service.get_client",
+        lambda: "fake-llm",
+    )
+    monkeypatch.setattr(
+        "rag_app.services.ask_service.get_qa_prompt",
+        lambda: "fake-prompt",
+    )
+    monkeypatch.setattr(
+        "rag_app.services.ask_service.generate_answer",
+        lambda **kwargs: "generated answer",
+    )
+
+    result = ask_question("What is LangChain?", answer_cache=answer_cache)
+
+    assert result["answer"] == "generated answer"
+    assert result["trace"][2] == {
+        "step": "answer_cache",
+        "status": "miss",
+        "detail": {"backend": "redis"},
+    }
+    answer_cache.set_answer.assert_called_once()
+    assert answer_cache.set_answer.call_args.args[0] == "What is LangChain?"
+    assert answer_cache.set_answer.call_args.args[2] == {
+        "answer": "generated answer",
+        "sources": [
+            {
+                "source": "langchain.md",
+                "section_path": "Overview",
+                "snippet": "LangChain is a framework.",
+            }
+        ],
+    }
 
 
 def test_ask_question_passes_mmr_retrieval_options(monkeypatch) -> None:

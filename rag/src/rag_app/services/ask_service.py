@@ -10,6 +10,10 @@ from rag_app.config import config
 from rag_app.generation.answer_generator import generate_answer, stream_answer
 from rag_app.generation.context_formatter import format_context
 from rag_app.generation.qa_prompt import get_qa_prompt
+from rag_app.infrastructure.answer_cache import (
+    RedisAnswerCache,
+    get_answer_cache,
+)
 from rag_app.infrastructure.llm_client import get_client
 from rag_app.infrastructure.resources import AppResources
 from rag_app.retrieval.query_analyzer import analyze_query
@@ -101,6 +105,31 @@ def build_sources(documents: list[Document]) -> list[dict[str, str]]:
         )
 
     return sources
+
+
+def build_answer_cache_options(
+    retrieval_plan: RetrievalPlan,
+    search_type: RetrievalSearchType | None,
+    fetch_k: int | None,
+    lambda_mult: float | None,
+) -> dict[str, Any]:
+    return {
+        "top_k": retrieval_plan.top_k,
+        "retrieval_strategy": retrieval_plan.retrieval_strategy,
+        "search_type": search_type or config.RETRIEVAL_SEARCH_TYPE,
+        "fetch_k": fetch_k if fetch_k is not None else config.RETRIEVAL_FETCH_K,
+        "lambda_mult": (
+            lambda_mult
+            if lambda_mult is not None
+            else config.RETRIEVAL_LAMBDA_MULT
+        ),
+        "hybrid_candidate_k": config.RETRIEVAL_HYBRID_CANDIDATE_K,
+        "hybrid_bm25_weight": config.RETRIEVAL_HYBRID_BM25_WEIGHT,
+        "hybrid_dense_weight": config.RETRIEVAL_HYBRID_DENSE_WEIGHT,
+        "qa_prompt_version": config.QA_PROMPT_VERSION,
+        "llm_model_id": config.settings.llm_model_id,
+        "llm_thinking_type": config.settings.llm_thinking_type,
+    }
 
 
 def build_retrieval_trace_detail(
@@ -280,6 +309,7 @@ def ask_question(
     search_type: RetrievalSearchType | None = None,
     fetch_k: int | None = None,
     lambda_mult: float | None = None,
+    answer_cache: RedisAnswerCache | None = None,
 ) -> dict[str, Any]:
     trace: list[dict[str, Any]] = []
     analysis = analyze_query(question)
@@ -335,6 +365,33 @@ def ask_question(
             "sources": [],
             "trace": trace,
         }
+
+    active_cache = answer_cache if answer_cache is not None else get_answer_cache()
+    cache_options = build_answer_cache_options(
+        retrieval_plan=retrieval_plan,
+        search_type=search_type,
+        fetch_k=fetch_k,
+        lambda_mult=lambda_mult,
+    )
+    if active_cache is not None:
+        cache_lookup = active_cache.get_answer(
+            analysis.normalized_question,
+            cache_options,
+        )
+        trace.append(
+            build_trace_item(
+                step="answer_cache",
+                status=cache_lookup.status,
+                detail={"backend": "redis"},
+            )
+        )
+        if cache_lookup.status == "hit" and cache_lookup.value is not None:
+            return {
+                "answer": cache_lookup.value["answer"],
+                "sources": cache_lookup.value["sources"],
+                "trace": trace,
+            }
+
     documents = retrieve_documents_with_retry(
         retrieval_plan=retrieval_plan,
         trace=trace,
@@ -392,11 +449,22 @@ def ask_question(
                 )
             )
 
-            return {
+            response = {
                 "answer": answer,
                 "sources": build_sources(documents),
                 "trace": trace,
             }
+            if active_cache is not None:
+                active_cache.set_answer(
+                    analysis.normalized_question,
+                    cache_options,
+                    {
+                        "answer": response["answer"],
+                        "sources": response["sources"],
+                    },
+                    expected_version=cache_lookup.version,
+                )
+            return response
 
         except Exception as exc:
             last_error = exc

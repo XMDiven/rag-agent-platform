@@ -93,6 +93,7 @@ def test_build_index_aggregates_counts(monkeypatch: pytest.MonkeyPatch) -> None:
             },
         ]
     )
+    answer_cache = Mock()
 
     monkeypatch.setattr(
         "rag_app.scripts.build_index.get_supported_files",
@@ -101,6 +102,10 @@ def test_build_index_aggregates_counts(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
         "rag_app.scripts.build_index.ingest_file",
         mock_ingest_file,
+    )
+    monkeypatch.setattr(
+        "rag_app.scripts.build_index.get_answer_cache",
+        lambda: answer_cache,
     )
 
     result = build_index()
@@ -115,3 +120,4 @@ def test_build_index_aggregates_counts(monkeypatch: pytest.MonkeyPatch) -> None:
     assert mock_ingest_file.call_count == 2
     mock_ingest_file.assert_any_call("data/raw/langchain-docs.md")
     mock_ingest_file.assert_any_call("data/raw/qdrant-docs.md")
+    answer_cache.bump_index_version.assert_called_once_with()

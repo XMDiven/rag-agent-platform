@@ -1,0 +1,50 @@
+{
+  "base_url": "http://127.0.0.1:8001",
+  "question": "LangChain 和 LlamaIndex 分别适合做什么？",
+  "runs": [
+    {
+      "run": 1,
+      "cache_status": "miss",
+      "latency_ms": 5915.14,
+      "source_count": 7,
+      "response_sha256": "d4856b0c80b0ce2b59afcd1dae47a691825bd919ce6f7b90262a12a023f8f621"
+    },
+    {
+      "run": 2,
+      "cache_status": "hit",
+      "latency_ms": 4.41,
+      "source_count": 7,
+      "response_sha256": "d4856b0c80b0ce2b59afcd1dae47a691825bd919ce6f7b90262a12a023f8f621"
+    },
+    {
+      "run": 3,
+      "cache_status": "hit",
+      "latency_ms": 3.46,
+      "source_count": 7,
+      "response_sha256": "d4856b0c80b0ce2b59afcd1dae47a691825bd919ce6f7b90262a12a023f8f621"
+    },
+    {
+      "run": 4,
+      "cache_status": "hit",
+      "latency_ms": 3.53,
+      "source_count": 7,
+      "response_sha256": "d4856b0c80b0ce2b59afcd1dae47a691825bd919ce6f7b90262a12a023f8f621"
+    },
+    {
+      "run": 5,
+      "cache_status": "hit",
+      "latency_ms": 3.25,
+      "source_count": 7,
+      "response_sha256": "d4856b0c80b0ce2b59afcd1dae47a691825bd919ce6f7b90262a12a023f8f621"
+    }
+  ],
+  "summary": {
+    "requests": 5,
+    "hits": 4,
+    "misses": 1,
+    "hit_rate": 0.8,
+    "hit_latency_p50_ms": 3.495,
+    "miss_latency_p50_ms": 5915.14,
+    "responses_consistent": true
+  }
+}

@@ -66,6 +66,8 @@ uv sync
 ```text
 QDRANT_URL
 QDRANT_COLLECTION
+REDIS_URL (optional; enables the shared exact-answer cache)
+ANSWER_CACHE_TTL_SECONDS (default: 3600)
 EMBEDDING_BASE_URL
 EMBEDDING_MODEL
 LLM_BASE_URL
@@ -73,11 +75,13 @@ LLM_MODEL_ID
 MOONSHOT_API_KEY or OPENAI_API_KEY
 ```
 
-可以通过 Docker Compose 启动 Qdrant：
+可以通过 Docker Compose 启动 Qdrant 和 Redis：
 
 ```bash
-docker compose up -d qdrant
+docker compose up -d qdrant redis
 ```
+
+同步 `/ask` 与 Agent 检索工具使用 Redis Cache-Aside 精确答案缓存；流式问答不缓存。缓存 key 包含问题、检索配置、Prompt/模型和索引版本。文档入库、`build_index` 或 `reset_index` 会递增索引版本，使旧答案立即停止命中。Redis 不可用时问答自动回退到完整 RAG 链路。
 
 也可以构建 RAG 应用镜像（镜像基于 uv workspace 构建，需要在仓库根目录执行）：
 
@@ -520,6 +524,8 @@ The application expects these environment variables:
 ```text
 QDRANT_URL
 QDRANT_COLLECTION
+REDIS_URL (optional; enables the shared exact-answer cache)
+ANSWER_CACHE_TTL_SECONDS (default: 3600)
 EMBEDDING_BASE_URL
 EMBEDDING_MODEL
 LLM_BASE_URL
@@ -527,11 +533,13 @@ LLM_MODEL_ID
 MOONSHOT_API_KEY or OPENAI_API_KEY
 ```
 
-Qdrant can be started with Docker Compose:
+Qdrant and Redis can be started with Docker Compose:
 
 ```bash
-docker compose up -d qdrant
+docker compose up -d qdrant redis
 ```
+
+Synchronous `/ask` calls and the Agent retrieval tool share a Redis Cache-Aside exact-answer cache; streaming responses bypass it. Keys include the question, retrieval settings, prompt/model configuration, and index version. Document ingestion, `build_index`, and `reset_index` advance the index version so stale answers stop matching. Redis failures degrade to the full RAG path.
 
 You can also build the RAG application image (it builds from the uv workspace, so run this from the repository root):
 

@@ -12,8 +12,31 @@ x-backend-environment: &backend-environment
   LLM_THINKING_TYPE: ${LLM_THINKING_TYPE:-disabled}
   MOONSHOT_API_KEY: ${MOONSHOT_API_KEY:-}
   OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+  REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+  ANSWER_CACHE_TTL_SECONDS: ${ANSWER_CACHE_TTL_SECONDS:-3600}
 
 services:
+  redis:
+    image: redis:7.4-alpine
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --maxmemory
+      - 128mb
+      - --maxmemory-policy
+      - volatile-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
   qdrant:
     image: qdrant/qdrant:latest
     ports:
@@ -128,5 +151,6 @@ services:
     restart: unless-stopped
 
 volumes:
+  redis_data:
   qdrant_storage:
   rag_data:
