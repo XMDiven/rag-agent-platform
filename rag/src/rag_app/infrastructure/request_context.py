@@ -10,6 +10,11 @@ import re
 import uuid
 from contextvars import ContextVar, Token
 
+from rag_app.infrastructure.token_usage import (
+    log_request_usage,
+    start_request_usage,
+)
+
 REQUEST_ID_HEADER = "x-request-id"
 MISSING_REQUEST_ID = "-"
 MAX_REQUEST_ID_LENGTH = 64
@@ -81,6 +86,7 @@ class RequestIdMiddleware:
 
         request_id = sanitize_request_id(incoming) or new_request_id()
         token = set_request_id(request_id)
+        usage = start_request_usage()
 
         async def send_with_request_id(message) -> None:
             if message["type"] == "http.response.start":
@@ -92,8 +98,10 @@ class RequestIdMiddleware:
             await send(message)
 
         try:
+            # StreamingResponse 会等响应体流完才返回，所以这里的统计是完整的。
             await self.app(scope, receive, send_with_request_id)
         finally:
+            log_request_usage(usage)
             reset_request_id(token)
 
 

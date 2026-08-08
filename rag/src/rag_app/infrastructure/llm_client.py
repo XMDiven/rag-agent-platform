@@ -1,6 +1,7 @@
 from langchain_openai import ChatOpenAI
 
 from rag_app.config import config
+from rag_app.infrastructure.token_usage import TokenUsageCallback
 
 
 def get_client() -> ChatOpenAI:
@@ -26,6 +27,11 @@ def get_client() -> ChatOpenAI:
         # 调用会永久占住 FastAPI 线程池的一个线程。
         "timeout": config.LLM_TIMEOUT_SECONDS,
         "max_retries": config.LLM_MAX_RETRIES,
+        # langchain 只在用官方 OpenAI 地址时才默认开启；本项目走 Moonshot
+        # 的 base_url，不显式打开的话流式路径拿不到任何 usage，
+        # 而流式恰恰是唯一的用户可见路径。
+        "stream_usage": True,
+        "callbacks": [TokenUsageCallback()],
     }
 
     if thinking_type is not None:

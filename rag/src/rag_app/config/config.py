@@ -50,6 +50,11 @@ class Settings(BaseSettings):
     # SDK 默认重试 2 次，最坏耗时是超时时长的 3 倍；这里收紧到 1 次，
     # 且 ask_service 自身还有 MAX_GENERATION_RETRY 一层，两者会叠乘。
     llm_max_retries: int = 1
+    # 单价按「每百万 token」配置，默认 0：不写死可能过期的价格，
+    # 未配置时只统计 token 数，不产出会被误引用的金额。
+    llm_input_price_per_million: float = 0.0
+    llm_cached_input_price_per_million: float = 0.0
+    llm_output_price_per_million: float = 0.0
     llm_thinking_type: LlmThinkingType | None = None
     moonshot_api_key: str | None = None
     openai_api_key: str | None = None
@@ -81,6 +86,11 @@ ANSWER_CACHE_TTL_SECONDS: int = settings.answer_cache_ttl_seconds
 REDIS_TIMEOUT_SECONDS: float = settings.redis_timeout_seconds
 LLM_TIMEOUT_SECONDS: float = settings.llm_timeout_seconds
 LLM_MAX_RETRIES: int = settings.llm_max_retries
+LLM_INPUT_PRICE_PER_MILLION: float = settings.llm_input_price_per_million
+LLM_CACHED_INPUT_PRICE_PER_MILLION: float = (
+    settings.llm_cached_input_price_per_million
+)
+LLM_OUTPUT_PRICE_PER_MILLION: float = settings.llm_output_price_per_million
 EMBEDDING_TIMEOUT_SECONDS: float = settings.embedding_timeout_seconds
 ROUTER_BACKEND: str = settings.router_backend
 FINETUNED_ROUTER_URL: str = settings.finetuned_router_url

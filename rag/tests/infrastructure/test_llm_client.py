@@ -50,3 +50,26 @@ def test_get_client_bounds_the_upstream_wait(monkeypatch) -> None:
 
     assert captured_kwargs["timeout"] == 60.0
     assert captured_kwargs["max_retries"] == 1
+
+
+def test_get_client_enables_streaming_usage_and_the_usage_callback(monkeypatch) -> None:
+    """走自定义 base_url 时 langchain 不会默认开 stream_usage，
+    不显式打开则流式路径统计不到任何 token。"""
+    captured_kwargs = {}
+
+    class FakeChatOpenAI:
+        def __init__(self, **kwargs) -> None:
+            captured_kwargs.update(kwargs)
+
+    monkeypatch.setenv("LLM_BASE_URL", "https://api.moonshot.cn/v1")
+    monkeypatch.setenv("LLM_MODEL_ID", "kimi-k2.6")
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setattr(llm_client.config, "settings", Settings(_env_file=None))
+    monkeypatch.setattr(llm_client, "ChatOpenAI", FakeChatOpenAI)
+
+    llm_client.get_client()
+
+    assert captured_kwargs["stream_usage"] is True
+    assert [type(cb).__name__ for cb in captured_kwargs["callbacks"]] == [
+        "TokenUsageCallback"
+    ]
