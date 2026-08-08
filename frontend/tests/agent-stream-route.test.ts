@@ -106,3 +106,47 @@ test("re-streams the first upstream chunk before upstream closes", async () => {
   assert.equal(new TextDecoder().decode(first.value), firstLine);
   controller.close();
 });
+
+test("forwards a sanitized request id upstream and back to the browser", async () => {
+  const seen: Array<string | null> = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = (async (_url: string, init: RequestInit) => {
+    const headers = new Headers(init.headers);
+    seen.push(headers.get("x-request-id"));
+    return new Response("ok", {
+      status: 200,
+      headers: {"Content-Type": "application/x-ndjson"},
+    });
+  }) as typeof fetch;
+
+  try {
+    const forwarded = await POST(
+      new Request("http://localhost:3000/api/agent/stream", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-request-id": "trace-1",
+        },
+        body: JSON.stringify({question: "什么是 RAG？"}),
+      }),
+    );
+    assert.equal(seen[0], "trace-1");
+    assert.equal(forwarded.headers.get("x-request-id"), "trace-1");
+
+    const forged = await POST(
+      new Request("http://localhost:3000/api/agent/stream", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-request-id": "bad id with spaces",
+        },
+        body: JSON.stringify({question: "什么是 RAG？"}),
+      }),
+    );
+    assert.notEqual(seen[1], "bad id with spaces");
+    assert.match(String(seen[1]), /^[A-Za-z0-9._-]{1,64}$/);
+    assert.equal(forged.headers.get("x-request-id"), seen[1]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});

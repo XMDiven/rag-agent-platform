@@ -1,17 +1,23 @@
+import {REQUEST_ID_HEADER, resolveRequestId} from "../../../request-id.ts";
+
 const DEFAULT_AGENT_STREAM_API_URL =
   "http://localhost:8002/agent/run/stream";
 
-function invalidQuestionResponse(): Response {
-  return Response.json({error: "请输入有效问题"}, {status: 400});
+function invalidQuestionResponse(requestId: string): Response {
+  return Response.json(
+    {error: "请输入有效问题"},
+    {status: 400, headers: {[REQUEST_ID_HEADER]: requestId}},
+  );
 }
 
 export async function POST(request: Request): Promise<Response> {
+  const requestId = resolveRequestId(request);
   let body: unknown;
 
   try {
     body = await request.json();
   } catch {
-    return invalidQuestionResponse();
+    return invalidQuestionResponse(requestId);
   }
 
   if (
@@ -21,7 +27,7 @@ export async function POST(request: Request): Promise<Response> {
     typeof body.question !== "string" ||
     !body.question.trim()
   ) {
-    return invalidQuestionResponse();
+    return invalidQuestionResponse(requestId);
   }
 
   try {
@@ -30,7 +36,10 @@ export async function POST(request: Request): Promise<Response> {
         DEFAULT_AGENT_STREAM_API_URL,
       {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
+        headers: {
+          "Content-Type": "application/json",
+          [REQUEST_ID_HEADER]: requestId,
+        },
         body: JSON.stringify({question: body.question.trim()}),
         cache: "no-store",
       },
@@ -44,12 +53,13 @@ export async function POST(request: Request): Promise<Response> {
           "application/x-ndjson",
         "Cache-Control": "no-cache",
         "X-Content-Type-Options": "nosniff",
+        [REQUEST_ID_HEADER]: requestId,
       },
     });
   } catch {
     return Response.json(
       {error: "Agent 服务暂时不可用"},
-      {status: 502},
+      {status: 502, headers: {[REQUEST_ID_HEADER]: requestId}},
     );
   }
 }
