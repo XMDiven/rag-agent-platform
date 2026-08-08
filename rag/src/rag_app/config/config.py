@@ -40,9 +40,16 @@ class Settings(BaseSettings):
 
     embedding_base_url: str | None = None
     embedding_model: str | None = None
+    embedding_timeout_seconds: float = 30.0
 
     llm_base_url: str | None = None
     llm_model_id: str | None = None
+    # 无超时的上游调用会永久占住 FastAPI 线程池里的一个线程，攒够就整体不可用。
+    # 60s 取自实测：/ask P95 约 19.5s，Agent 单轮 LLM 调用约 25-30s。
+    llm_timeout_seconds: float = 60.0
+    # SDK 默认重试 2 次，最坏耗时是超时时长的 3 倍；这里收紧到 1 次，
+    # 且 ask_service 自身还有 MAX_GENERATION_RETRY 一层，两者会叠乘。
+    llm_max_retries: int = 1
     llm_thinking_type: LlmThinkingType | None = None
     moonshot_api_key: str | None = None
     openai_api_key: str | None = None
@@ -72,6 +79,9 @@ COLLECTION_NAME: str | None = settings.qdrant_collection
 REDIS_URL: str | None = settings.redis_url
 ANSWER_CACHE_TTL_SECONDS: int = settings.answer_cache_ttl_seconds
 REDIS_TIMEOUT_SECONDS: float = settings.redis_timeout_seconds
+LLM_TIMEOUT_SECONDS: float = settings.llm_timeout_seconds
+LLM_MAX_RETRIES: int = settings.llm_max_retries
+EMBEDDING_TIMEOUT_SECONDS: float = settings.embedding_timeout_seconds
 ROUTER_BACKEND: str = settings.router_backend
 FINETUNED_ROUTER_URL: str = settings.finetuned_router_url
 

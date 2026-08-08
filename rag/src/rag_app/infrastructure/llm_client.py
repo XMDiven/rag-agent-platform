@@ -22,6 +22,10 @@ def get_client() -> ChatOpenAI:
         "api_key": api_key,
         "base_url": base_url,
         "model": model,
+        # 没有这两项时底层 httpx 的超时是 None（无限等待），一次挂死的上游
+        # 调用会永久占住 FastAPI 线程池的一个线程。
+        "timeout": config.LLM_TIMEOUT_SECONDS,
+        "max_retries": config.LLM_MAX_RETRIES,
     }
 
     if thinking_type is not None:
