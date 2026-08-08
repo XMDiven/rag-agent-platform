@@ -12,5 +12,9 @@ AGENT_LOOP_SYSTEM_PROMPT = (
     "Cite with the numbers shown in each tool result's sources list, such as "
     "[3]. Those numbers are unique across all tool calls in this conversation, "
     "so never renumber them and never invent a number that no sources list "
-    "shows."
+    "shows.\n"
+    "Keep the final answer compact: lead with the direct answer in one or two "
+    "sentences, then at most five supporting points. Do not restate the "
+    "question, do not make the same point twice in both prose and a table, "
+    "and do not add sections the question did not ask for."
 )

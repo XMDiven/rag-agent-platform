@@ -26,6 +26,7 @@ from rag_app.evaluation.judge_schema import (
     AnswerJudgeResult,
 )
 from rag_app.infrastructure.llm_client import get_client
+from rag_app.infrastructure.token_usage import start_request_usage
 
 
 DEFAULT_OUTPUT_DIR = AGENT_PROJECT_ROOT / "experiments" / "runs" / "judge"
@@ -125,6 +126,8 @@ def evaluate_case(
     judge_fn: Callable[..., AnswerJudgeResult] = judge_answer,
     timer: Callable[[], float] = perf_counter,
 ) -> dict[str, Any]:
+    # token 统计平时由 HTTP 中间件建立；评测是进程内直接调用，需自己开一个。
+    usage = start_request_usage()
     agent_started_at = timer()
     try:
         agent_result = run_agent_fn(case.question)
@@ -157,6 +160,10 @@ def evaluate_case(
         "id": case.id,
         "question": case.question,
         "task_type": case.task_type,
+        "llm_calls": usage.llm_calls,
+        "input_tokens": usage.input_tokens,
+        "cached_input_tokens": usage.cached_input_tokens,
+        "output_tokens": usage.output_tokens,
         "answer": answer,
         "sources": sanitize_sources(sources),
         "termination_reason": agent_result.termination_reason,
@@ -308,6 +315,14 @@ def summarize_results(results: list[dict[str, Any]]) -> dict[str, Any]:
     average_total, p95_total = duration_metrics("total_duration_seconds")
     passed = sum(bool(result.get("passed")) for result in judged_results)
 
+    def token_average(field: str) -> float:
+        values = [
+            float(result[field])
+            for result in results
+            if isinstance(result.get(field), (int, float))
+        ]
+        return round(sum(values) / len(values), 1) if values else 0.0
+
     return {
         "total": total,
         "judged_total": judged_total,
@@ -318,6 +333,10 @@ def summarize_results(results: list[dict[str, Any]]) -> dict[str, Any]:
             round(passed / judged_total, 3) if judged_total else 0.0
         ),
         "pass_rate_by_task_type": summarize_by_task_type(judged_results),
+        "average_llm_calls": token_average("llm_calls"),
+        "average_input_tokens": token_average("input_tokens"),
+        "average_cached_input_tokens": token_average("cached_input_tokens"),
+        "average_output_tokens": token_average("output_tokens"),
         "average_scores": average_scores,
         "average_agent_duration_seconds": average_agent,
         "p95_agent_duration_seconds": p95_agent,

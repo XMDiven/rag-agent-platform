@@ -122,6 +122,10 @@ def test_evaluate_case_judges_agent_answer_once_and_sanitizes_sources() -> None:
         "id": "rag_definition",
         "question": "What is RAG?",
         "task_type": "retrieval",
+        "llm_calls": 0,
+        "input_tokens": 0,
+        "cached_input_tokens": 0,
+        "output_tokens": 0,
         "judge_applicable": True,
         "scored_dimensions": [
             "relevance_score",
@@ -268,6 +272,10 @@ def test_summarize_results_returns_zero_metrics_for_empty_cases() -> None:
         "failed": 0,
         "pass_rate": 0.0,
         "pass_rate_by_task_type": {},
+        "average_llm_calls": 0.0,
+        "average_input_tokens": 0.0,
+        "average_cached_input_tokens": 0.0,
+        "average_output_tokens": 0.0,
         "average_scores": {
             "relevance": 0.0,
             "completeness": 0.0,
@@ -330,6 +338,10 @@ def test_summarize_results_uses_valid_judges_for_score_averages() -> None:
         "pass_rate_by_task_type": {
             "retrieval": {"total": 3, "passed": 2, "pass_rate": 0.667},
         },
+        "average_llm_calls": 0.0,
+        "average_input_tokens": 0.0,
+        "average_cached_input_tokens": 0.0,
+        "average_output_tokens": 0.0,
         "average_scores": {
             "relevance": 4.5,
             "completeness": 4.0,
