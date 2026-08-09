@@ -55,7 +55,7 @@ flowchart TD
 
 当前仓库结构把 RAG 作为 Agent 系统的第一个可运行子项目。`rag` 子项目已经支持文档摄入、批量上传、向量检索、问答生成、流式问答、来源返回、轻量问题分析、检索规划、执行 trace、Prompt 版本管理、Redis Cache-Aside 精确答案缓存、离线评测、LLM-as-Judge 结构化评分和 Prompt A/B 对比报告。`agent` 子项目在 RAG 之上提供编排层：默认走基于 native function calling 的多步 agent loop（模型自主多轮选择并调用工具、工具结果与失败都回灌模型，由模型决定继续调工具还是收尾），并保留规则式单步编排作为降级路径；同时提供兼容的一次性 JSON 接口 `/agent/run` 和真正逐块输出的 NDJSON 接口 `/agent/run/stream`。
 
-当前扩展重点是把现有能力整理成可复现的工程证据，并继续补齐 request-id、token/成本和轻量指标等可观测性能力。公网部署因暂无长期服务器资源暂缓，不影响本地运行、测试和评测证据。
+当前项目已进入工程收尾阶段：核心功能、自动化测试、端到端演示、request-id 调用链追踪和 token/成本计量均已有代码与验证证据。公网部署因暂无长期服务器资源暂缓，因此项目定位是本地可复现的工程作品，不声称已经生产上线。
 
 ## 子项目
 
@@ -72,21 +72,30 @@ flowchart TD
 - RAG：Markdown/PDF 摄入、单文件上传、批量上传、Qdrant 索引、`/ask`、`/ask/stream`、来源引用、RAG trace、Prompt 版本、Redis 共享精确答案缓存（TTL、索引版本失效、fail-open）、离线评估、LLM-as-Judge 评分报告和 Prompt A/B 对比报告。
 - Agent：`retrieval_tool`、`summary_tool`、`question_decompose_tool`、`fallback_tool`、基于 native function calling 的多步 agent loop（`run_agent_loop`，工具失败回灌模型由其自主恢复）+ 规则式单步降级（`run_agent_once`）、`run_tool` 工具派发、executor、AgentState、Agent trace、工具失败结构化返回，以及工具轨迹/结束原因/来源/延迟的离线评测 runner。
 - Agent 与 Frontend：`/agent/run/stream` 输出版本化 NDJSON 事件，BFF 不缓冲地转发响应体；页面增量渲染 `step` 和 `answer_delta`，最终接收 `sources` 与 `done`。原 `/agent/run` JSON 接口保持兼容。
+- 可观测性：`X-Request-ID` 贯穿 Frontend BFF、Agent 与 RAG 调用链；请求结束记录 LLM 调用次数、输入/缓存输入/输出 token 和可配置成本。
+- 大文档：已验证 100 页 PDF 完成解析、切分为 452 个 chunk、写入 Qdrant，并在检索和回答评测中命中。详见 [`rag/experiments/reports/ingestion/large_pdf_ingestion_report.md`](rag/experiments/reports/ingestion/large_pdf_ingestion_report.md)。
 
 ## 可复现工程数据
 
-- **测试与构建**：根目录 Python 测试 286 项；前端 Node 测试 23 项，并通过 ESLint、TypeScript 检查和 Next.js production build。
+- **测试与构建**：根目录 Python 测试 305 项；前端 Node 测试 25 项，并通过 ESLint、TypeScript 检查和 Next.js production build。
 - **Redis 精确缓存**：5 次相同问题实测为 1 次 miss + 4 次 hit，miss 5915.14 ms、hit P50 3.495 ms、命中率 80%，重复请求延迟下降 99.94%；Redis 停机时请求仍通过 fail-open 路径返回。详见 [`rag/experiments/reports/cache/redis_exact_cache_2026-08-05.md`](rag/experiments/reports/cache/redis_exact_cache_2026-08-05.md)。
 - **Agent 流式稳定性**：12 条 golden case 全部满足事件协议并正常结束，未出现 reasoning 与 answer 混流；平均首事件 7.796 s、平均首答案 11.683 s。详见 [`agent/experiments/reports/streaming/baseline_2026-08-03.md`](agent/experiments/reports/streaming/baseline_2026-08-03.md)。
 - **并发基线**：`/ask` 在并发 1→8 时吞吐从 0.065 提升到 0.427 rps、错误率为 0；结果表明当前并发范围内主要瓶颈是 LLM 生成延迟，而不是线程池。详见 [`agent/experiments/reports/concurrency/baseline_2026-08-04.md`](agent/experiments/reports/concurrency/baseline_2026-08-04.md)。
 
-仍需要补证据后再写进简历的能力：
+当前没有证据、因此不应写进简历的能力：
 
-- 100+ 页 PDF 稳定处理。
 - 平均响应时延 2s 内。
 - 上下文命中率提升约 20%。
 - AutoGen、网络搜索工具。
 - 完整 A/B Prompt 对比平台、300+ 样本或 80+ 组实验。
+
+## 已知边界
+
+- 当前没有长期运行的公网部署，也没有认证、限流或租户隔离；它是本地工程演示，不是生产 SaaS。
+- 当前没有 `/metrics` 指标端点或集中式告警，聚合分析仍依赖带 request-id 的日志和离线报告。
+- 多步 Agent 的延迟与 token 消耗明显高于单次 RAG；极端情况下应用层与 SDK 重试还会叠加等待时间。
+- 上传接口适合可信本地环境，尚未增加文件大小限制、恶意文件扫描或异步任务队列。
+- LLM-as-Judge 只作为内部回归信号；多来源回答仍有采样波动，不能把单次通过率解释为稳定质量。
 
 ## Docker Compose 一键启动
 

@@ -146,8 +146,8 @@ curl -X POST http://127.0.0.1:8001/documents/upload/batch \
 
 ```bash
 docker compose up -d qdrant
-python -m rag_app.scripts.reset_index
-python -m rag_app.scripts.build_index
+uv run python -m rag_app.scripts.reset_index
+uv run python -m rag_app.scripts.build_index
 ```
 
 如果你已经通过 API 上传了单个文件，也可以只入库这个文件：
@@ -161,7 +161,7 @@ curl -X POST http://127.0.0.1:8001/documents/ingest \
 5. 启动 API 并提问：
 
 ```bash
-uvicorn rag_app.app.main:app --host 127.0.0.1 --port 8001 --reload
+uv run uvicorn rag_app.app.main:app --host 127.0.0.1 --port 8001 --reload
 ```
 
 ```bash
@@ -173,8 +173,8 @@ curl -X POST http://127.0.0.1:8001/ask \
 6. 运行验证：
 
 ```bash
-pytest tests/ -q
-python -m rag_app.scripts.run_eval
+uv run pytest tests/ -q
+uv run python -m rag_app.scripts.run_eval
 ```
 
 说明：`run_eval` 依赖已经构建好的 Qdrant 索引和本地实验语料。若你使用自己的文档，需要同步调整 `experiments/datasets/retrieval_eval_cases.json`。
@@ -604,8 +604,8 @@ curl -X POST http://127.0.0.1:8001/documents/upload/batch \
 
 ```bash
 docker compose up -d qdrant
-python -m rag_app.scripts.reset_index
-python -m rag_app.scripts.build_index
+uv run python -m rag_app.scripts.reset_index
+uv run python -m rag_app.scripts.build_index
 ```
 
 If you uploaded a single file through the API, you can ingest only that file:
@@ -619,7 +619,7 @@ curl -X POST http://127.0.0.1:8001/documents/ingest \
 5. Start the API and ask a question:
 
 ```bash
-uvicorn rag_app.app.main:app --host 127.0.0.1 --port 8001 --reload
+uv run uvicorn rag_app.app.main:app --host 127.0.0.1 --port 8001 --reload
 ```
 
 ```bash
@@ -631,8 +631,8 @@ curl -X POST http://127.0.0.1:8001/ask \
 6. Run verification:
 
 ```bash
-pytest tests/ -q
-python -m rag_app.scripts.run_eval
+uv run pytest tests/ -q
+uv run python -m rag_app.scripts.run_eval
 ```
 
 Note: `run_eval` depends on a built Qdrant index and the local experiment corpus. If you use your own documents, update `experiments/datasets/retrieval_eval_cases.json` accordingly.
