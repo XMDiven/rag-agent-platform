@@ -346,6 +346,75 @@ def test_citation_markers_are_stripped_from_tool_answers() -> None:
     assert payload["sources"] == ["[1] langgraph.md", "[2] pregel.md"]
 
 
+def test_partial_decomposition_payload_exposes_safe_failure_summary() -> None:
+    tool_result = ToolResult(
+        tool_name="question_decompose_tool",
+        status="partial_success",
+        output={
+            "answer": "1. LangChain 适合做什么？\nLangChain answer",
+            "sources": [{"source": "langchain.md"}],
+            "sub_results": [
+                {
+                    "question": "LangChain 适合做什么？",
+                    "status": "success",
+                },
+                {
+                    "question": "LlamaIndex 适合做什么？",
+                    "status": "failed",
+                    "error_type": "RuntimeError",
+                    "error": "internal endpoint unavailable",
+                    "attempts": [{"attempt": 1, "status": "failed"}],
+                },
+            ],
+        },
+        attempts=[],
+    )
+
+    payload = compact_tool_payload(tool_result)
+
+    assert payload == {
+        "status": "partial_success",
+        "answer": "1. LangChain 适合做什么？\nLangChain answer",
+        "sources": ["[1] langchain.md"],
+        "failed_sub_questions": [
+            {
+                "question": "LlamaIndex 适合做什么？",
+                "reason": "retrieval_failed",
+            }
+        ],
+    }
+
+
+def test_successful_decomposition_payload_omits_failure_summary() -> None:
+    tool_result = ToolResult(
+        tool_name="question_decompose_tool",
+        status="success",
+        output={
+            "answer": "Both sub-questions succeeded.",
+            "sources": [],
+            "sub_results": [
+                {
+                    "question": "LangChain 适合做什么？",
+                    "status": "success",
+                },
+                {
+                    "question": "LlamaIndex 适合做什么？",
+                    "status": "success",
+                },
+            ],
+        },
+        attempts=[],
+    )
+
+    payload = compact_tool_payload(tool_result)
+
+    assert payload == {
+        "status": "success",
+        "answer": "Both sub-questions succeeded.",
+        "sources": [],
+    }
+
+
 def test_source_numbering_continues_across_tool_calls() -> None:
     def retrieval_result(*sources: str) -> ToolResult:
         return ToolResult(

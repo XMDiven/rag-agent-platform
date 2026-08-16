@@ -164,6 +164,31 @@ def compact_tool_payload(
         start_index,
     )
 
+    if tool_result.tool_name == "question_decompose_tool":
+        sub_results = output.get("sub_results")
+        failed_sub_questions: list[dict[str, str]] = []
+
+        if isinstance(sub_results, list):
+            for sub_result in sub_results:
+                if not isinstance(sub_result, dict):
+                    continue
+
+                question = sub_result.get("question")
+                if (
+                    sub_result.get("status") == "failed"
+                    and isinstance(question, str)
+                    and question.strip()
+                ):
+                    failed_sub_questions.append(
+                        {
+                            "question": question.strip(),
+                            "reason": "retrieval_failed",
+                        }
+                    )
+
+        if failed_sub_questions:
+            payload["failed_sub_questions"] = failed_sub_questions
+
     return payload
 
 
