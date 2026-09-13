@@ -182,3 +182,25 @@ def stream_agent_events(
 def stream_agent_ndjson(question: str) -> Iterator[str]:
     for event in stream_agent_events(question):
         yield encode_event(event)
+
+
+async def stream_agent_ndjson_async(question: str):
+    from contextlib import aclosing
+    from agent_app.orchestration.async_streaming import stream_agent_loop_async
+
+    try:
+        analysis = analyze_query(question)
+        if should_skip_loop(analysis):
+            for event in _events_from_single_result(run_agent_once(question, analysis)):
+                yield encode_event(event)
+            return
+        async with aclosing(stream_agent_loop_async(question, get_client(), max_steps=AGENT_MAX_STEPS)) as events:
+            async for event in events:
+                yield encode_event(event)
+    except MixedModelOutputError:
+        for event in _failure_events(code="mixed_model_output", message="模型返回了不兼容的混合流，请重试"):
+            yield encode_event(event)
+    except Exception as error:
+        logger.warning("agent.stream failed error_type=%s", type(error).__name__)
+        for event in _failure_events():
+            yield encode_event(event)

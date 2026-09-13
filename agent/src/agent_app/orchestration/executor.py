@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Any
+from agent_app.orchestration.cancellation import check_cancelled
 
 from agent_app.orchestration.planner import AgentPlan
 from agent_app.tools.question_decompose import run_question_decompose_tool
@@ -61,6 +62,7 @@ def run_decomposed_retrieval(question: str) -> dict[str, Any]:
     answer_parts: list[str] = []
 
     for index, sub_question in enumerate(sub_questions, start=1):
+        check_cancelled()
         try:
             retrieval_output = normalize_output(
                 run_retrieval_tool(str(sub_question))
@@ -124,6 +126,7 @@ def run_tool(
     tool_name: str,
     tool_input: dict[str, Any] | None = None,
 ) -> ToolResult:
+    check_cancelled()
     if tool_name == "retrieval_tool":
         question = str((tool_input or {}).get("question", ""))
         try:

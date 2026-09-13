@@ -42,6 +42,7 @@ export async function POST(request: Request): Promise<Response> {
         },
         body: JSON.stringify({question: body.question.trim()}),
         cache: "no-store",
+        signal: request.signal,
       },
     );
 

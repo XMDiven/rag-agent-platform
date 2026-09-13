@@ -18,6 +18,22 @@ test.afterEach(() => {
   delete process.env.AGENT_STREAM_API_URL;
 });
 
+test("forwards client cancellation to the upstream request", async () => {
+  const controller = new AbortController();
+  let upstreamSignal: AbortSignal | null | undefined;
+  globalThis.fetch = async (_input, init) => {
+    upstreamSignal = init?.signal;
+    return new Response("{}");
+  };
+  const request = new Request("http://localhost/api/agent/stream", {
+    method: "POST", body: JSON.stringify({question: "q"}), signal: controller.signal,
+  });
+  await POST(request);
+  assert.equal(upstreamSignal?.aborted, false);
+  controller.abort();
+  assert.equal(upstreamSignal?.aborted, true);
+});
+
 test("forwards a valid question to the configured streaming Agent API", async () => {
   process.env.AGENT_STREAM_API_URL =
     "http://agent.example/agent/run/stream";

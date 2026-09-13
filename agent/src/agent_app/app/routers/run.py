@@ -1,19 +1,20 @@
 from typing import Any
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
 
 from agent_app.schemas.run import AgentRunRequest, AgentRunResponse
 from agent_app.service import run_agent
-from agent_app.streaming_service import stream_agent_ndjson
+from agent_app.streaming_service import stream_agent_ndjson_async as stream_agent_ndjson
+from agent_app.orchestration.async_streaming import stream_until_disconnect
 
 router = APIRouter()
 
 
 @router.post("/agent/run/stream")
-def stream_agent_endpoint(request: AgentRunRequest) -> StreamingResponse:
+def stream_agent_endpoint(request: AgentRunRequest, http_request: Request) -> StreamingResponse:
     return StreamingResponse(
-        stream_agent_ndjson(request.question),
+        stream_until_disconnect(http_request, stream_agent_ndjson(request.question)),
         media_type="application/x-ndjson",
         headers={
             "Cache-Control": "no-cache",

@@ -26,11 +26,13 @@ def test_stream_agent_endpoint_returns_ndjson_events(monkeypatch) -> None:
             },
         },
     ]
+    async def fake_stream(question):
+        for event in events:
+            yield json.dumps(event, ensure_ascii=False) + "\n"
+
     monkeypatch.setattr(
         "agent_app.app.routers.run.stream_agent_ndjson",
-        lambda question: iter(
-            json.dumps(event, ensure_ascii=False) + "\n" for event in events
-        ),
+        fake_stream,
         raising=False,
     )
 
