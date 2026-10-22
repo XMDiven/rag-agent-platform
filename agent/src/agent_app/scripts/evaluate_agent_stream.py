@@ -5,9 +5,13 @@ import json
 from collections import Counter
 from collections.abc import Callable, Iterator
 from datetime import datetime, timezone
+from functools import partial
 from pathlib import Path
 from time import perf_counter
 from typing import Any
+
+import httpx
+from pydantic import TypeAdapter
 
 from agent_app.schemas.stream import AgentStreamEvent
 from agent_app.scripts.evaluate_agent import (
@@ -18,15 +22,40 @@ from agent_app.scripts.evaluate_agent import (
     nearest_rank_percentile,
     utc_timestamp,
 )
-from agent_app.streaming_service import stream_agent_events
 
 DEFAULT_OUTPUT_DIR = AGENT_PROJECT_ROOT / "experiments" / "runs" / "streaming"
+DEFAULT_URL = "http://127.0.0.1:8002/agent/run/stream"
+DEFAULT_TIMEOUT_SECONDS = 120.0
+EVENT_ADAPTER = TypeAdapter(AgentStreamEvent)
+
+
+def stream_agent_http(
+    question: str,
+    *,
+    url: str = DEFAULT_URL,
+    timeout: float = DEFAULT_TIMEOUT_SECONDS,
+) -> Iterator[AgentStreamEvent]:
+    with httpx.Client(timeout=timeout) as client:
+        with client.stream(
+            "POST", url, json={"question": question},
+            headers={"Accept": "application/x-ndjson"},
+        ) as response:
+            response.raise_for_status()
+            content_type = response.headers.get("content-type", "").split(";")[0]
+            if content_type.strip().lower() != "application/x-ndjson":
+                raise ValueError("Expected an NDJSON response")
+            for line in response.iter_lines():
+                if line.strip():
+                    event = EVENT_ADAPTER.validate_json(line)
+                    if not {"version", "type"} <= event.model_fields_set:
+                        raise ValueError("Missing stream event version or type")
+                    yield event
 
 
 def evaluate_stream_case(
     case: AgentEvalCase,
     stream_fn: Callable[[str], Iterator[AgentStreamEvent]] = (
-        stream_agent_events
+        stream_agent_http
     ),
     timer: Callable[[], float] = perf_counter,
 ) -> dict[str, Any]:
@@ -279,6 +308,17 @@ def build_parser() -> argparse.ArgumentParser:
         description="Evaluate Agent streaming stability and latency.",
     )
     parser.add_argument(
+        "--url",
+        default=DEFAULT_URL,
+        help="URL of the running Agent /agent/run/stream endpoint.",
+    )
+    parser.add_argument(
+        "--timeout",
+        type=float,
+        default=DEFAULT_TIMEOUT_SECONDS,
+        help="HTTP connect/read/write/pool timeout in seconds, not a total run deadline.",
+    )
+    parser.add_argument(
         "--cases",
         type=Path,
         default=DEFAULT_CASES_PATH,
@@ -295,7 +335,12 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    report = run_evaluation(load_cases(args.cases))
+    evaluate_case = partial(
+        evaluate_stream_case,
+        stream_fn=partial(stream_agent_http, url=args.url, timeout=args.timeout),
+    )
+    report = run_evaluation(load_cases(args.cases), evaluate_case_fn=evaluate_case)
+    report["transport"] = "http"
     output_path = write_report(report, output_dir=args.output_dir)
     summary = report["summary"]
 

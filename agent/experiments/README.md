@@ -18,7 +18,7 @@ experiments/
 
 ## 前置条件
 
-真实评测会调用现有 `run_agent()`，因此需要：
+编排和答案质量评测直接调用现有 `run_agent()`，流式评测通过 HTTP 调用运行中的 Agent 服务。真实评测需要：
 
 - 已根据根目录说明完成 `uv sync`；
 - Qdrant 正在运行且已经摄入评测问题对应的知识库文档；
@@ -38,11 +38,19 @@ uv run python -m agent_app.scripts.evaluate_agent
 uv run python -m agent_app.scripts.evaluate_agent_answers
 ```
 
-运行 Agent 流式稳定性评测：
+运行 Agent 流式稳定性评测前，先在另一个终端启动 Agent API（Docker Compose 已启动该服务时可跳过）：
+
+```bash
+uv run uvicorn agent_app.app.main:app --host 127.0.0.1 --port 8002
+```
+
+然后运行评测：
 
 ```bash
 uv run python -m agent_app.scripts.evaluate_agent_stream
 ```
+
+默认请求 `http://127.0.0.1:8002/agent/run/stream`。可用 `--url` 指定其他接口地址、`--timeout 120` 设置 HTTP 连接、读、写和连接池等待超时（秒）；读超时限制两次接收数据之间的等待，不是整个 Agent 任务的总时间上限。脚本逐行读取 NDJSON，不等待完整响应才解析事件。真实运行仍会产生模型调用费用。
 
 指定其他数据集或输出目录：
 
@@ -75,10 +83,12 @@ uv run python -m agent_app.scripts.evaluate_agent \
 
 答案 Judge 第一版与 Agent 使用同一个配置模型，报告会标记 `judge_independence: same_model`。它适合作为内部回归信号，不等同于独立模型或人工评审。Judge 运行有额外模型成本和波动，因此不进入默认 CI。全部 case 通过时退出码为 `0`，任一 Agent/Judge case 失败时为 `1`。
 
-流式评测直接消费 `stream_agent_events()`，记录协议事件类型、工具名、计数、结束状态，以及首事件、首答案和完整流耗时。报告不会保存答案正文、来源对象、snippet、工具参数或异常消息。模型以稳定的 `error → done` 结束时会计入流失败率，例如 `mixed_model_output`，但不会被当作评测器损坏；缺少 `done`、事件顺序错误或未处理异常才属于协议无效，并使 CLI 返回非零。
+流式评测通过 `POST /agent/run/stream` 访问当前异步执行路径，将收到的 NDJSON 校验为版本化事件，再复用原有事件顺序和完成状态检查。报告标记 `transport: http`，记录事件类型、工具名、计数、结束状态，以及客户端收到首事件、首答案和完整流的耗时；不保存答案正文、来源对象、snippet、工具参数或异常消息。模型以稳定的 `error → done` 结束时会计入流失败率，例如 `mixed_model_output`，但不会被当作评测器损坏；缺少 `done`、连接中断、事件顺序错误、格式错误或 HTTP 请求异常均属于协议无效，并使 CLI 返回非零。脚本直接访问 Agent API，不包含 BFF 或浏览器的耗时。
 
 已人工复核的首次真实结果见：
 
 - [`reports/evaluation/baseline_2026-08-03.md`](reports/evaluation/baseline_2026-08-03.md)：编排契约 12/12；
 - [`reports/judge/baseline_2026-08-03.md`](reports/judge/baseline_2026-08-03.md)：答案 Judge 5/12，并区分 rubric 不适用与真实 groundedness 问题；
 - [`reports/streaming/baseline_2026-08-03.md`](reports/streaming/baseline_2026-08-03.md)：流完成、协议有效和成功结束均为 12/12，并记录首事件、首答案和总耗时。
+
+2026-08-03 的流式基线使用旧的进程内同步执行路径，保留原测试范围，不能当作当前 HTTP 异步接口的新基线。当前改造已通过假模型和模拟 HTTP 响应验证，并用本地真实 HTTP 服务检查首事件能在回答结束前到达；真实模型的新基线需要另行运行。
