@@ -32,6 +32,7 @@ class FakeStreamingChatModel:
     ) -> None:
         self._responses = [list(response) for response in responses]
         self.tool_choices: list[str] = []
+        self.invocations: list[list[Any]] = []
 
     def bind_tools(
         self,
@@ -43,6 +44,11 @@ class FakeStreamingChatModel:
 
     def stream(self, messages: Any):
         yield from self._responses.pop(0)
+
+    async def astream(self, messages: Any):
+        self.invocations.append(list(messages))
+        for chunk in self._responses.pop(0):
+            yield chunk
 
 
 @pytest.fixture
