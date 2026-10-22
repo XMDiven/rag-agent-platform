@@ -88,6 +88,7 @@ def evaluate_answer_result(
     if not has_expected_sources(
         sources=sources,
         expected_source_contains=case.expected_source_contains,
+        match=case.match,
     ):
         failures.append("expected source not found")
 

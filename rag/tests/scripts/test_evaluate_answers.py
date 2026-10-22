@@ -1,3 +1,5 @@
+import pytest
+
 from rag_app.scripts.evaluate_answers import (
     answer_has_forbidden_fragments,
     answer_has_required_v2_sections,
@@ -79,6 +81,44 @@ def test_evaluate_answer_result_fails_when_expected_source_is_missing() -> None:
 
     assert not passed
     assert "expected source not found" in failures
+
+
+@pytest.mark.parametrize(
+    ("match", "source_paths", "expected_passed"),
+    [
+        pytest.param(
+            "all", ["langchain-docs.md"], False, id="all-missing-source"
+        ),
+        pytest.param(
+            "all",
+            ["langchain-docs.md", "llamaindex-docs.md"],
+            True,
+            id="all-sources-present",
+        ),
+        pytest.param(
+            "any", ["langchain-docs.md"], True, id="any-one-source-present"
+        ),
+    ],
+)
+def test_evaluate_answer_result_respects_source_match_mode(
+    monkeypatch, match: str, source_paths: list[str], expected_passed: bool
+) -> None:
+    monkeypatch.setattr(config, "QA_PROMPT_VERSION", "qa_prompt_v1")
+    case = RetrievalEvalCase(
+        id="framework_comparison",
+        question="Compare LangChain and LlamaIndex.",
+        expected_source_contains=["langchain-docs.md", "llamaindex-docs.md"],
+        match=match,
+    )
+    result = {
+        "answer": "Both frameworks support retrieval workflows. [1]",
+        "sources": [{"source": path} for path in source_paths],
+    }
+
+    passed, failures = evaluate_answer_result(case, result)
+
+    assert passed is expected_passed
+    assert failures == ([] if expected_passed else ["expected source not found"])
 
 
 def test_evaluate_answer_result_fails_when_answer_is_fallback() -> None:
