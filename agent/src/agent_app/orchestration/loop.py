@@ -159,6 +159,10 @@ def compact_tool_payload(
     if isinstance(answer, str):
         payload["answer"] = strip_citation_markers(answer)
 
+    summary = output.get("summary")
+    if isinstance(summary, str):
+        payload["summary"] = summary
+
     payload["sources"] = compact_source_labels(
         output.get("sources"),
         start_index,

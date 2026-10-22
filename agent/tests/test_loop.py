@@ -222,6 +222,49 @@ def test_loop_appends_ai_message_and_tool_message_before_next_round() -> None:
     }
 
 
+def test_loop_passes_summary_to_model_before_next_round() -> None:
+    first_message = tool_call_message(
+        call_id="call_summary_1",
+        name="summary_tool",
+        args={"text": "RAG retrieves context before generating answers."},
+    )
+    fake_llm = FakeModel(
+        responses=[
+            first_message,
+            AIMessage(content="RAG grounds answers in retrieved context."),
+        ]
+    )
+    summary = "RAG grounds answers in retrieved context."
+
+    def execute_tool(name: str, args: dict[str, Any]) -> ToolResult:
+        assert name == "summary_tool"
+        assert args == {"text": "RAG retrieves context before generating answers."}
+        return ToolResult(
+            tool_name=name,
+            status="success",
+            output={"summary": summary},
+            attempts=[],
+        )
+
+    run_agent_loop(
+        question="Summarize how RAG works.",
+        llm=cast(ChatOpenAI, fake_llm),
+        execute_tool=execute_tool,
+        max_steps=4,
+    )
+
+    second_messages = fake_llm.invocations[1].messages
+    assert second_messages[-2] is first_message
+    assert isinstance(second_messages[-1], ToolMessage)
+    assert second_messages[-1].tool_call_id == "call_summary_1"
+    tool_payload = json.loads(str(second_messages[-1].content))
+    assert tool_payload == {
+        "status": "success",
+        "summary": summary,
+        "sources": [],
+    }
+
+
 def test_loop_finalizes_with_tool_choice_none_when_max_steps_is_reached() -> None:
     fake_llm = FakeModel(
         responses=[
