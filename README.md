@@ -31,8 +31,9 @@ flowchart TD
     U[用户提问] --> BFF[Next.js BFF<br/>POST /api/agent/stream]
     BFF --> EP[FastAPI<br/>POST /agent/run/stream]
     EP --> AQ[analyze_query 问题分析]
-    AQ -->|空问题 / loop 异常 → 降级| ONCE[单步编排 run_agent_once]
-    AQ --> LOOP[多步 Agent Loop<br/>run_agent_loop]
+    AQ -->|空问题| ONCE[单步编排 run_agent_once]
+    AQ -->|非空问题| LOOP[异步多步 Agent Loop<br/>stream_agent_loop_async]
+    LOOP -->|未处理异常| ERR[error + done<br/>termination_reason=failed]
 
     LOOP -->|bind_tools, tool_choice=auto| DEC{模型每轮决策}
     DEC -->|选择调工具| DISP[run_tool 工具派发]
@@ -53,7 +54,14 @@ flowchart TD
     end
 ```
 
-当前仓库结构把 RAG 作为 Agent 系统的第一个可运行子项目。`rag` 子项目已经支持文档摄入、批量上传、向量检索、问答生成、流式问答、来源返回、轻量问题分析、检索规划、执行 trace、Prompt 版本管理、Redis Cache-Aside 精确答案缓存、离线评测、LLM-as-Judge 结构化评分和 Prompt A/B 对比报告。`agent` 子项目在 RAG 之上提供编排层：默认走基于 native function calling 的多步 agent loop（模型自主多轮选择并调用工具、工具结果与失败都回灌模型，由模型决定继续调工具还是收尾），并保留规则式单步编排作为降级路径；同时提供兼容的一次性 JSON 接口 `/agent/run` 和真正逐块输出的 NDJSON 接口 `/agent/run/stream`。
+当前仓库结构把 RAG 作为 Agent 系统的第一个可运行子项目。`rag` 子项目已经支持文档摄入、批量上传、向量检索、问答生成、流式问答、来源返回、轻量问题分析、检索规划、执行 trace、Prompt 版本管理、Redis Cache-Aside 精确答案缓存、离线评测、LLM-as-Judge 结构化评分和 Prompt A/B 对比报告。`agent` 子项目在 RAG 之上提供编排层：默认走基于 native function calling 的多步 agent loop，模型自主多轮选择并调用工具，工具结果与失败都回灌模型，由模型决定继续调工具还是收尾。两种 HTTP 接口的异常处理不同：
+
+| 入口 | 非空问题的执行路径 | loop 抛出未处理异常时 |
+| --- | --- | --- |
+| `/agent/run` JSON 接口 | 同步 `run_agent_loop` | 转入 `run_agent_once`，单步选择并执行工具 |
+| `/agent/run/stream` NDJSON 接口，页面使用 | 异步 `stream_agent_loop_async` | 返回 `error` 和失败的 `done`，不启动同步降级请求 |
+
+空问题都直接走单步 `fallback_tool`。微调 router 只在单步规划中、配置 `ROUTER_BACKEND=finetuned` 且问题非空时参与工具选择；它不负责正常多步 loop 的决策，也不负责当前流式接口的异常恢复。具体选择与降级顺序见 [`agent/README.md`](agent/README.md#工具规划策略)。
 
 当前项目已进入工程收尾阶段：核心功能、自动化测试、端到端演示、request-id 调用链追踪和 token/成本计量均已有代码与验证证据。公网部署因暂无长期服务器资源暂缓，因此项目定位是本地可复现的工程作品，不声称已经生产上线。
 
@@ -70,16 +78,16 @@ flowchart TD
 已经完成并有代码或测试支撑：
 
 - RAG：Markdown/PDF 摄入、单文件上传、批量上传、Qdrant 索引、`/ask`、`/ask/stream`、来源引用、RAG trace、Prompt 版本、Redis 共享精确答案缓存（TTL、索引版本失效、fail-open）、离线评估、LLM-as-Judge 评分报告和 Prompt A/B 对比报告。
-- Agent：`retrieval_tool`、`summary_tool`、`question_decompose_tool`、`fallback_tool`、基于 native function calling 的多步 agent loop（`run_agent_loop`，工具失败回灌模型由其自主恢复）+ 规则式单步降级（`run_agent_once`）、`run_tool` 工具派发、executor、AgentState、Agent trace、工具失败结构化返回，以及工具轨迹/结束原因/来源/延迟的离线评测 runner。
+- Agent：`retrieval_tool`、LLM 摘要工具 `summary_tool`、`question_decompose_tool`、`fallback_tool`，同步与异步多步 loop、工具结果和失败回灌、同步入口的单步降级、`run_tool` 工具派发、executor、单步 AgentState、Agent trace，以及编排、答案质量和 HTTP 流式评测 runner。
 - Agent 与 Frontend：`/agent/run/stream` 输出版本化 NDJSON 事件，BFF 不缓冲地转发响应体；页面增量渲染 `step` 和 `answer_delta`，最终接收 `sources` 与 `done`。原 `/agent/run` JSON 接口保持兼容。
 - 可观测性：`X-Request-ID` 贯穿 Frontend BFF、Agent 与 RAG 调用链；请求结束记录 LLM 调用次数、输入/缓存输入/输出 token 和可配置成本。
 - 大文档：已验证 100 页 PDF 完成解析、切分为 452 个 chunk、写入 Qdrant，并在检索和回答评测中命中。详见 [`rag/experiments/reports/ingestion/large_pdf_ingestion_report.md`](rag/experiments/reports/ingestion/large_pdf_ingestion_report.md)。
 
 ## 可复现工程数据
 
-- **测试与构建**：根目录 Python 测试 305 项；前端 Node 测试 25 项，并通过 ESLint、TypeScript 检查和 Next.js production build。
+- **自动化测试**：2026-10-23 根目录 Python 测试 337 项、前端 Node 测试 26 项通过；前端 ESLint、TypeScript 检查和 Next.js production build 最近一次验证于 2026-10-22 通过。
 - **Redis 精确缓存**：5 次相同问题实测为 1 次 miss + 4 次 hit，miss 5915.14 ms、hit P50 3.495 ms、命中率 80%，重复请求延迟下降 99.94%；Redis 停机时请求仍通过 fail-open 路径返回。详见 [`rag/experiments/reports/cache/redis_exact_cache_2026-08-05.md`](rag/experiments/reports/cache/redis_exact_cache_2026-08-05.md)。
-- **Agent 流式稳定性**：12 条 golden case 全部满足事件协议并正常结束，未出现 reasoning 与 answer 混流；平均首事件 7.796 s、平均首答案 11.683 s。详见 [`agent/experiments/reports/streaming/baseline_2026-08-03.md`](agent/experiments/reports/streaming/baseline_2026-08-03.md)。
+- **历史流式基线（2026-08-03）**：旧的进程内同步执行路径上，12 条 golden case 全部满足事件协议并正常结束，未出现 reasoning 与 answer 混流；平均首事件 7.796 s、平均首答案 11.683 s。该数据不包含 HTTP、BFF 和浏览器开销，也不是当前异步接口的新基线。当前流式评测已通过 HTTP 访问 `/agent/run/stream`；运行方法见 [`agent/experiments/README.md`](agent/experiments/README.md)，历史结果见 [`baseline_2026-08-03.md`](agent/experiments/reports/streaming/baseline_2026-08-03.md)。
 - **并发基线**：`/ask` 在并发 1→8 时吞吐从 0.065 提升到 0.427 rps、错误率为 0；结果表明当前并发范围内主要瓶颈是 LLM 生成延迟，而不是线程池。详见 [`agent/experiments/reports/concurrency/baseline_2026-08-04.md`](agent/experiments/reports/concurrency/baseline_2026-08-04.md)。
 
 当前没有证据、因此不应写进简历的能力：
@@ -209,6 +217,6 @@ AGENT_STREAM_API_URL=http://localhost:8002/agent/run/stream npm run dev
 
 ## English
 
-This repository is a locally reproducible RAG and Agent application built with FastAPI, LangChain, Qdrant, Redis, Next.js App Router, and TypeScript. The [`rag`](rag/) module provides document ingestion, Qdrant retrieval, cited and streaming answers, execution traces, evaluation pipelines, and a shared Redis Cache-Aside exact-answer cache with TTL, index-version invalidation, and fail-open behavior. The [`agent`](agent/) module provides native function-calling orchestration: the model selects tools across multiple rounds, receives structured tool results or failures, and decides whether to continue or produce the final answer. Its tools include retrieval, LLM-based summarization, and question decomposition, with a rule-based single-step fallback for degraded operation.
+This repository is a locally reproducible RAG and Agent application built with FastAPI, LangChain, Qdrant, Redis, Next.js App Router, and TypeScript. The [`rag`](rag/) module provides document ingestion, Qdrant retrieval, cited and streaming answers, execution traces, evaluation pipelines, and a shared Redis Cache-Aside exact-answer cache with TTL, index-version invalidation, and fail-open behavior. The [`agent`](agent/) module provides native function-calling orchestration: the model selects tools across multiple rounds, receives structured tool results or failures, and decides whether to continue or produce the final answer. Its tools include retrieval, LLM-based summarization, and question decomposition. The synchronous `/agent/run` endpoint falls back to single-step planning on an unhandled loop exception. Single-step planning can use an optional fine-tuned router, with LLM and rule fallbacks. The asynchronous `/agent/run/stream` endpoint reports unhandled errors through `error` and failed `done` events without starting that fallback path.
 
 The [`frontend`](frontend/) module consumes the versioned NDJSON `/agent/run/stream` protocol through a server-only Next.js BFF and renders tool steps, answer deltas, sources, and explicit interrupted-stream errors before the request completes. The animated demo above was captured from the real local stack. A permanent public URL is intentionally not claimed because long-running hosting is currently deferred.

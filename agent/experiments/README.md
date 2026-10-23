@@ -60,11 +60,11 @@ uv run python -m agent_app.scripts.evaluate_agent \
   --output-dir agent/experiments/runs/evaluation
 ```
 
-全部 case 通过时进程退出码为 `0`；任一 case 失败时为 `1`。单个 case 的模型调用异常会被记录为 `agent_error`，不会阻止剩余 case 运行。
+`evaluate_agent` 全部 case 通过时进程退出码为 `0`；任一 case 失败时为 `1`。单个 case 的模型调用异常会被记录为 `agent_error`，不会阻止剩余 case 运行。流式评测的退出码规则见下文。
 
-## Case 契约
+## 编排评测的 Case 契约
 
-每个 case 定义允许和必须出现的外层 Agent 工具、允许的结束原因、是否必须返回来源，以及轨迹最大步数。`question_decompose_tool` 内部执行的检索不会作为独立外层 step 重复计数。评测不对答案做字符串精确匹配，避免模型措辞差异产生误报。
+每个 case 定义允许和必须出现的外层 Agent 工具、允许的结束原因、是否必须返回来源，以及轨迹最大步数。`question_decompose_tool` 内部执行的检索不会作为独立外层 step 重复计数。编排评测不对答案做字符串精确匹配，避免模型措辞差异产生误报。流式评测复用这些问题，但只检查流协议、完成状态和延迟，不执行这些工具或来源约束，也不评价答案语义。
 
 ## 报告指标
 
@@ -76,10 +76,15 @@ uv run python -m agent_app.scripts.evaluate_agent \
 
 运行结果默认不提交。需要保留代表性基线时，人工复核模型、语料、配置和报告内容后再使用 `git add -f` 添加。
 
-## 两层评测的区别
+## 三种评测的区别
 
-- `evaluate_agent` 检查工具轨迹、结束原因、来源约束和延迟，不评价答案语义。
-- `evaluate_agent_answers` 重新运行相同 case，并复用 RAG Judge 评价相关性、完整性、证据支撑和格式。
+| 入口 | 执行路径 | 检查内容 |
+| --- | --- | --- |
+| `evaluate_agent` | 进程内 `run_agent()` 同步 loop，未处理异常时可单步降级 | 工具轨迹、结束原因、来源约束和延迟 |
+| `evaluate_agent_answers` | 重新运行同步 `run_agent()`，再调用 Judge | 最终答案的相关性、完整性、证据支撑和格式 |
+| `evaluate_agent_stream` | HTTP `/agent/run/stream` 异步 loop，异常以 `error/done` 结束 | 事件格式与顺序、完成状态、首事件/首答案/完整流耗时 |
+
+微调 router 只影响配置为 `finetuned` 时的非空单步规划，不参与正常 loop，也不参与当前 HTTP 流的异常处理；具体选择顺序见 [`agent/README.md`](../README.md#工具规划策略)。
 
 答案 Judge 第一版与 Agent 使用同一个配置模型，报告会标记 `judge_independence: same_model`。它适合作为内部回归信号，不等同于独立模型或人工评审。Judge 运行有额外模型成本和波动，因此不进入默认 CI。全部 case 通过时退出码为 `0`，任一 Agent/Judge case 失败时为 `1`。
 

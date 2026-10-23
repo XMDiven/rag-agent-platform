@@ -13,9 +13,15 @@ An already-running synchronous retrieval/generation cannot be forcibly stopped:
 it finishes or hits its existing upstream timeout. Closing a model connection also
 does not guarantee that a provider immediately stops computation or billing.
 
-The synchronous CLI/evaluation entry point remains available. HTTP streaming uses
-the async path and reports generation errors as error/done events, without starting
-a second synchronous fallback request.
+The CLI, orchestration evaluator (`evaluate_agent`), and answer Judge
+(`evaluate_agent_answers`) use the synchronous `run_agent()` entry point, which can
+fall back to single-step planning after an unhandled loop exception. HTTP streaming
+and the current streaming evaluator (`evaluate_agent_stream`) use the async path and
+report generation errors as error/done events, without starting a second synchronous
+fallback request. The optional fine-tuned router participates only in non-empty
+single-step planning when configured; normal loops and HTTP stream failures do not
+call it. The legacy synchronous stream generator remains for internal callers and
+unit tests.
 
 Verification: `uv run --frozen pytest agent/tests/test_stream_cancellation.py -q`
 covers a disconnect before the first model token, cancellation during a synchronous

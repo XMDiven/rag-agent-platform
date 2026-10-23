@@ -1,27 +1,27 @@
 # Agent
 
-`agent` 是建立在 `rag` 子项目之上的轻量 Agent 编排层。它当前不实现完整 ReAct、多 Agent 协作或通用工具平台，而是先把最小可验证链路做清楚：
+`agent` 是建立在 `rag` 子项目之上的轻量 Agent 编排层。非空问题默认使用 native function calling，由模型自主选择工具并决定是否继续执行：
 
 ```text
-analyze_question -> plan_tool -> execute_tool -> build AgentState -> return result with trace
+analyze_question -> 多步 loop（模型决策 -> 工具执行 -> 结果回灌）-> 最终回答
 ```
 
 ## 当前能力
 
 - 调用 RAG 的 `analyze_query()` 判断问题是否需要检索
-- 根据 `question_type` 和问题文本规则选择 `retrieval_tool`、`summary_tool`、`question_decompose_tool` 或 `fallback_tool`
+- 多步 loop 每轮调用绑定工具的模型；单步路径通过可配置 planner 选择工具，并保留规则兜底
 - 通过 `executor` 执行工具
 - `retrieval_tool` 会调用 `rag_app.services.ask_service.ask_question`
-- `summary_tool` 会对用户输入文本执行本地确定性摘要
+- `summary_tool` 调用配置的 LLM 生成摘要，并将 `summary` 正文传给下一轮模型
 - `question_decompose_tool` 会对比较类和多子问题输入做规则式结构化拆解，并对子问题逐个调用 RAG 检索后聚合结果
 - 工具注册表为每个工具定义 `input_schema` 和 `output_schema`，明确工具调用契约
 - Service 层返回结构化 `AgentRunResult`
 - API 层返回适合前端和用户消费的 `answer`、`sources`、`selected_tool`、`tool_status`、`tool_output` 和 `trace`
 - 通过 `GET /agent/tools` 暴露工具能力列表和输入输出契约，便于调试、前端能力发现和后续受控 tool calling
-- 返回 Agent 层 trace，记录分析、规划和执行步骤
+- 返回 Agent 层 trace 和逐轮 `steps`；单步路径记录分析、规划和执行步骤
 - 提供 12-case 离线评测集和评测 runner，检查工具轨迹、结束原因、来源约束与延迟
 - 提供独立 Agent LLM-as-Judge runner，评价最终答案的相关性、完整性、证据支撑与格式
-- 使用 `AgentState` 保存 question、analysis、plan、tool_result 和 trace，明确 Agent 内部状态流转
+- 单步路径使用 `AgentState` 保存 question、analysis、plan、tool_result 和 trace；多步路径记录逐轮 `steps` 和聚合来源
 - Agent 层记录工具执行成功或失败；RAG 检索与生成重试由 RAG 服务内部处理
 - 通过 FastAPI 暴露兼容的一次性 JSON 接口 `POST /agent/run`
 - 通过 `POST /agent/run/stream` 逐行输出版本化 NDJSON 事件；模型最终回答使用真实 token 流
@@ -41,17 +41,22 @@ src/agent_app/
     planner.py       # 根据问题分析结果选择工具
     executor.py      # 执行工具并包装 ToolResult
     state.py         # Agent 内部状态对象
-    streaming.py     # 流式 native function calling loop
+    loop.py          # 同步多步 native function calling loop
+    streaming.py     # 保留的同步流式 loop
+    async_streaming.py # 当前 HTTP 异步流式 loop 与断连取消
+    finetuned_router.py # 单步 planner 的可选微调路由适配
   tools/
     registry.py      # 工具注册表和输入输出契约
     question_decompose.py  # 规则式问题拆解工具
     retrieval.py     # 调用 RAG 问答服务的工具适配层
-    summary.py       # 本地摘要工具
+    summary.py       # LLM 摘要工具
   scripts/
     run_agent.py       # Agent CLI 演示入口
     evaluate_agent.py  # Agent 离线评测 runner
+    evaluate_agent_answers.py # 最终答案 Judge
+    evaluate_agent_stream.py # HTTP 流式协议与延迟评测
   service.py         # Agent 对外统一入口 run_agent(question)
-  streaming_service.py # 流事件编排、降级与安全错误映射
+  streaming_service.py # 同步/异步流入口与安全错误映射
 ```
 
 目录边界：
@@ -64,7 +69,7 @@ src/agent_app/
 
 ## 执行流程
 
-`run_agent(question)` 是当前 Agent 的统一入口：
+`run_agent(question)` 是 JSON 接口、CLI、编排评测和答案 Judge 使用的同步入口：
 
 ```python
 from agent_app.service import run_agent
@@ -77,22 +82,44 @@ result = run_agent("What is RAG?")
 - `plan`: 工具选择结果
 - `tool_result`: 工具执行结果
 - `trace`: Agent 层执行轨迹
+- `termination_reason`: 最终回答、步数上限、失败或单步执行的结束原因
+- `steps`: 多步 loop 的逐轮记录；单步路径为空列表
 
 注意：这是 service 层的内部对象，适合测试和调试 Agent 状态流转。FastAPI 的 `/agent/run` 不直接暴露完整内部对象，而是返回更稳定的对外响应结构。
 
+| 入口 | 非空问题 | 未处理的 loop 异常 | 空问题 |
+| --- | --- | --- | --- |
+| `/agent/run`、`run_agent()`、CLI、编排评测、答案 Judge | `run_agent_loop()` 同步执行 | 转入 `run_agent_once()` 单步规划 | 直接走 `fallback_tool` |
+| `/agent/run/stream`、页面、HTTP 流式评测 | `stream_agent_ndjson_async()` → `stream_agent_loop_async()` | 输出安全 `error`，再输出 `termination_reason=failed` 的 `done` | 返回单步结果事件 |
+
+流式接口在首事件前出错和输出部分答案后出错时，都不会另起同步降级请求。客户端断开时取消等待、关闭模型迭代器并停止后续轮次；已开始的同步工具只能在协作取消检查点或上游超时后停止，详见 [`docs/agent-stream-cancellation.md`](../docs/agent-stream-cancellation.md)。
+
+`stream_agent_events()` 和 `stream_agent_loop()` 是保留的同步流式实现，部分单元测试仍使用它们；它们不再是当前 HTTP 路由和流式评测的执行入口。
+
 ## 工具规划策略
 
-当前 planner 是规则式规划，不调用 LLM。它根据 RAG `query_analyzer` 返回的 `question_type` 选择工具：
+多步 loop 使用 `bind_tools(..., tool_choice="auto")`，由当前配置的聊天模型逐轮决策，不经过单步 planner，也不调用微调 router。
+
+`plan_tool()` 用于 `run_agent_once()` 单步路径，选择顺序如下：
+
+1. 空问题直接选择 `fallback_tool`，不调用任何选工具模型。
+2. 非空问题默认 `ROUTER_BACKEND=llm`，由 LLM native tool calling 选择工具。
+3. 设置 `ROUTER_BACKEND=finetuned` 后，先调用 `FINETUNED_ROUTER_URL` 的 `/v1/route`；默认服务地址是 `http://127.0.0.1:8000`。微调服务不可用或返回无效选择时退回 LLM。
+4. LLM 选择也失败时，才按问题类型和文本规则兜底。
+
+因此，设置 `ROUTER_BACKEND=finetuned` 不会替换正常多步 loop 的模型。通过现有 HTTP 接口使用时，它只会在非空的同步 loop 抛出异常、转入单步规划后参与选择；当前异步流的正常和异常路径都不调用它。
+
+规则兜底的选择如下：
 
 | question_type | tool | 说明 |
 | --- | --- | --- |
 | `empty` | `fallback_tool` | 空问题不执行检索 |
-| `summary` | `summary_tool` | 对用户输入文本做本地摘要 |
+| `summary` | `summary_tool` | 对用户输入文本做 LLM 摘要 |
 | `general` | `retrieval_tool` | 使用 RAG 知识库检索回答 |
 
-此外，planner 会优先识别包含 `分别`、`对比`、`比较`、`compare`、`difference`、`vs` 等明显拆解信号的问题。如果命中规则，会选择 `question_decompose_tool`。这是本地规则式拆解，不调用 LLM；executor 会对子问题逐个调用 RAG 检索工具，并聚合 `answer`、`sources` 和 `sub_results`。
+规则兜底会优先识别包含 `分别`、`对比`、`比较`、`compare`、`difference`、`vs` 等拆解信号的问题，选择 `question_decompose_tool`。工具内部的拆解使用本地规则；executor 会对子问题逐个调用 RAG 检索与生成，并聚合 `answer`、`sources` 和 `sub_results`，因此整个工具仍可能产生模型调用。
 
-普通知识问题成功路径示例：
+以下 trace 是单步规则兜底选择 `retrieval_tool` 后的示意；正常多步执行的 trace 使用 `analyze_question` 和 `agent_loop`，逐轮决策在 `steps` 中：
 
 ```json
 [
@@ -150,7 +177,7 @@ result = run_agent("What is RAG?")
 }
 ```
 
-总结类问题会走 `summary_tool`：
+单步规则兜底对总结类问题选择 `summary_tool` 时，trace 示意如下：
 
 ```json
 [
@@ -219,22 +246,23 @@ cd agent
 uv run python -m agent_app.scripts.run_agent ""
 ```
 
-空字符串会走 `fallback_tool`，适合验证 CLI 和 Agent trace 输出。普通知识问题会走 `retrieval_tool`，可能触发 RAG 检索和 LLM 调用。
+空字符串会走 `fallback_tool`，适合验证 CLI 和 Agent trace 输出。非空问题进入多步 loop，由模型选择是否调用工具，可能触发 RAG 检索和多次 LLM 调用。
 
-总结类问题会走 `summary_tool`：
+以下输入可用于观察模型是否选择摘要工具，具体轨迹由模型决定：
 
 ```bash
-uv run python -m agent_app.scripts.run_agent "请总结 LangChain 的用途"
+uv run python -m agent_app.scripts.run_agent "请总结以下文本：LangChain 帮助开发者组合模型、提示词和检索组件。"
 ```
 
-响应中的 `tool_result` 会包含：
+正常多步执行的 `tool_result` 包装最终回答，结构示意如下；工具调用过程在 `steps` 中：
 
 ```json
 {
-  "tool_name": "summary_tool",
+  "tool_name": "agent_loop",
   "status": "success",
   "output": {
-    "summary": "请总结 LangChain 的用途"
+    "answer": "模型根据工具结果生成的最终摘要",
+    "sources": []
   }
 }
 ```
@@ -274,19 +302,19 @@ curl -N -X POST http://127.0.0.1:8002/agent/run/stream \
 | `error` | 返回稳定错误码和安全消息，不暴露内部异常文本 |
 | `done` | 流的终止哨兵，包含结束原因和最终工具状态 |
 
-所有事件都带 `version: 1`。调用方应一直读取到 `done`；若连接提前结束，应保留已收到的内容，同时将本次结果标为不完整。工具执行本身仍是同步的，因此 `step` 会在该轮工具完成后出现；真正逐 token 输出发生在最终答案生成阶段。
+所有事件都带 `version: 1`。调用方应一直读取到 `done`；若连接提前结束，应保留已收到的内容，同时将本次结果标为不完整。模型使用异步流，工具执行在线程中运行，因此 `step` 会在该轮工具完成后出现；答案增量在模型生成回答时输出。`error → done` 表示失败结束，即使 HTTP 状态码为 200，也不能当作成功回答。
 
-空字符串会走 `fallback_tool`，适合验证 API、Agent trace 和响应结构。普通知识问题会走 `retrieval_tool`，可能触发 RAG 检索和 LLM 调用。
+空字符串会走 `fallback_tool`，适合验证 API、Agent trace 和响应结构。非空问题进入多步 loop，具体工具轨迹由模型决定。
 
-调用总结工具：
+提交总结任务，观察模型选择的工具：
 
 ```bash
 curl -X POST http://127.0.0.1:8002/agent/run \
   -H "Content-Type: application/json" \
-  -d '{"question": "请总结 LangChain 的用途"}'
+  -d '{"question": "请总结以下文本：LangChain 帮助开发者组合模型、提示词和检索组件。"}'
 ```
 
-调用问题拆解工具：
+提交比较任务，观察模型是否拆解问题：
 
 ```bash
 curl -X POST http://127.0.0.1:8002/agent/run \
@@ -300,7 +328,7 @@ curl -X POST http://127.0.0.1:8002/agent/run \
 curl http://127.0.0.1:8002/agent/tools
 ```
 
-`GET /agent/tools` 返回当前已注册工具的 `name`、`description`、`input_schema` 和 `output_schema`。该接口只做能力发现，不执行工具、不调用 RAG，也不代表已经接入 LLM Function Calling。
+`GET /agent/tools` 返回当前已注册工具的 `name`、`description`、`input_schema` 和 `output_schema`。该接口只做能力发现，不执行工具、不调用 RAG；多步 loop 会使用注册信息构造 native function calling 的工具定义。
 
 ### `/agent/run` 响应结构
 
@@ -309,11 +337,13 @@ API 层返回的是给前端或调用方使用的结构，不直接暴露 servic
 | 字段 | 说明 |
 | --- | --- |
 | `answer` | 最终给用户展示的回答；从工具输出中的 `answer`、`summary` 或 `error` 提取 |
-| `sources` | RAG 工具返回的来源列表；非检索工具默认返回空列表 |
-| `selected_tool` | planner 选中的工具名 |
-| `tool_status` | 工具执行状态，通常是 `success` 或 `failed` |
-| `tool_output` | 原始工具输出，保留给调试和前端扩展使用 |
-| `trace` | Agent 层执行轨迹，记录分析、规划和执行步骤 |
+| `sources` | 多步执行中跨轮聚合的来源；单步执行取工具返回的来源 |
+| `selected_tool` | 多步路径为最后执行的工具；未调用工具时为 `fallback_tool` 标签；单步路径为 planner 选中的工具 |
+| `tool_status` | 多步路径的汇总状态，或单步工具状态；单次工具失败后仍可能由模型恢复 |
+| `tool_output` | 多步路径包装最终 `answer`、`sources`；单步路径保留原始工具输出 |
+| `trace` | 多步路径记录问题分析和 loop 摘要；单步路径记录分析、规划和执行 |
+| `termination_reason` | `final_answer`、`max_steps`、`failed` 或 `single_step` |
+| `steps` | 多步 loop 的逐轮记录；单步路径为空列表 |
 
 空问题会走 `fallback_tool`：
 
@@ -362,7 +392,7 @@ API 层返回的是给前端或调用方使用的结构，不直接暴露 servic
 }
 ```
 
-总结问题会走 `summary_tool`：
+以下总结和拆解 JSON 是单步规则兜底响应的结构示意，省略默认的 `termination_reason: single_step` 和 `steps: []`；文本为占位内容，不是当前模型实跑结果。正常多步请求不会固定返回这些工具或 trace。单步选择 `summary_tool` 时：
 
 ```json
 {
@@ -408,7 +438,7 @@ API 层返回的是给前端或调用方使用的结构，不直接暴露 servic
 }
 ```
 
-比较类或多子问题会走 `question_decompose_tool`。该工具会先规则式拆解问题，再对子问题逐个调用 RAG 检索工具，并聚合最终回答、来源和子问题结果：
+单步规则兜底识别出比较或多子问题信号时选择 `question_decompose_tool`。该工具先按规则拆解，再对子问题逐个调用 RAG，并聚合回答、来源和子问题结果，结构示意如下：
 
 ```json
 {
@@ -489,7 +519,7 @@ API 层返回的是给前端或调用方使用的结构，不直接暴露 servic
 }
 ```
 
-普通知识问题会走 `retrieval_tool`。此时 `tool_output` 会保留 RAG 的原始返回，通常包含 `answer`、`sources` 和 RAG 内部 trace；API 顶层会额外提取 `answer` 和 `sources` 方便调用方直接使用：
+单步选择 `retrieval_tool` 时，`tool_output` 保留 RAG 的原始返回，通常包含 `answer`、`sources` 和 RAG 内部 trace；API 顶层提取 `answer` 和 `sources`。下面也是省略默认结束字段的结构示意：
 
 ```json
 {
@@ -556,7 +586,6 @@ curl http://127.0.0.1:8002/health
 
 当前 `agent` 是轻量编排层，不是完整 Agent 平台。它还没有实现：
 
-- LLM 摘要工具
 - 网络搜索工具
 - 并行执行同一轮的多个工具调用
 - 跨会话长期记忆
