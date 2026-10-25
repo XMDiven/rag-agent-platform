@@ -130,7 +130,8 @@ def test_comparison_judges_each_same_run_and_separates_usage_with_cache_disabled
         assert row["input_tokens"] == 100
         assert row["cached_input_tokens"] == 10
         assert row["output_tokens"] == 20
-        assert row["retrieval_calls"] == 1
+        assert row["rag_calls"] == 1
+        assert row["retrieval_calls"] == 0  # QA stub performs no retrieval operation.
         assert row["judge_usage"] == {"llm_calls": 1, "input_tokens": 11, "cached_input_tokens": 0, "output_tokens": 2}
         assert "Second original evidence." in row["judge_evidence"]
     path = comparison.write_report(report, output_dir=tmp_path)
@@ -210,7 +211,8 @@ def test_cli_runs_selected_case_once_and_returns_failure_status(monkeypatch, tmp
     calls = []
     monkeypatch.setattr(comparison, "get_client", lambda: object())
 
-    def compare(cases, judge_llm):
+    def compare(cases, **kwargs):
+        assert kwargs["repeats"] == 1
         calls.append([item.id for item in cases])
         return {"run_id": "offline-comparison", "summary": {"total": 3, "passed": 2, "failed": 1}, "cases": []}
 
@@ -246,8 +248,90 @@ def test_three_actual_paths_run_offline_on_the_existing_comparison_question(
     assert [row["answer"] for row in report["cases"]] == [
         "Retrieved answer [1].", "Fixed answer [1][2].", "Agent answer [1][2].",
     ]
-    assert [row["retrieval_calls"] for row in report["cases"]] == [1, 2, 2]
+    assert [row["rag_calls"] for row in report["cases"]] == [1, 2, 2]
     assert [row["tool_calls"] for row in report["cases"]] == [0, 0, 1]
     assert all(row["sources"] == sources() for row in report["cases"])
     assert report["summary"] == {"total": 3, "passed": 3, "failed": 0}
     assert questions == [existing_case.question] + ["LangChain 适合做什么？", "LlamaIndex 适合做什么？"] * 2
+
+
+def test_repeat_statistics_include_failed_rows_and_distinguish_qa_from_retrieval(monkeypatch):
+    from langchain_core.documents import Document
+    monkeypatch.setattr(comparison.ask_service, "retrieve_documents_with_retry", lambda *args, **kwargs: [
+        Document(page_content="original", metadata={"source": "one.md"}),
+    ])
+
+    def ask(question):
+        plan = SimpleNamespace(retrieval_query=question, retrieval_strategy="standard_retrieval", top_k=7)
+        docs = comparison.ask_service.retrieve_documents_with_retry(plan, [])
+        return {"answer": "answer", "sources": comparison.ask_service.build_sources(docs)}
+
+    monkeypatch.setattr(comparison.ask_service, "ask_question", ask)
+    report = comparison.run_comparison(
+        [case()], object(), repeats=2,
+        run_strategy_fn=lambda question, strategy: comparison.ask_service.ask_question(question),
+        judge_fn=lambda **kwargs: judge_result(),
+    )
+    assert len(report["cases"]) == 6
+    assert [row["repeat"] for row in report["cases"]] == [1, 1, 1, 2, 2, 2]
+    assert [row["strategy"] for row in report["cases"]] == ["rag", "fixed", "agent", "fixed", "agent", "rag"]
+    assert report["statistics"]["by_strategy"]["rag"]["total"] == 2
+    for row in report["cases"]:
+        assert row["rag_calls"] == row["retrieval_calls"] == 1
+        assert row["retrieval_trace"][0]["sources"][0]["snippet"] == "original"
+        assert row["cost"] is None
+        assert row["completed"]
+        assert "expected_source_missing" in row["diagnosis_candidates"]
+
+
+def test_swallowed_budget_failure_is_still_failed_and_never_judged(monkeypatch):
+    scopes = []
+    original = comparison.ModelBudget
+
+    def budget(*args, **kwargs):
+        scope = original(*args, **kwargs)
+        scopes.append(scope)
+        return scope
+
+    monkeypatch.setattr(comparison, "ModelBudget", budget)
+
+    def execute(question, strategy):
+        try:
+            scopes[-1]._fail("calls")
+        except comparison.BudgetExceeded:
+            pass
+        return {"answer": "caught fallback", "sources": sources()}
+
+    report = comparison.run_comparison(
+        [case()], object(), run_strategy_fn=execute,
+        judge_fn=lambda **kwargs: pytest.fail("Budget failure must skip Judge"),
+    )
+    assert report["summary"]["failed"] == 3
+    assert all(row["failure_stage"] == "budget" for row in report["cases"])
+    assert all(row["budget"]["violation_code"] == "calls" for row in report["cases"])
+
+
+def test_invalid_repeats_rejected_before_model_creation(monkeypatch):
+    monkeypatch.setattr(comparison, "get_client", lambda: pytest.fail("Invalid repeats must be local"))
+    with pytest.raises(ValueError, match="repeats"):
+        comparison.run_comparison([case()], None, repeats=0)
+
+
+def test_swallowed_retrieval_error_is_saved_without_raw_error(monkeypatch):
+    def retrieve(plan, trace, *args, **kwargs):
+        trace.append({"step": "retrieval", "status": "failed", "detail": {
+            "error_type": "ConnectionError", "error": "private secret", "attempt": 1,
+        }})
+        return []
+
+    monkeypatch.setattr(comparison.ask_service, "retrieve_documents_with_retry", retrieve)
+
+    def execute(question, strategy):
+        plan = SimpleNamespace(retrieval_query=question, retrieval_strategy="standard_retrieval", top_k=7)
+        comparison.ask_service.retrieve_documents_with_retry(plan, [])
+        return {"answer": "", "sources": []}
+
+    report = comparison.run_comparison([case()], object(), run_strategy_fn=execute)
+    assert all(row["retrieval_trace"][0]["error_type"] == "ConnectionError" for row in report["cases"])
+    assert all("retrieval_error" in row["diagnosis_candidates"] for row in report["cases"])
+    assert "private secret" not in json.dumps(report)
