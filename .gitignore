@@ -27,6 +27,7 @@ rag/experiments/runs/judge/*.json
 agent/experiments/runs/evaluation/*.json
 agent/experiments/runs/judge/*.json
 agent/experiments/runs/streaming/*.json
+agent/experiments/runs/comparison/*.json
 
 # 环境变量
 .env

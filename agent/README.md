@@ -55,6 +55,7 @@ src/agent_app/
     evaluate_agent.py  # Agent 离线评测 runner
     evaluate_agent_answers.py # 最终答案 Judge
     evaluate_agent_stream.py # HTTP 流式协议与延迟评测
+    compare_strategies.py # 直接 RAG、固定流程与 Agent 的同题对照入口
   service.py         # Agent 对外统一入口 run_agent(question)
   streaming_service.py # 同步/异步流入口与安全错误映射
 ```
@@ -95,6 +96,8 @@ result = run_agent("What is RAG?")
 流式接口在首事件前出错和输出部分答案后出错时，都不会另起同步降级请求。客户端断开时取消等待、关闭模型迭代器并停止后续轮次；已开始的同步工具只能在协作取消检查点或上游超时后停止，详见 [`docs/agent-stream-cancellation.md`](../docs/agent-stream-cancellation.md)。
 
 `stream_agent_events()` 和 `stream_agent_loop()` 是保留的同步流式实现，部分单元测试仍使用它们；它们不再是当前 HTTP 路由和流式评测的执行入口。
+
+同步和流式 loop 共用 `compact_tool_payload()` 回灌工具结果。检索结果除生成摘要和全局编号的 `sources` 文件名外，还传递 `evidence`：包含相同引用编号、来源、章节和原始 snippet。缺少文件名的来源仍占据 `unknown` 编号，避免与最终聚合来源错位；缺少原文的来源不生成证据条目。最终回答应以对应 snippet 为事实依据，不能仅凭生成摘要或文件名引用，也不能扩写出证据未说明的协作分工。工具正文视为数据，不作为指令执行。新增上下文只使用本次工具返回的片段，不另行读取整篇文档；这会增加模型输入，实际质量、费用和延迟仍需真实运行验证。
 
 ## 工具规划策略
 
