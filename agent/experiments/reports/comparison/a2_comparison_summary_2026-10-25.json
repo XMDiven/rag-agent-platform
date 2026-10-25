@@ -1,0 +1,4649 @@
+{
+  "schema_version": 1,
+  "quota": {
+    "max_calls": 378,
+    "max_output_tokens": 65536,
+    "max_context_bytes": 8388608,
+    "used_calls": 183,
+    "used_output_tokens": 33190,
+    "used_context_bytes": 1457239
+  },
+  "configuration_lock": "a2_final_configuration_2026-10-25.json",
+  "phases": {
+    "baseline": {
+      "run_id": "20261025-082518-939344",
+      "raw_sha256": "cf7f47b83a002a819561a58f6b40d2243c1f4a7b1ff68dcb440e7895ce8236e6",
+      "code_commit": "7aacbfc030324704d2987ecacec4a69f46d1b9dd",
+      "summary": {
+        "total": 18,
+        "passed": 18,
+        "failed": 0
+      },
+      "statistics": {
+        "by_strategy": {
+          "rag": {
+            "total": 6,
+            "pass_rate": 1.0,
+            "completion_rate": 1.0,
+            "source_coverage_rate": 1.0,
+            "execution_duration_seconds": {
+              "n": 6,
+              "p50": 3.145,
+              "p95": 4.545
+            },
+            "total_duration_seconds": {
+              "n": 6,
+              "p50": 6.56,
+              "p95": 8.086
+            },
+            "first_model_event_seconds": {
+              "n": 6,
+              "p50": 1.174,
+              "p95": 3.017
+            },
+            "final_answer_first_token_seconds": {
+              "n": 6,
+              "p50": 1.175,
+              "p95": 3.017
+            },
+            "totals": {
+              "model_requests": 6,
+              "judge_requests": 6,
+              "llm_calls": 6,
+              "input_tokens": 8980,
+              "cached_input_tokens": 3584,
+              "output_tokens": 1019,
+              "tool_calls": 0,
+              "rag_calls": 6,
+              "retrieval_calls": 6
+            },
+            "judge_totals": {
+              "llm_calls": 6,
+              "input_tokens": 10163,
+              "cached_input_tokens": 0,
+              "output_tokens": 1303
+            },
+            "generation_cost": null,
+            "judge_cost": null,
+            "failure_counts": {}
+          },
+          "fixed": {
+            "total": 6,
+            "pass_rate": 1.0,
+            "completion_rate": 1.0,
+            "source_coverage_rate": 1.0,
+            "execution_duration_seconds": {
+              "n": 6,
+              "p50": 6.802,
+              "p95": 11.522
+            },
+            "total_duration_seconds": {
+              "n": 6,
+              "p50": 11.114,
+              "p95": 15.973
+            },
+            "first_model_event_seconds": {
+              "n": 6,
+              "p50": 1.038,
+              "p95": 1.558
+            },
+            "final_answer_first_token_seconds": {
+              "n": 6,
+              "p50": 4.974,
+              "p95": 9.074
+            },
+            "totals": {
+              "model_requests": 14,
+              "judge_requests": 6,
+              "llm_calls": 14,
+              "input_tokens": 22554,
+              "cached_input_tokens": 11776,
+              "output_tokens": 2997,
+              "tool_calls": 0,
+              "rag_calls": 8,
+              "retrieval_calls": 8
+            },
+            "judge_totals": {
+              "llm_calls": 6,
+              "input_tokens": 12701,
+              "cached_input_tokens": 0,
+              "output_tokens": 1242
+            },
+            "generation_cost": null,
+            "judge_cost": null,
+            "failure_counts": {}
+          },
+          "agent": {
+            "total": 6,
+            "pass_rate": 1.0,
+            "completion_rate": 1.0,
+            "source_coverage_rate": 1.0,
+            "execution_duration_seconds": {
+              "n": 6,
+              "p50": 9.108,
+              "p95": 11.825
+            },
+            "total_duration_seconds": {
+              "n": 6,
+              "p50": 12.946,
+              "p95": 17.484
+            },
+            "first_model_event_seconds": {
+              "n": 6,
+              "p50": 1.032,
+              "p95": 1.191
+            },
+            "final_answer_first_token_seconds": {
+              "n": 6,
+              "p50": 6.128,
+              "p95": 9.987
+            },
+            "totals": {
+              "model_requests": 20,
+              "judge_requests": 6,
+              "llm_calls": 20,
+              "input_tokens": 31605,
+              "cached_input_tokens": 12800,
+              "output_tokens": 3273,
+              "tool_calls": 6,
+              "rag_calls": 8,
+              "retrieval_calls": 8
+            },
+            "judge_totals": {
+              "llm_calls": 6,
+              "input_tokens": 12696,
+              "cached_input_tokens": 0,
+              "output_tokens": 1453
+            },
+            "generation_cost": null,
+            "judge_cost": null,
+            "failure_counts": {}
+          }
+        },
+        "by_case_type": {
+          "single_source": {
+            "rag": {
+              "total": 2,
+              "pass_rate": 1.0,
+              "completion_rate": 1.0,
+              "source_coverage_rate": 1.0,
+              "execution_duration_seconds": {
+                "n": 2,
+                "p50": 3.145,
+                "p95": 4.545
+              },
+              "total_duration_seconds": {
+                "n": 2,
+                "p50": 6.56,
+                "p95": 8.086
+              },
+              "first_model_event_seconds": {
+                "n": 2,
+                "p50": 1.174,
+                "p95": 3.017
+              },
+              "final_answer_first_token_seconds": {
+                "n": 2,
+                "p50": 1.175,
+                "p95": 3.017
+              },
+              "totals": {
+                "model_requests": 2,
+                "judge_requests": 2,
+                "llm_calls": 2,
+                "input_tokens": 2776,
+                "cached_input_tokens": 1024,
+                "output_tokens": 368,
+                "tool_calls": 0,
+                "rag_calls": 2,
+                "retrieval_calls": 2
+              },
+              "judge_totals": {
+                "llm_calls": 2,
+                "input_tokens": 3204,
+                "cached_input_tokens": 0,
+                "output_tokens": 377
+              },
+              "generation_cost": null,
+              "judge_cost": null,
+              "failure_counts": {}
+            },
+            "fixed": {
+              "total": 2,
+              "pass_rate": 1.0,
+              "completion_rate": 1.0,
+              "source_coverage_rate": 1.0,
+              "execution_duration_seconds": {
+                "n": 2,
+                "p50": 6.404,
+                "p95": 7.958
+              },
+              "total_duration_seconds": {
+                "n": 2,
+                "p50": 9.291,
+                "p95": 11.114
+              },
+              "first_model_event_seconds": {
+                "n": 2,
+                "p50": 0.968,
+                "p95": 1.112
+              },
+              "final_answer_first_token_seconds": {
+                "n": 2,
+                "p50": 3.599,
+                "p95": 5.296
+              },
+              "totals": {
+                "model_requests": 4,
+                "judge_requests": 2,
+                "llm_calls": 4,
+                "input_tokens": 5566,
+                "cached_input_tokens": 3072,
+                "output_tokens": 824,
+                "tool_calls": 0,
+                "rag_calls": 2,
+                "retrieval_calls": 2
+              },
+              "judge_totals": {
+                "llm_calls": 2,
+                "input_tokens": 3374,
+                "cached_input_tokens": 0,
+                "output_tokens": 350
+              },
+              "generation_cost": null,
+              "judge_cost": null,
+              "failure_counts": {}
+            },
+            "agent": {
+              "total": 2,
+              "pass_rate": 1.0,
+              "completion_rate": 1.0,
+              "source_coverage_rate": 1.0,
+              "execution_duration_seconds": {
+                "n": 2,
+                "p50": 6.292,
+                "p95": 8.126
+              },
+              "total_duration_seconds": {
+                "n": 2,
+                "p50": 9.062,
+                "p95": 11.789
+              },
+              "first_model_event_seconds": {
+                "n": 2,
+                "p50": 1.015,
+                "p95": 1.191
+              },
+              "final_answer_first_token_seconds": {
+                "n": 2,
+                "p50": 4.713,
+                "p95": 6.026
+              },
+              "totals": {
+                "model_requests": 6,
+                "judge_requests": 2,
+                "llm_calls": 6,
+                "input_tokens": 8178,
+                "cached_input_tokens": 3072,
+                "output_tokens": 752,
+                "tool_calls": 2,
+                "rag_calls": 2,
+                "retrieval_calls": 2
+              },
+              "judge_totals": {
+                "llm_calls": 2,
+                "input_tokens": 3214,
+                "cached_input_tokens": 0,
+                "output_tokens": 358
+              },
+              "generation_cost": null,
+              "judge_cost": null,
+              "failure_counts": {}
+            }
+          },
+          "multi_source": {
+            "rag": {
+              "total": 4,
+              "pass_rate": 1.0,
+              "completion_rate": 1.0,
+              "source_coverage_rate": 1.0,
+              "execution_duration_seconds": {
+                "n": 4,
+                "p50": 2.96,
+                "p95": 3.567
+              },
+              "total_duration_seconds": {
+                "n": 4,
+                "p50": 6.545,
+                "p95": 7.759
+              },
+              "first_model_event_seconds": {
+                "n": 4,
+                "p50": 1.032,
+                "p95": 1.991
+              },
+              "final_answer_first_token_seconds": {
+                "n": 4,
+                "p50": 1.033,
+                "p95": 1.992
+              },
+              "totals": {
+                "model_requests": 4,
+                "judge_requests": 4,
+                "llm_calls": 4,
+                "input_tokens": 6204,
+                "cached_input_tokens": 2560,
+                "output_tokens": 651,
+                "tool_calls": 0,
+                "rag_calls": 4,
+                "retrieval_calls": 4
+              },
+              "judge_totals": {
+                "llm_calls": 4,
+                "input_tokens": 6959,
+                "cached_input_tokens": 0,
+                "output_tokens": 926
+              },
+              "generation_cost": null,
+              "judge_cost": null,
+              "failure_counts": {}
+            },
+            "fixed": {
+              "total": 4,
+              "pass_rate": 1.0,
+              "completion_rate": 1.0,
+              "source_coverage_rate": 1.0,
+              "execution_duration_seconds": {
+                "n": 4,
+                "p50": 6.802,
+                "p95": 11.522
+              },
+              "total_duration_seconds": {
+                "n": 4,
+                "p50": 11.222,
+                "p95": 15.973
+              },
+              "first_model_event_seconds": {
+                "n": 4,
+                "p50": 1.038,
+                "p95": 1.558
+              },
+              "final_answer_first_token_seconds": {
+                "n": 4,
+                "p50": 4.974,
+                "p95": 9.074
+              },
+              "totals": {
+                "model_requests": 10,
+                "judge_requests": 4,
+                "llm_calls": 10,
+                "input_tokens": 16988,
+                "cached_input_tokens": 8704,
+                "output_tokens": 2173,
+                "tool_calls": 0,
+                "rag_calls": 6,
+                "retrieval_calls": 6
+              },
+              "judge_totals": {
+                "llm_calls": 4,
+                "input_tokens": 9327,
+                "cached_input_tokens": 0,
+                "output_tokens": 892
+              },
+              "generation_cost": null,
+              "judge_cost": null,
+              "failure_counts": {}
+            },
+            "agent": {
+              "total": 4,
+              "pass_rate": 1.0,
+              "completion_rate": 1.0,
+              "source_coverage_rate": 1.0,
+              "execution_duration_seconds": {
+                "n": 4,
+                "p50": 9.388,
+                "p95": 11.825
+              },
+              "total_duration_seconds": {
+                "n": 4,
+                "p50": 13.13,
+                "p95": 17.484
+              },
+              "first_model_event_seconds": {
+                "n": 4,
+                "p50": 1.032,
+                "p95": 1.095
+              },
+              "final_answer_first_token_seconds": {
+                "n": 4,
+                "p50": 6.58,
+                "p95": 9.987
+              },
+              "totals": {
+                "model_requests": 14,
+                "judge_requests": 4,
+                "llm_calls": 14,
+                "input_tokens": 23427,
+                "cached_input_tokens": 9728,
+                "output_tokens": 2521,
+                "tool_calls": 4,
+                "rag_calls": 6,
+                "retrieval_calls": 6
+              },
+              "judge_totals": {
+                "llm_calls": 4,
+                "input_tokens": 9482,
+                "cached_input_tokens": 0,
+                "output_tokens": 1095
+              },
+              "generation_cost": null,
+              "judge_cost": null,
+              "failure_counts": {}
+            }
+          }
+        }
+      },
+      "cases": [
+        {
+          "id": "qdrant_usage",
+          "strategy": "rag",
+          "repeat": 1,
+          "case_type": "single_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 1,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 1,
+          "input_tokens": 1388,
+          "cached_input_tokens": 0,
+          "output_tokens": 172,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1590,
+            "cached_input_tokens": 0,
+            "output_tokens": 219
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 4.545,
+          "judge_duration_seconds": 3.541,
+          "total_duration_seconds": 8.086,
+          "first_model_event_seconds": 3.0166118750348687,
+          "final_answer_first_token_seconds": 3.0171498749405146,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 6558,
+          "context_bytes_judge": 7556,
+          "accounted_output_tokens_generation": 172,
+          "accounted_output_tokens_judge": 219,
+          "finish_reasons": [
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200
+          ]
+        },
+        {
+          "id": "qdrant_usage",
+          "strategy": "fixed",
+          "repeat": 1,
+          "case_type": "single_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 2,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 2,
+          "input_tokens": 2783,
+          "cached_input_tokens": 1024,
+          "output_tokens": 399,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1699,
+            "cached_input_tokens": 0,
+            "output_tokens": 156
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 6.404,
+          "judge_duration_seconds": 2.887,
+          "total_duration_seconds": 9.291,
+          "first_model_event_seconds": 0.9684433749644086,
+          "final_answer_first_token_seconds": 3.5990478328894824,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 13102,
+          "context_bytes_judge": 8048,
+          "accounted_output_tokens_generation": 399,
+          "accounted_output_tokens_judge": 156,
+          "finish_reasons": [
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "qdrant_usage",
+          "strategy": "agent",
+          "repeat": 1,
+          "case_type": "single_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 3,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 1,
+          "llm_calls": 3,
+          "input_tokens": 4038,
+          "cached_input_tokens": 1280,
+          "output_tokens": 306,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1594,
+            "cached_input_tokens": 0,
+            "output_tokens": 173
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 6.292,
+          "judge_duration_seconds": 2.77,
+          "total_duration_seconds": 9.062,
+          "first_model_event_seconds": 1.191387541941367,
+          "final_answer_first_token_seconds": 4.7126629169797525,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 19226,
+          "context_bytes_judge": 7581,
+          "accounted_output_tokens_generation": 306,
+          "accounted_output_tokens_judge": 173,
+          "finish_reasons": [
+            "tool_calls",
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "qdrant_usage",
+          "strategy": "fixed",
+          "repeat": 2,
+          "case_type": "single_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 2,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 2,
+          "input_tokens": 2783,
+          "cached_input_tokens": 2048,
+          "output_tokens": 425,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1675,
+            "cached_input_tokens": 0,
+            "output_tokens": 194
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 7.958,
+          "judge_duration_seconds": 3.156,
+          "total_duration_seconds": 11.114,
+          "first_model_event_seconds": 1.111813583993353,
+          "final_answer_first_token_seconds": 5.295786291942932,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 13102,
+          "context_bytes_judge": 7972,
+          "accounted_output_tokens_generation": 425,
+          "accounted_output_tokens_judge": 194,
+          "finish_reasons": [
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "qdrant_usage",
+          "strategy": "agent",
+          "repeat": 2,
+          "case_type": "single_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 3,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 1,
+          "llm_calls": 3,
+          "input_tokens": 4140,
+          "cached_input_tokens": 1792,
+          "output_tokens": 446,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1620,
+            "cached_input_tokens": 0,
+            "output_tokens": 185
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 8.126,
+          "judge_duration_seconds": 3.663,
+          "total_duration_seconds": 11.789,
+          "first_model_event_seconds": 1.0148992500035092,
+          "final_answer_first_token_seconds": 6.0255047080572695,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 19761,
+          "context_bytes_judge": 7756,
+          "accounted_output_tokens_generation": 446,
+          "accounted_output_tokens_judge": 185,
+          "finish_reasons": [
+            "tool_calls",
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "qdrant_usage",
+          "strategy": "rag",
+          "repeat": 2,
+          "case_type": "single_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 1,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 1,
+          "input_tokens": 1388,
+          "cached_input_tokens": 1024,
+          "output_tokens": 196,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1614,
+            "cached_input_tokens": 0,
+            "output_tokens": 158
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 3.145,
+          "judge_duration_seconds": 3.415,
+          "total_duration_seconds": 6.56,
+          "first_model_event_seconds": 1.1743569590616971,
+          "final_answer_first_token_seconds": 1.1748574590310454,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 6558,
+          "context_bytes_judge": 7627,
+          "accounted_output_tokens_generation": 196,
+          "accounted_output_tokens_judge": 158,
+          "finish_reasons": [
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200
+          ]
+        },
+        {
+          "id": "langchain_llamaindex_comparison",
+          "strategy": "rag",
+          "repeat": 1,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 1,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 1,
+          "input_tokens": 1365,
+          "cached_input_tokens": 0,
+          "output_tokens": 170,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1562,
+            "cached_input_tokens": 0,
+            "output_tokens": 220
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 2.96,
+          "judge_duration_seconds": 3.585,
+          "total_duration_seconds": 6.545,
+          "first_model_event_seconds": 1.3715977910906076,
+          "final_answer_first_token_seconds": 1.3721104580909014,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 4,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 6401,
+          "context_bytes_judge": 7318,
+          "accounted_output_tokens_generation": 170,
+          "accounted_output_tokens_judge": 220,
+          "finish_reasons": [
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200
+          ]
+        },
+        {
+          "id": "langchain_llamaindex_comparison",
+          "strategy": "fixed",
+          "repeat": 1,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 3,
+          "judge_requests": 1,
+          "rag_calls": 2,
+          "retrieval_calls": 2,
+          "tool_calls": 0,
+          "llm_calls": 3,
+          "input_tokens": 5017,
+          "cached_input_tokens": 0,
+          "output_tokens": 616,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 2690,
+            "cached_input_tokens": 0,
+            "output_tokens": 203
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 11.522,
+          "judge_duration_seconds": 4.451,
+          "total_duration_seconds": 15.973,
+          "first_model_event_seconds": 1.5577232909854501,
+          "final_answer_first_token_seconds": 9.07423916598782,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 24305,
+          "context_bytes_judge": 12949,
+          "accounted_output_tokens_generation": 616,
+          "accounted_output_tokens_judge": 203,
+          "finish_reasons": [
+            "stop",
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "langchain_llamaindex_comparison",
+          "strategy": "agent",
+          "repeat": 1,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 4,
+          "judge_requests": 1,
+          "rag_calls": 2,
+          "retrieval_calls": 2,
+          "tool_calls": 1,
+          "llm_calls": 4,
+          "input_tokens": 6885,
+          "cached_input_tokens": 2560,
+          "output_tokens": 698,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 2659,
+            "cached_input_tokens": 0,
+            "output_tokens": 218
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 11.818,
+          "judge_duration_seconds": 3.87,
+          "total_duration_seconds": 15.688,
+          "first_model_event_seconds": 1.0949769170256332,
+          "final_answer_first_token_seconds": 9.987137000076473,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 32606,
+          "context_bytes_judge": 12852,
+          "accounted_output_tokens_generation": 698,
+          "accounted_output_tokens_judge": 218,
+          "finish_reasons": [
+            "tool_calls",
+            "stop",
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "langchain_llamaindex_comparison",
+          "strategy": "fixed",
+          "repeat": 2,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 3,
+          "judge_requests": 1,
+          "rag_calls": 2,
+          "retrieval_calls": 2,
+          "tool_calls": 0,
+          "llm_calls": 3,
+          "input_tokens": 5017,
+          "cached_input_tokens": 4096,
+          "output_tokens": 721,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 2734,
+            "cached_input_tokens": 0,
+            "output_tokens": 248
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 10.947,
+          "judge_duration_seconds": 4.544,
+          "total_duration_seconds": 15.491,
+          "first_model_event_seconds": 1.038153166999109,
+          "final_answer_first_token_seconds": 8.399391375016421,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 24305,
+          "context_bytes_judge": 13139,
+          "accounted_output_tokens_generation": 721,
+          "accounted_output_tokens_judge": 248,
+          "finish_reasons": [
+            "stop",
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "langchain_llamaindex_comparison",
+          "strategy": "agent",
+          "repeat": 2,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 4,
+          "judge_requests": 1,
+          "rag_calls": 2,
+          "retrieval_calls": 2,
+          "tool_calls": 1,
+          "llm_calls": 4,
+          "input_tokens": 6818,
+          "cached_input_tokens": 2816,
+          "output_tokens": 689,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 2716,
+            "cached_input_tokens": 0,
+            "output_tokens": 416
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 11.825,
+          "judge_duration_seconds": 5.659,
+          "total_duration_seconds": 17.484,
+          "first_model_event_seconds": 1.0322927499655634,
+          "final_answer_first_token_seconds": 9.46187416696921,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 4,
+            "groundedness_score": 4,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 32337,
+          "context_bytes_judge": 13061,
+          "accounted_output_tokens_generation": 689,
+          "accounted_output_tokens_judge": 416,
+          "finish_reasons": [
+            "tool_calls",
+            "stop",
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "langchain_llamaindex_comparison",
+          "strategy": "rag",
+          "repeat": 2,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 1,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 1,
+          "input_tokens": 1365,
+          "cached_input_tokens": 1024,
+          "output_tokens": 191,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1583,
+            "cached_input_tokens": 0,
+            "output_tokens": 273
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 3.205,
+          "judge_duration_seconds": 4.537,
+          "total_duration_seconds": 7.742,
+          "first_model_event_seconds": 0.981747500016354,
+          "final_answer_first_token_seconds": 0.9823125840630382,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 6401,
+          "context_bytes_judge": 7380,
+          "accounted_output_tokens_generation": 191,
+          "accounted_output_tokens_judge": 273,
+          "finish_reasons": [
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200
+          ]
+        },
+        {
+          "id": "lora_qlora_compare",
+          "strategy": "rag",
+          "repeat": 1,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 1,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 1,
+          "input_tokens": 1737,
+          "cached_input_tokens": 0,
+          "output_tokens": 156,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1918,
+            "cached_input_tokens": 0,
+            "output_tokens": 208
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 3.567,
+          "judge_duration_seconds": 4.192,
+          "total_duration_seconds": 7.759,
+          "first_model_event_seconds": 1.9914535839343444,
+          "final_answer_first_token_seconds": 1.9920987089863047,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 6801,
+          "context_bytes_judge": 7646,
+          "accounted_output_tokens_generation": 156,
+          "accounted_output_tokens_judge": 208,
+          "finish_reasons": [
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200
+          ]
+        },
+        {
+          "id": "lora_qlora_compare",
+          "strategy": "fixed",
+          "repeat": 1,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 2,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 2,
+          "input_tokens": 3477,
+          "cached_input_tokens": 1536,
+          "output_tokens": 412,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1947,
+            "cached_input_tokens": 0,
+            "output_tokens": 217
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 6.802,
+          "judge_duration_seconds": 4.42,
+          "total_duration_seconds": 11.222,
+          "first_model_event_seconds": 1.2202209159731865,
+          "final_answer_first_token_seconds": 4.973993374966085,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 13588,
+          "context_bytes_judge": 7712,
+          "accounted_output_tokens_generation": 412,
+          "accounted_output_tokens_judge": 217,
+          "finish_reasons": [
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "lora_qlora_compare",
+          "strategy": "agent",
+          "repeat": 1,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 3,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 1,
+          "llm_calls": 3,
+          "input_tokens": 4865,
+          "cached_input_tokens": 2048,
+          "output_tokens": 556,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 2037,
+            "cached_input_tokens": 0,
+            "output_tokens": 226
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 9.388,
+          "judge_duration_seconds": 3.742,
+          "total_duration_seconds": 13.13,
+          "first_model_event_seconds": 1.002454583067447,
+          "final_answer_first_token_seconds": 6.580375833087601,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 20667,
+          "context_bytes_judge": 8132,
+          "accounted_output_tokens_generation": 556,
+          "accounted_output_tokens_judge": 226,
+          "finish_reasons": [
+            "tool_calls",
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "lora_qlora_compare",
+          "strategy": "fixed",
+          "repeat": 2,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 2,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 2,
+          "input_tokens": 3477,
+          "cached_input_tokens": 3072,
+          "output_tokens": 424,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1956,
+            "cached_input_tokens": 0,
+            "output_tokens": 224
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 5.764,
+          "judge_duration_seconds": 3.539,
+          "total_duration_seconds": 9.303,
+          "first_model_event_seconds": 1.0053460000781342,
+          "final_answer_first_token_seconds": 3.9462592500494793,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 13588,
+          "context_bytes_judge": 7784,
+          "accounted_output_tokens_generation": 424,
+          "accounted_output_tokens_judge": 224,
+          "finish_reasons": [
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "lora_qlora_compare",
+          "strategy": "agent",
+          "repeat": 2,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 3,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 1,
+          "llm_calls": 3,
+          "input_tokens": 4859,
+          "cached_input_tokens": 2304,
+          "output_tokens": 578,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 2070,
+            "cached_input_tokens": 0,
+            "output_tokens": 235
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 9.108,
+          "judge_duration_seconds": 3.838,
+          "total_duration_seconds": 12.946,
+          "first_model_event_seconds": 1.0715225000167266,
+          "final_answer_first_token_seconds": 6.127696125069633,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 20578,
+          "context_bytes_judge": 8319,
+          "accounted_output_tokens_generation": 578,
+          "accounted_output_tokens_judge": 235,
+          "finish_reasons": [
+            "tool_calls",
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "lora_qlora_compare",
+          "strategy": "rag",
+          "repeat": 2,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 1,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 1,
+          "input_tokens": 1737,
+          "cached_input_tokens": 1536,
+          "output_tokens": 134,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1896,
+            "cached_input_tokens": 0,
+            "output_tokens": 225
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 2.604,
+          "judge_duration_seconds": 3.817,
+          "total_duration_seconds": 6.421,
+          "first_model_event_seconds": 1.031677583931014,
+          "final_answer_first_token_seconds": 1.032564583932981,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 4,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 6801,
+          "context_bytes_judge": 7532,
+          "accounted_output_tokens_generation": 134,
+          "accounted_output_tokens_judge": 225,
+          "finish_reasons": [
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200
+          ]
+        }
+      ]
+    },
+    "development": {
+      "run_id": "20261025-083510-697314",
+      "raw_sha256": "f940cc7ec17e3824b6ae1b3cf0b98d5d0666870b623b1646a93fc3297e7aebd9",
+      "code_commit": "2300c424ef16a9bce12f9198468f02baf751dd47",
+      "summary": {
+        "total": 18,
+        "passed": 17,
+        "failed": 1
+      },
+      "statistics": {
+        "by_strategy": {
+          "rag": {
+            "total": 6,
+            "pass_rate": 1.0,
+            "completion_rate": 1.0,
+            "source_coverage_rate": 1.0,
+            "execution_duration_seconds": {
+              "n": 6,
+              "p50": 4.439,
+              "p95": 5.235
+            },
+            "total_duration_seconds": {
+              "n": 6,
+              "p50": 8.343,
+              "p95": 11.655
+            },
+            "first_model_event_seconds": {
+              "n": 6,
+              "p50": 1.092,
+              "p95": 2.358
+            },
+            "final_answer_first_token_seconds": {
+              "n": 6,
+              "p50": 1.093,
+              "p95": 2.359
+            },
+            "totals": {
+              "model_requests": 6,
+              "judge_requests": 6,
+              "llm_calls": 6,
+              "input_tokens": 9496,
+              "cached_input_tokens": 3584,
+              "output_tokens": 1717,
+              "tool_calls": 0,
+              "rag_calls": 6,
+              "retrieval_calls": 6
+            },
+            "judge_totals": {
+              "llm_calls": 6,
+              "input_tokens": 10858,
+              "cached_input_tokens": 0,
+              "output_tokens": 1531
+            },
+            "generation_cost": null,
+            "judge_cost": null,
+            "failure_counts": {}
+          },
+          "fixed": {
+            "total": 6,
+            "pass_rate": 1.0,
+            "completion_rate": 1.0,
+            "source_coverage_rate": 1.0,
+            "execution_duration_seconds": {
+              "n": 6,
+              "p50": 8.867,
+              "p95": 13.928
+            },
+            "total_duration_seconds": {
+              "n": 6,
+              "p50": 12.261,
+              "p95": 17.897
+            },
+            "first_model_event_seconds": {
+              "n": 6,
+              "p50": 1.046,
+              "p95": 1.533
+            },
+            "final_answer_first_token_seconds": {
+              "n": 6,
+              "p50": 6.208,
+              "p95": 9.509
+            },
+            "totals": {
+              "model_requests": 14,
+              "judge_requests": 6,
+              "llm_calls": 14,
+              "input_tokens": 23758,
+              "cached_input_tokens": 11776,
+              "output_tokens": 3361,
+              "tool_calls": 0,
+              "rag_calls": 8,
+              "retrieval_calls": 8
+            },
+            "judge_totals": {
+              "llm_calls": 6,
+              "input_tokens": 12448,
+              "cached_input_tokens": 0,
+              "output_tokens": 1249
+            },
+            "generation_cost": null,
+            "judge_cost": null,
+            "failure_counts": {}
+          },
+          "agent": {
+            "total": 6,
+            "pass_rate": 0.8333333333333334,
+            "completion_rate": 0.8333333333333334,
+            "source_coverage_rate": 0.8333333333333334,
+            "execution_duration_seconds": {
+              "n": 6,
+              "p50": 9.473,
+              "p95": 19.409
+            },
+            "total_duration_seconds": {
+              "n": 6,
+              "p50": 13.693,
+              "p95": 22.512
+            },
+            "first_model_event_seconds": {
+              "n": 6,
+              "p50": 0.952,
+              "p95": 1.07
+            },
+            "final_answer_first_token_seconds": {
+              "n": 5,
+              "p50": 6.509,
+              "p95": 13.844
+            },
+            "totals": {
+              "model_requests": 24,
+              "judge_requests": 5,
+              "llm_calls": 24,
+              "input_tokens": 43982,
+              "cached_input_tokens": 15872,
+              "output_tokens": 4160,
+              "tool_calls": 7,
+              "rag_calls": 10,
+              "retrieval_calls": 10
+            },
+            "judge_totals": {
+              "llm_calls": 5,
+              "input_tokens": 10826,
+              "cached_input_tokens": 0,
+              "output_tokens": 1164
+            },
+            "generation_cost": null,
+            "judge_cost": null,
+            "failure_counts": {
+              "budget": 1
+            }
+          }
+        },
+        "by_case_type": {
+          "single_source": {
+            "rag": {
+              "total": 2,
+              "pass_rate": 1.0,
+              "completion_rate": 1.0,
+              "source_coverage_rate": 1.0,
+              "execution_duration_seconds": {
+                "n": 2,
+                "p50": 3.136,
+                "p95": 4.982
+              },
+              "total_duration_seconds": {
+                "n": 2,
+                "p50": 6.287,
+                "p95": 8.343
+              },
+              "first_model_event_seconds": {
+                "n": 2,
+                "p50": 1.092,
+                "p95": 2.358
+              },
+              "final_answer_first_token_seconds": {
+                "n": 2,
+                "p50": 1.093,
+                "p95": 2.359
+              },
+              "totals": {
+                "model_requests": 2,
+                "judge_requests": 2,
+                "llm_calls": 2,
+                "input_tokens": 2948,
+                "cached_input_tokens": 1024,
+                "output_tokens": 406,
+                "tool_calls": 0,
+                "rag_calls": 2,
+                "retrieval_calls": 2
+              },
+              "judge_totals": {
+                "llm_calls": 2,
+                "input_tokens": 3241,
+                "cached_input_tokens": 0,
+                "output_tokens": 366
+              },
+              "generation_cost": null,
+              "judge_cost": null,
+              "failure_counts": {}
+            },
+            "fixed": {
+              "total": 2,
+              "pass_rate": 1.0,
+              "completion_rate": 1.0,
+              "source_coverage_rate": 1.0,
+              "execution_duration_seconds": {
+                "n": 2,
+                "p50": 6.318,
+                "p95": 7.637
+              },
+              "total_duration_seconds": {
+                "n": 2,
+                "p50": 9.62,
+                "p95": 11.012
+              },
+              "first_model_event_seconds": {
+                "n": 2,
+                "p50": 1.046,
+                "p95": 1.112
+              },
+              "final_answer_first_token_seconds": {
+                "n": 2,
+                "p50": 4.651,
+                "p95": 4.772
+              },
+              "totals": {
+                "model_requests": 4,
+                "judge_requests": 2,
+                "llm_calls": 4,
+                "input_tokens": 5910,
+                "cached_input_tokens": 3072,
+                "output_tokens": 790,
+                "tool_calls": 0,
+                "rag_calls": 2,
+                "retrieval_calls": 2
+              },
+              "judge_totals": {
+                "llm_calls": 2,
+                "input_tokens": 3192,
+                "cached_input_tokens": 0,
+                "output_tokens": 388
+              },
+              "generation_cost": null,
+              "judge_cost": null,
+              "failure_counts": {}
+            },
+            "agent": {
+              "total": 2,
+              "pass_rate": 1.0,
+              "completion_rate": 1.0,
+              "source_coverage_rate": 1.0,
+              "execution_duration_seconds": {
+                "n": 2,
+                "p50": 7.133,
+                "p95": 7.747
+              },
+              "total_duration_seconds": {
+                "n": 2,
+                "p50": 10.753,
+                "p95": 10.846
+              },
+              "first_model_event_seconds": {
+                "n": 2,
+                "p50": 0.929,
+                "p95": 0.952
+              },
+              "final_answer_first_token_seconds": {
+                "n": 2,
+                "p50": 5.294,
+                "p95": 5.505
+              },
+              "totals": {
+                "model_requests": 6,
+                "judge_requests": 2,
+                "llm_calls": 6,
+                "input_tokens": 8796,
+                "cached_input_tokens": 3584,
+                "output_tokens": 868,
+                "tool_calls": 2,
+                "rag_calls": 2,
+                "retrieval_calls": 2
+              },
+              "judge_totals": {
+                "llm_calls": 2,
+                "input_tokens": 3230,
+                "cached_input_tokens": 0,
+                "output_tokens": 366
+              },
+              "generation_cost": null,
+              "judge_cost": null,
+              "failure_counts": {}
+            }
+          },
+          "multi_source": {
+            "rag": {
+              "total": 4,
+              "pass_rate": 1.0,
+              "completion_rate": 1.0,
+              "source_coverage_rate": 1.0,
+              "execution_duration_seconds": {
+                "n": 4,
+                "p50": 4.439,
+                "p95": 5.235
+              },
+              "total_duration_seconds": {
+                "n": 4,
+                "p50": 8.932,
+                "p95": 11.655
+              },
+              "first_model_event_seconds": {
+                "n": 4,
+                "p50": 0.927,
+                "p95": 1.559
+              },
+              "final_answer_first_token_seconds": {
+                "n": 4,
+                "p50": 0.927,
+                "p95": 1.559
+              },
+              "totals": {
+                "model_requests": 4,
+                "judge_requests": 4,
+                "llm_calls": 4,
+                "input_tokens": 6548,
+                "cached_input_tokens": 2560,
+                "output_tokens": 1311,
+                "tool_calls": 0,
+                "rag_calls": 4,
+                "retrieval_calls": 4
+              },
+              "judge_totals": {
+                "llm_calls": 4,
+                "input_tokens": 7617,
+                "cached_input_tokens": 0,
+                "output_tokens": 1165
+              },
+              "generation_cost": null,
+              "judge_cost": null,
+              "failure_counts": {}
+            },
+            "fixed": {
+              "total": 4,
+              "pass_rate": 1.0,
+              "completion_rate": 1.0,
+              "source_coverage_rate": 1.0,
+              "execution_duration_seconds": {
+                "n": 4,
+                "p50": 8.905,
+                "p95": 13.928
+              },
+              "total_duration_seconds": {
+                "n": 4,
+                "p50": 12.63,
+                "p95": 17.897
+              },
+              "first_model_event_seconds": {
+                "n": 4,
+                "p50": 1.007,
+                "p95": 1.533
+              },
+              "final_answer_first_token_seconds": {
+                "n": 4,
+                "p50": 7.327,
+                "p95": 9.509
+              },
+              "totals": {
+                "model_requests": 10,
+                "judge_requests": 4,
+                "llm_calls": 10,
+                "input_tokens": 17848,
+                "cached_input_tokens": 8704,
+                "output_tokens": 2571,
+                "tool_calls": 0,
+                "rag_calls": 6,
+                "retrieval_calls": 6
+              },
+              "judge_totals": {
+                "llm_calls": 4,
+                "input_tokens": 9256,
+                "cached_input_tokens": 0,
+                "output_tokens": 861
+              },
+              "generation_cost": null,
+              "judge_cost": null,
+              "failure_counts": {}
+            },
+            "agent": {
+              "total": 4,
+              "pass_rate": 0.75,
+              "completion_rate": 0.75,
+              "source_coverage_rate": 0.75,
+              "execution_duration_seconds": {
+                "n": 4,
+                "p50": 12.312,
+                "p95": 19.409
+              },
+              "total_duration_seconds": {
+                "n": 4,
+                "p50": 16.119,
+                "p95": 22.512
+              },
+              "first_model_event_seconds": {
+                "n": 4,
+                "p50": 0.978,
+                "p95": 1.07
+              },
+              "final_answer_first_token_seconds": {
+                "n": 3,
+                "p50": 9.286,
+                "p95": 13.844
+              },
+              "totals": {
+                "model_requests": 18,
+                "judge_requests": 3,
+                "llm_calls": 18,
+                "input_tokens": 35186,
+                "cached_input_tokens": 12288,
+                "output_tokens": 3292,
+                "tool_calls": 5,
+                "rag_calls": 8,
+                "retrieval_calls": 8
+              },
+              "judge_totals": {
+                "llm_calls": 3,
+                "input_tokens": 7596,
+                "cached_input_tokens": 0,
+                "output_tokens": 798
+              },
+              "generation_cost": null,
+              "judge_cost": null,
+              "failure_counts": {
+                "budget": 1
+              }
+            }
+          }
+        }
+      },
+      "cases": [
+        {
+          "id": "qdrant_usage",
+          "strategy": "rag",
+          "repeat": 1,
+          "case_type": "single_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 1,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 1,
+          "input_tokens": 1474,
+          "cached_input_tokens": 0,
+          "output_tokens": 220,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1638,
+            "cached_input_tokens": 0,
+            "output_tokens": 193
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 4.982,
+          "judge_duration_seconds": 3.361,
+          "total_duration_seconds": 8.343,
+          "first_model_event_seconds": 2.358040416962467,
+          "final_answer_first_token_seconds": 2.358508583973162,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 7076,
+          "context_bytes_judge": 7717,
+          "accounted_output_tokens_generation": 220,
+          "accounted_output_tokens_judge": 193,
+          "finish_reasons": [
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200
+          ]
+        },
+        {
+          "id": "qdrant_usage",
+          "strategy": "fixed",
+          "repeat": 1,
+          "case_type": "single_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 2,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 2,
+          "input_tokens": 2955,
+          "cached_input_tokens": 1024,
+          "output_tokens": 448,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1644,
+            "cached_input_tokens": 0,
+            "output_tokens": 177
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 7.637,
+          "judge_duration_seconds": 3.375,
+          "total_duration_seconds": 11.012,
+          "first_model_event_seconds": 1.0458456249907613,
+          "final_answer_first_token_seconds": 4.772024624980986,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 14138,
+          "context_bytes_judge": 7816,
+          "accounted_output_tokens_generation": 448,
+          "accounted_output_tokens_judge": 177,
+          "finish_reasons": [
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "qdrant_usage",
+          "strategy": "agent",
+          "repeat": 1,
+          "case_type": "single_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 3,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 1,
+          "llm_calls": 3,
+          "input_tokens": 4385,
+          "cached_input_tokens": 1536,
+          "output_tokens": 435,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1621,
+            "cached_input_tokens": 0,
+            "output_tokens": 174
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 7.747,
+          "judge_duration_seconds": 3.099,
+          "total_duration_seconds": 10.846,
+          "first_model_event_seconds": 0.95152175007388,
+          "final_answer_first_token_seconds": 5.293566416017711,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 21208,
+          "context_bytes_judge": 7739,
+          "accounted_output_tokens_generation": 435,
+          "accounted_output_tokens_judge": 174,
+          "finish_reasons": [
+            "tool_calls",
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "qdrant_usage",
+          "strategy": "fixed",
+          "repeat": 2,
+          "case_type": "single_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 2,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 2,
+          "input_tokens": 2955,
+          "cached_input_tokens": 2048,
+          "output_tokens": 342,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1548,
+            "cached_input_tokens": 0,
+            "output_tokens": 211
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 6.318,
+          "judge_duration_seconds": 3.302,
+          "total_duration_seconds": 9.62,
+          "first_model_event_seconds": 1.1119998330250382,
+          "final_answer_first_token_seconds": 4.650695416028611,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 14138,
+          "context_bytes_judge": 7330,
+          "accounted_output_tokens_generation": 342,
+          "accounted_output_tokens_judge": 211,
+          "finish_reasons": [
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "qdrant_usage",
+          "strategy": "agent",
+          "repeat": 2,
+          "case_type": "single_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 3,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 1,
+          "llm_calls": 3,
+          "input_tokens": 4411,
+          "cached_input_tokens": 2048,
+          "output_tokens": 433,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1609,
+            "cached_input_tokens": 0,
+            "output_tokens": 192
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 7.133,
+          "judge_duration_seconds": 3.62,
+          "total_duration_seconds": 10.753,
+          "first_model_event_seconds": 0.929080665926449,
+          "final_answer_first_token_seconds": 5.50505366595462,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 21292,
+          "context_bytes_judge": 7681,
+          "accounted_output_tokens_generation": 433,
+          "accounted_output_tokens_judge": 192,
+          "finish_reasons": [
+            "tool_calls",
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "qdrant_usage",
+          "strategy": "rag",
+          "repeat": 2,
+          "case_type": "single_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 1,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 1,
+          "input_tokens": 1474,
+          "cached_input_tokens": 1024,
+          "output_tokens": 186,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1603,
+            "cached_input_tokens": 0,
+            "output_tokens": 173
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 3.136,
+          "judge_duration_seconds": 3.151,
+          "total_duration_seconds": 6.287,
+          "first_model_event_seconds": 1.0919188749976456,
+          "final_answer_first_token_seconds": 1.092772166011855,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 7076,
+          "context_bytes_judge": 7608,
+          "accounted_output_tokens_generation": 186,
+          "accounted_output_tokens_judge": 173,
+          "finish_reasons": [
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200
+          ]
+        },
+        {
+          "id": "langchain_llamaindex_comparison",
+          "strategy": "rag",
+          "repeat": 1,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 1,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 1,
+          "input_tokens": 1451,
+          "cached_input_tokens": 0,
+          "output_tokens": 360,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1752,
+            "cached_input_tokens": 0,
+            "output_tokens": 215
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 5.235,
+          "judge_duration_seconds": 3.697,
+          "total_duration_seconds": 8.932,
+          "first_model_event_seconds": 1.5587531250203028,
+          "final_answer_first_token_seconds": 1.5593720830511302,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 6919,
+          "context_bytes_judge": 8044,
+          "accounted_output_tokens_generation": 360,
+          "accounted_output_tokens_judge": 215,
+          "finish_reasons": [
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200
+          ]
+        },
+        {
+          "id": "langchain_llamaindex_comparison",
+          "strategy": "fixed",
+          "repeat": 1,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 3,
+          "judge_requests": 1,
+          "rag_calls": 2,
+          "retrieval_calls": 2,
+          "tool_calls": 0,
+          "llm_calls": 3,
+          "input_tokens": 5275,
+          "cached_input_tokens": 0,
+          "output_tokens": 575,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 2639,
+            "cached_input_tokens": 0,
+            "output_tokens": 243
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 9.922,
+          "judge_duration_seconds": 4.539,
+          "total_duration_seconds": 14.461,
+          "first_model_event_seconds": 1.5333938330877572,
+          "final_answer_first_token_seconds": 7.978697792044841,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 25859,
+          "context_bytes_judge": 12767,
+          "accounted_output_tokens_generation": 575,
+          "accounted_output_tokens_judge": 243,
+          "finish_reasons": [
+            "stop",
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "langchain_llamaindex_comparison",
+          "strategy": "agent",
+          "repeat": 1,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 4,
+          "judge_requests": 1,
+          "rag_calls": 2,
+          "retrieval_calls": 2,
+          "tool_calls": 1,
+          "llm_calls": 4,
+          "input_tokens": 7148,
+          "cached_input_tokens": 2560,
+          "output_tokens": 743,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 2785,
+            "cached_input_tokens": 0,
+            "output_tokens": 197
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 12.312,
+          "judge_duration_seconds": 3.807,
+          "total_duration_seconds": 16.119,
+          "first_model_event_seconds": 0.9034486250020564,
+          "final_answer_first_token_seconds": 9.286155082983896,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 34414,
+          "context_bytes_judge": 13428,
+          "accounted_output_tokens_generation": 743,
+          "accounted_output_tokens_judge": 197,
+          "finish_reasons": [
+            "tool_calls",
+            "stop",
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "langchain_llamaindex_comparison",
+          "strategy": "fixed",
+          "repeat": 2,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 3,
+          "judge_requests": 1,
+          "rag_calls": 2,
+          "retrieval_calls": 2,
+          "tool_calls": 0,
+          "llm_calls": 3,
+          "input_tokens": 5275,
+          "cached_input_tokens": 4096,
+          "output_tokens": 839,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 2722,
+            "cached_input_tokens": 0,
+            "output_tokens": 206
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 13.928,
+          "judge_duration_seconds": 3.969,
+          "total_duration_seconds": 17.897,
+          "first_model_event_seconds": 0.9149322499288246,
+          "final_answer_first_token_seconds": 9.509130124934018,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 25859,
+          "context_bytes_judge": 13057,
+          "accounted_output_tokens_generation": 839,
+          "accounted_output_tokens_judge": 206,
+          "finish_reasons": [
+            "stop",
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "langchain_llamaindex_comparison",
+          "strategy": "agent",
+          "repeat": 2,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 5,
+          "judge_requests": 1,
+          "rag_calls": 2,
+          "retrieval_calls": 2,
+          "tool_calls": 2,
+          "llm_calls": 5,
+          "input_tokens": 9794,
+          "cached_input_tokens": 3072,
+          "output_tokens": 1000,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 2795,
+            "cached_input_tokens": 0,
+            "output_tokens": 360
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 16.99,
+          "judge_duration_seconds": 5.522,
+          "total_duration_seconds": 22.512,
+          "first_model_event_seconds": 0.9779762919060886,
+          "final_answer_first_token_seconds": 13.843998458003625,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 4,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 46269,
+          "context_bytes_judge": 13279,
+          "accounted_output_tokens_generation": 1000,
+          "accounted_output_tokens_judge": 360,
+          "finish_reasons": [
+            "tool_calls",
+            "stop",
+            "tool_calls",
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "langchain_llamaindex_comparison",
+          "strategy": "rag",
+          "repeat": 2,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 1,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 1,
+          "input_tokens": 1451,
+          "cached_input_tokens": 1024,
+          "output_tokens": 346,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1737,
+            "cached_input_tokens": 0,
+            "output_tokens": 263
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 4.439,
+          "judge_duration_seconds": 4.932,
+          "total_duration_seconds": 9.371,
+          "first_model_event_seconds": 0.8812101669609547,
+          "final_answer_first_token_seconds": 0.8815378330182284,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 4,
+            "groundedness_score": 4,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 6919,
+          "context_bytes_judge": 8116,
+          "accounted_output_tokens_generation": 346,
+          "accounted_output_tokens_judge": 263,
+          "finish_reasons": [
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200
+          ]
+        },
+        {
+          "id": "lora_qlora_compare",
+          "strategy": "rag",
+          "repeat": 1,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 1,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 1,
+          "input_tokens": 1823,
+          "cached_input_tokens": 0,
+          "output_tokens": 216,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1978,
+            "cached_input_tokens": 0,
+            "output_tokens": 253
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 3.541,
+          "judge_duration_seconds": 4.605,
+          "total_duration_seconds": 8.146,
+          "first_model_event_seconds": 1.3286999589763582,
+          "final_answer_first_token_seconds": 1.329667125013657,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 4,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 7319,
+          "context_bytes_judge": 7785,
+          "accounted_output_tokens_generation": 216,
+          "accounted_output_tokens_judge": 253,
+          "finish_reasons": [
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200
+          ]
+        },
+        {
+          "id": "lora_qlora_compare",
+          "strategy": "fixed",
+          "repeat": 1,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 2,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 2,
+          "input_tokens": 3649,
+          "cached_input_tokens": 1536,
+          "output_tokens": 575,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1923,
+            "cached_input_tokens": 0,
+            "output_tokens": 213
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 8.905,
+          "judge_duration_seconds": 3.725,
+          "total_duration_seconds": 12.63,
+          "first_model_event_seconds": 1.1154244999634102,
+          "final_answer_first_token_seconds": 7.326539375004359,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 14624,
+          "context_bytes_judge": 7615,
+          "accounted_output_tokens_generation": 575,
+          "accounted_output_tokens_judge": 213,
+          "finish_reasons": [
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "lora_qlora_compare",
+          "strategy": "agent",
+          "repeat": 1,
+          "case_type": "multi_source",
+          "passed": false,
+          "completed": false,
+          "failure_stage": "budget",
+          "termination_reason": "single_step",
+          "source_coverage": 0.0,
+          "source_coverage_pass": false,
+          "model_requests": 6,
+          "judge_requests": 0,
+          "rag_calls": 3,
+          "retrieval_calls": 3,
+          "tool_calls": 1,
+          "llm_calls": 6,
+          "input_tokens": 13128,
+          "cached_input_tokens": 4096,
+          "output_tokens": 1027,
+          "judge_usage": null,
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 19.409,
+          "judge_duration_seconds": 0.0,
+          "total_duration_seconds": 19.409,
+          "first_model_event_seconds": 1.0001121669774875,
+          "final_answer_first_token_seconds": null,
+          "diagnosis_candidates": [
+            "expected_source_missing",
+            "budget"
+          ],
+          "budget_violation": "calls",
+          "judge_scores": {},
+          "error_type": "BudgetExceeded",
+          "context_bytes_generation": 56441,
+          "context_bytes_judge": 0,
+          "accounted_output_tokens_generation": 1027,
+          "accounted_output_tokens_judge": 0,
+          "finish_reasons": [
+            "tool_calls",
+            "stop",
+            "tool_calls",
+            "stop",
+            "tool_calls",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "lora_qlora_compare",
+          "strategy": "fixed",
+          "repeat": 2,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 2,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 2,
+          "input_tokens": 3649,
+          "cached_input_tokens": 3072,
+          "output_tokens": 582,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1972,
+            "cached_input_tokens": 0,
+            "output_tokens": 199
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 8.867,
+          "judge_duration_seconds": 3.394,
+          "total_duration_seconds": 12.261,
+          "first_model_event_seconds": 1.0074499159818515,
+          "final_answer_first_token_seconds": 6.208292040973902,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 4,
+            "groundedness_score": 4,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 14624,
+          "context_bytes_judge": 7888,
+          "accounted_output_tokens_generation": 582,
+          "accounted_output_tokens_judge": 199,
+          "finish_reasons": [
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "lora_qlora_compare",
+          "strategy": "agent",
+          "repeat": 2,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 3,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 1,
+          "llm_calls": 3,
+          "input_tokens": 5116,
+          "cached_input_tokens": 2560,
+          "output_tokens": 522,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 2016,
+            "cached_input_tokens": 0,
+            "output_tokens": 241
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 9.473,
+          "judge_duration_seconds": 4.22,
+          "total_duration_seconds": 13.693,
+          "first_model_event_seconds": 1.0701978749129921,
+          "final_answer_first_token_seconds": 6.508722750004381,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 4,
+            "groundedness_score": 4,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 22074,
+          "context_bytes_judge": 8012,
+          "accounted_output_tokens_generation": 522,
+          "accounted_output_tokens_judge": 241,
+          "finish_reasons": [
+            "tool_calls",
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "lora_qlora_compare",
+          "strategy": "rag",
+          "repeat": 2,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 1,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 1,
+          "input_tokens": 1823,
+          "cached_input_tokens": 1536,
+          "output_tokens": 389,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 2150,
+            "cached_input_tokens": 0,
+            "output_tokens": 434
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 4.943,
+          "judge_duration_seconds": 6.712,
+          "total_duration_seconds": 11.655,
+          "first_model_event_seconds": 0.9265552909346297,
+          "final_answer_first_token_seconds": 0.9274523330386728,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 4,
+            "groundedness_score": 4,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 7319,
+          "context_bytes_judge": 8294,
+          "accounted_output_tokens_generation": 389,
+          "accounted_output_tokens_judge": 434,
+          "finish_reasons": [
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200
+          ]
+        }
+      ]
+    },
+    "validation": {
+      "run_id": "20261025-084115-605489",
+      "raw_sha256": "73062fe2d36456400861bf5d69704b480bc595a33b949126205906887e8b249e",
+      "code_commit": "996fc50a67cd8970e34b9fe52c50e5d2c868c03f",
+      "summary": {
+        "total": 18,
+        "passed": 18,
+        "failed": 0
+      },
+      "statistics": {
+        "by_strategy": {
+          "rag": {
+            "total": 6,
+            "pass_rate": 1.0,
+            "completion_rate": 1.0,
+            "source_coverage_rate": 1.0,
+            "execution_duration_seconds": {
+              "n": 6,
+              "p50": 2.008,
+              "p95": 4.189
+            },
+            "total_duration_seconds": {
+              "n": 6,
+              "p50": 4.537,
+              "p95": 7.86
+            },
+            "first_model_event_seconds": {
+              "n": 6,
+              "p50": 1.241,
+              "p95": 1.882
+            },
+            "final_answer_first_token_seconds": {
+              "n": 6,
+              "p50": 1.241,
+              "p95": 1.883
+            },
+            "totals": {
+              "model_requests": 6,
+              "judge_requests": 6,
+              "llm_calls": 6,
+              "input_tokens": 9254,
+              "cached_input_tokens": 4096,
+              "output_tokens": 676,
+              "tool_calls": 0,
+              "rag_calls": 6,
+              "retrieval_calls": 6
+            },
+            "judge_totals": {
+              "llm_calls": 6,
+              "input_tokens": 9579,
+              "cached_input_tokens": 1536,
+              "output_tokens": 1056
+            },
+            "generation_cost": null,
+            "judge_cost": null,
+            "failure_counts": {}
+          },
+          "fixed": {
+            "total": 6,
+            "pass_rate": 1.0,
+            "completion_rate": 1.0,
+            "source_coverage_rate": 1.0,
+            "execution_duration_seconds": {
+              "n": 6,
+              "p50": 3.401,
+              "p95": 13.105
+            },
+            "total_duration_seconds": {
+              "n": 6,
+              "p50": 6.443,
+              "p95": 17.294
+            },
+            "first_model_event_seconds": {
+              "n": 6,
+              "p50": 1.2,
+              "p95": 1.741
+            },
+            "final_answer_first_token_seconds": {
+              "n": 6,
+              "p50": 3.017,
+              "p95": 8.9
+            },
+            "totals": {
+              "model_requests": 14,
+              "judge_requests": 6,
+              "llm_calls": 14,
+              "input_tokens": 23594,
+              "cached_input_tokens": 13312,
+              "output_tokens": 2075,
+              "tool_calls": 0,
+              "rag_calls": 8,
+              "retrieval_calls": 8
+            },
+            "judge_totals": {
+              "llm_calls": 6,
+              "input_tokens": 12094,
+              "cached_input_tokens": 0,
+              "output_tokens": 1203
+            },
+            "generation_cost": null,
+            "judge_cost": null,
+            "failure_counts": {}
+          },
+          "agent": {
+            "total": 6,
+            "pass_rate": 1.0,
+            "completion_rate": 1.0,
+            "source_coverage_rate": 1.0,
+            "execution_duration_seconds": {
+              "n": 6,
+              "p50": 10.26,
+              "p95": 15.684
+            },
+            "total_duration_seconds": {
+              "n": 6,
+              "p50": 13.603,
+              "p95": 18.902
+            },
+            "first_model_event_seconds": {
+              "n": 6,
+              "p50": 1.055,
+              "p95": 1.326
+            },
+            "final_answer_first_token_seconds": {
+              "n": 6,
+              "p50": 9.209,
+              "p95": 13.063
+            },
+            "totals": {
+              "model_requests": 26,
+              "judge_requests": 6,
+              "llm_calls": 26,
+              "input_tokens": 45414,
+              "cached_input_tokens": 15872,
+              "output_tokens": 2564,
+              "tool_calls": 10,
+              "rag_calls": 10,
+              "retrieval_calls": 10
+            },
+            "judge_totals": {
+              "llm_calls": 6,
+              "input_tokens": 13183,
+              "cached_input_tokens": 0,
+              "output_tokens": 1147
+            },
+            "generation_cost": null,
+            "judge_cost": null,
+            "failure_counts": {}
+          }
+        },
+        "by_case_type": {
+          "single_source": {
+            "rag": {
+              "total": 2,
+              "pass_rate": 1.0,
+              "completion_rate": 1.0,
+              "source_coverage_rate": 1.0,
+              "execution_duration_seconds": {
+                "n": 2,
+                "p50": 1.332,
+                "p95": 2.008
+              },
+              "total_duration_seconds": {
+                "n": 2,
+                "p50": 4.184,
+                "p95": 4.537
+              },
+              "first_model_event_seconds": {
+                "n": 2,
+                "p50": 1.05,
+                "p95": 1.882
+              },
+              "final_answer_first_token_seconds": {
+                "n": 2,
+                "p50": 1.051,
+                "p95": 1.883
+              },
+              "totals": {
+                "model_requests": 2,
+                "judge_requests": 2,
+                "llm_calls": 2,
+                "input_tokens": 3356,
+                "cached_input_tokens": 1536,
+                "output_tokens": 65,
+                "tool_calls": 0,
+                "rag_calls": 2,
+                "retrieval_calls": 2
+              },
+              "judge_totals": {
+                "llm_calls": 2,
+                "input_tokens": 3301,
+                "cached_input_tokens": 0,
+                "output_tokens": 262
+              },
+              "generation_cost": null,
+              "judge_cost": null,
+              "failure_counts": {}
+            },
+            "fixed": {
+              "total": 2,
+              "pass_rate": 1.0,
+              "completion_rate": 1.0,
+              "source_coverage_rate": 1.0,
+              "execution_duration_seconds": {
+                "n": 2,
+                "p50": 2.563,
+                "p95": 3.401
+              },
+              "total_duration_seconds": {
+                "n": 2,
+                "p50": 5.291,
+                "p95": 6.008
+              },
+              "first_model_event_seconds": {
+                "n": 2,
+                "p50": 1.194,
+                "p95": 1.233
+              },
+              "final_answer_first_token_seconds": {
+                "n": 2,
+                "p50": 2.225,
+                "p95": 3.21
+              },
+              "totals": {
+                "model_requests": 4,
+                "judge_requests": 2,
+                "llm_calls": 4,
+                "input_tokens": 6722,
+                "cached_input_tokens": 4608,
+                "output_tokens": 141,
+                "tool_calls": 0,
+                "rag_calls": 2,
+                "retrieval_calls": 2
+              },
+              "judge_totals": {
+                "llm_calls": 2,
+                "input_tokens": 3296,
+                "cached_input_tokens": 0,
+                "output_tokens": 280
+              },
+              "generation_cost": null,
+              "judge_cost": null,
+              "failure_counts": {}
+            },
+            "agent": {
+              "total": 2,
+              "pass_rate": 1.0,
+              "completion_rate": 1.0,
+              "source_coverage_rate": 1.0,
+              "execution_duration_seconds": {
+                "n": 2,
+                "p50": 4.352,
+                "p95": 4.965
+              },
+              "total_duration_seconds": {
+                "n": 2,
+                "p50": 7.233,
+                "p95": 7.633
+              },
+              "first_model_event_seconds": {
+                "n": 2,
+                "p50": 0.991,
+                "p95": 1.288
+              },
+              "final_answer_first_token_seconds": {
+                "n": 2,
+                "p50": 4.083,
+                "p95": 4.633
+              },
+              "totals": {
+                "model_requests": 6,
+                "judge_requests": 2,
+                "llm_calls": 6,
+                "input_tokens": 9182,
+                "cached_input_tokens": 3584,
+                "output_tokens": 236,
+                "tool_calls": 2,
+                "rag_calls": 2,
+                "retrieval_calls": 2
+              },
+              "judge_totals": {
+                "llm_calls": 2,
+                "input_tokens": 3347,
+                "cached_input_tokens": 0,
+                "output_tokens": 287
+              },
+              "generation_cost": null,
+              "judge_cost": null,
+              "failure_counts": {}
+            }
+          },
+          "multi_source": {
+            "rag": {
+              "total": 4,
+              "pass_rate": 1.0,
+              "completion_rate": 1.0,
+              "source_coverage_rate": 1.0,
+              "execution_duration_seconds": {
+                "n": 4,
+                "p50": 3.066,
+                "p95": 4.189
+              },
+              "total_duration_seconds": {
+                "n": 4,
+                "p50": 6.562,
+                "p95": 7.86
+              },
+              "first_model_event_seconds": {
+                "n": 4,
+                "p50": 1.241,
+                "p95": 1.837
+              },
+              "final_answer_first_token_seconds": {
+                "n": 4,
+                "p50": 1.241,
+                "p95": 1.837
+              },
+              "totals": {
+                "model_requests": 4,
+                "judge_requests": 4,
+                "llm_calls": 4,
+                "input_tokens": 5898,
+                "cached_input_tokens": 2560,
+                "output_tokens": 611,
+                "tool_calls": 0,
+                "rag_calls": 4,
+                "retrieval_calls": 4
+              },
+              "judge_totals": {
+                "llm_calls": 4,
+                "input_tokens": 6278,
+                "cached_input_tokens": 1536,
+                "output_tokens": 794
+              },
+              "generation_cost": null,
+              "judge_cost": null,
+              "failure_counts": {}
+            },
+            "fixed": {
+              "total": 4,
+              "pass_rate": 1.0,
+              "completion_rate": 1.0,
+              "source_coverage_rate": 1.0,
+              "execution_duration_seconds": {
+                "n": 4,
+                "p50": 3.545,
+                "p95": 13.105
+              },
+              "total_duration_seconds": {
+                "n": 4,
+                "p50": 6.738,
+                "p95": 17.294
+              },
+              "first_model_event_seconds": {
+                "n": 4,
+                "p50": 1.2,
+                "p95": 1.741
+              },
+              "final_answer_first_token_seconds": {
+                "n": 4,
+                "p50": 3.017,
+                "p95": 8.9
+              },
+              "totals": {
+                "model_requests": 10,
+                "judge_requests": 4,
+                "llm_calls": 10,
+                "input_tokens": 16872,
+                "cached_input_tokens": 8704,
+                "output_tokens": 1934,
+                "tool_calls": 0,
+                "rag_calls": 6,
+                "retrieval_calls": 6
+              },
+              "judge_totals": {
+                "llm_calls": 4,
+                "input_tokens": 8798,
+                "cached_input_tokens": 0,
+                "output_tokens": 923
+              },
+              "generation_cost": null,
+              "judge_cost": null,
+              "failure_counts": {}
+            },
+            "agent": {
+              "total": 4,
+              "pass_rate": 1.0,
+              "completion_rate": 1.0,
+              "source_coverage_rate": 1.0,
+              "execution_duration_seconds": {
+                "n": 4,
+                "p50": 10.419,
+                "p95": 15.684
+              },
+              "total_duration_seconds": {
+                "n": 4,
+                "p50": 13.931,
+                "p95": 18.902
+              },
+              "first_model_event_seconds": {
+                "n": 4,
+                "p50": 1.055,
+                "p95": 1.326
+              },
+              "final_answer_first_token_seconds": {
+                "n": 4,
+                "p50": 9.436,
+                "p95": 13.063
+              },
+              "totals": {
+                "model_requests": 20,
+                "judge_requests": 4,
+                "llm_calls": 20,
+                "input_tokens": 36232,
+                "cached_input_tokens": 12288,
+                "output_tokens": 2328,
+                "tool_calls": 8,
+                "rag_calls": 8,
+                "retrieval_calls": 8
+              },
+              "judge_totals": {
+                "llm_calls": 4,
+                "input_tokens": 9836,
+                "cached_input_tokens": 0,
+                "output_tokens": 860
+              },
+              "generation_cost": null,
+              "judge_cost": null,
+              "failure_counts": {}
+            }
+          }
+        }
+      },
+      "cases": [
+        {
+          "id": "a2-holdout-001",
+          "strategy": "rag",
+          "repeat": 1,
+          "case_type": "single_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 1,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 1,
+          "input_tokens": 1678,
+          "cached_input_tokens": 0,
+          "output_tokens": 34,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1652,
+            "cached_input_tokens": 0,
+            "output_tokens": 118
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 2.008,
+          "judge_duration_seconds": 2.529,
+          "total_duration_seconds": 4.537,
+          "first_model_event_seconds": 1.8824771670624614,
+          "final_answer_first_token_seconds": 1.8832521670265123,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 6392,
+          "context_bytes_judge": 6187,
+          "accounted_output_tokens_generation": 34,
+          "accounted_output_tokens_judge": 118,
+          "finish_reasons": [
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200
+          ]
+        },
+        {
+          "id": "a2-holdout-001",
+          "strategy": "fixed",
+          "repeat": 1,
+          "case_type": "single_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 2,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 2,
+          "input_tokens": 3361,
+          "cached_input_tokens": 1536,
+          "output_tokens": 82,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1648,
+            "cached_input_tokens": 0,
+            "output_tokens": 144
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 3.401,
+          "judge_duration_seconds": 2.607,
+          "total_duration_seconds": 6.008,
+          "first_model_event_seconds": 1.2331752079771832,
+          "final_answer_first_token_seconds": 3.2098149579251185,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 12770,
+          "context_bytes_judge": 6165,
+          "accounted_output_tokens_generation": 82,
+          "accounted_output_tokens_judge": 144,
+          "finish_reasons": [
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "a2-holdout-001",
+          "strategy": "agent",
+          "repeat": 1,
+          "case_type": "single_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 3,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 1,
+          "llm_calls": 3,
+          "input_tokens": 4600,
+          "cached_input_tokens": 1024,
+          "output_tokens": 125,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1672,
+            "cached_input_tokens": 0,
+            "output_tokens": 142
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 4.965,
+          "judge_duration_seconds": 2.668,
+          "total_duration_seconds": 7.633,
+          "first_model_event_seconds": 1.2880901249591261,
+          "final_answer_first_token_seconds": 4.6329503749730065,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 19294,
+          "context_bytes_judge": 6155,
+          "accounted_output_tokens_generation": 125,
+          "accounted_output_tokens_judge": 142,
+          "finish_reasons": [
+            "tool_calls",
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "a2-holdout-001",
+          "strategy": "fixed",
+          "repeat": 2,
+          "case_type": "single_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 2,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 2,
+          "input_tokens": 3361,
+          "cached_input_tokens": 3072,
+          "output_tokens": 59,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1648,
+            "cached_input_tokens": 0,
+            "output_tokens": 136
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 2.563,
+          "judge_duration_seconds": 2.728,
+          "total_duration_seconds": 5.291,
+          "first_model_event_seconds": 1.1940210830653086,
+          "final_answer_first_token_seconds": 2.2246715830406174,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 12770,
+          "context_bytes_judge": 6159,
+          "accounted_output_tokens_generation": 59,
+          "accounted_output_tokens_judge": 136,
+          "finish_reasons": [
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "a2-holdout-001",
+          "strategy": "agent",
+          "repeat": 2,
+          "case_type": "single_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 3,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 1,
+          "llm_calls": 3,
+          "input_tokens": 4582,
+          "cached_input_tokens": 2560,
+          "output_tokens": 111,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1675,
+            "cached_input_tokens": 0,
+            "output_tokens": 145
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 4.352,
+          "judge_duration_seconds": 2.881,
+          "total_duration_seconds": 7.233,
+          "first_model_event_seconds": 0.9909355420386419,
+          "final_answer_first_token_seconds": 4.083121542003937,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 19214,
+          "context_bytes_judge": 6170,
+          "accounted_output_tokens_generation": 111,
+          "accounted_output_tokens_judge": 145,
+          "finish_reasons": [
+            "tool_calls",
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "a2-holdout-001",
+          "strategy": "rag",
+          "repeat": 2,
+          "case_type": "single_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 1,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 1,
+          "input_tokens": 1678,
+          "cached_input_tokens": 1536,
+          "output_tokens": 31,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1649,
+            "cached_input_tokens": 0,
+            "output_tokens": 144
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 1.332,
+          "judge_duration_seconds": 2.852,
+          "total_duration_seconds": 4.184,
+          "first_model_event_seconds": 1.0502263329690322,
+          "final_answer_first_token_seconds": 1.0506925829686224,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 6392,
+          "context_bytes_judge": 6166,
+          "accounted_output_tokens_generation": 31,
+          "accounted_output_tokens_judge": 144,
+          "finish_reasons": [
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200
+          ]
+        },
+        {
+          "id": "a2-holdout-002",
+          "strategy": "rag",
+          "repeat": 1,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 1,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 1,
+          "input_tokens": 1299,
+          "cached_input_tokens": 0,
+          "output_tokens": 202,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1444,
+            "cached_input_tokens": 0,
+            "output_tokens": 238
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 4.189,
+          "judge_duration_seconds": 3.671,
+          "total_duration_seconds": 7.86,
+          "first_model_event_seconds": 1.675692041986622,
+          "final_answer_first_token_seconds": 1.6764507920015603,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 6374,
+          "context_bytes_judge": 6956,
+          "accounted_output_tokens_generation": 202,
+          "accounted_output_tokens_judge": 238,
+          "finish_reasons": [
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200
+          ]
+        },
+        {
+          "id": "a2-holdout-002",
+          "strategy": "fixed",
+          "repeat": 1,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 3,
+          "judge_requests": 1,
+          "rag_calls": 2,
+          "retrieval_calls": 2,
+          "tool_calls": 0,
+          "llm_calls": 3,
+          "input_tokens": 5130,
+          "cached_input_tokens": 0,
+          "output_tokens": 851,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 2823,
+            "cached_input_tokens": 0,
+            "output_tokens": 254
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 13.105,
+          "judge_duration_seconds": 4.189,
+          "total_duration_seconds": 17.294,
+          "first_model_event_seconds": 1.7406376670114696,
+          "final_answer_first_token_seconds": 8.655426250072196,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 25251,
+          "context_bytes_judge": 13559,
+          "accounted_output_tokens_generation": 851,
+          "accounted_output_tokens_judge": 254,
+          "finish_reasons": [
+            "stop",
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "a2-holdout-002",
+          "strategy": "agent",
+          "repeat": 1,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 5,
+          "judge_requests": 1,
+          "rag_calls": 2,
+          "retrieval_calls": 2,
+          "tool_calls": 2,
+          "llm_calls": 5,
+          "input_tokens": 9250,
+          "cached_input_tokens": 3072,
+          "output_tokens": 694,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 2509,
+            "cached_input_tokens": 0,
+            "output_tokens": 272
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 13.315,
+          "judge_duration_seconds": 4.504,
+          "total_duration_seconds": 17.819,
+          "first_model_event_seconds": 1.3264156660297886,
+          "final_answer_first_token_seconds": 11.881570082972758,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 4,
+            "groundedness_score": 4,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 45338,
+          "context_bytes_judge": 12366,
+          "accounted_output_tokens_generation": 694,
+          "accounted_output_tokens_judge": 272,
+          "finish_reasons": [
+            "tool_calls",
+            "stop",
+            "tool_calls",
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "a2-holdout-002",
+          "strategy": "fixed",
+          "repeat": 2,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 3,
+          "judge_requests": 1,
+          "rag_calls": 2,
+          "retrieval_calls": 2,
+          "tool_calls": 0,
+          "llm_calls": 3,
+          "input_tokens": 5130,
+          "cached_input_tokens": 4096,
+          "output_tokens": 829,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 2664,
+            "cached_input_tokens": 0,
+            "output_tokens": 309
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 11.522,
+          "judge_duration_seconds": 4.228,
+          "total_duration_seconds": 15.75,
+          "first_model_event_seconds": 1.3299577499274164,
+          "final_answer_first_token_seconds": 8.900070999981835,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 25251,
+          "context_bytes_judge": 12907,
+          "accounted_output_tokens_generation": 829,
+          "accounted_output_tokens_judge": 309,
+          "finish_reasons": [
+            "stop",
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "a2-holdout-002",
+          "strategy": "agent",
+          "repeat": 2,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 5,
+          "judge_requests": 1,
+          "rag_calls": 2,
+          "retrieval_calls": 2,
+          "tool_calls": 2,
+          "llm_calls": 5,
+          "input_tokens": 9769,
+          "cached_input_tokens": 3072,
+          "output_tokens": 873,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 2646,
+            "cached_input_tokens": 0,
+            "output_tokens": 181
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 15.684,
+          "judge_duration_seconds": 3.218,
+          "total_duration_seconds": 18.902,
+          "first_model_event_seconds": 1.0552659999812022,
+          "final_answer_first_token_seconds": 13.062827999936417,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 47090,
+          "context_bytes_judge": 13079,
+          "accounted_output_tokens_generation": 873,
+          "accounted_output_tokens_judge": 181,
+          "finish_reasons": [
+            "tool_calls",
+            "stop",
+            "tool_calls",
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "a2-holdout-002",
+          "strategy": "rag",
+          "repeat": 2,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 1,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 1,
+          "input_tokens": 1299,
+          "cached_input_tokens": 1024,
+          "output_tokens": 188,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1430,
+            "cached_input_tokens": 0,
+            "output_tokens": 211
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 3.066,
+          "judge_duration_seconds": 3.499,
+          "total_duration_seconds": 6.565,
+          "first_model_event_seconds": 1.1672774160979316,
+          "final_answer_first_token_seconds": 1.1680553330807015,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 6374,
+          "context_bytes_judge": 6871,
+          "accounted_output_tokens_generation": 188,
+          "accounted_output_tokens_judge": 211,
+          "finish_reasons": [
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200
+          ]
+        },
+        {
+          "id": "a2-holdout-003",
+          "strategy": "rag",
+          "repeat": 1,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 1,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 1,
+          "input_tokens": 1650,
+          "cached_input_tokens": 0,
+          "output_tokens": 157,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1748,
+            "cached_input_tokens": 0,
+            "output_tokens": 185
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 3.3,
+          "judge_duration_seconds": 3.262,
+          "total_duration_seconds": 6.562,
+          "first_model_event_seconds": 1.8365889169508591,
+          "final_answer_first_token_seconds": 1.8370134169235826,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 7230,
+          "context_bytes_judge": 7458,
+          "accounted_output_tokens_generation": 157,
+          "accounted_output_tokens_judge": 185,
+          "finish_reasons": [
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200
+          ]
+        },
+        {
+          "id": "a2-holdout-003",
+          "strategy": "fixed",
+          "repeat": 1,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 2,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 2,
+          "input_tokens": 3306,
+          "cached_input_tokens": 1536,
+          "output_tokens": 127,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1656,
+            "cached_input_tokens": 0,
+            "output_tokens": 175
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 3.545,
+          "judge_duration_seconds": 3.193,
+          "total_duration_seconds": 6.738,
+          "first_model_event_seconds": 1.080186334089376,
+          "final_answer_first_token_seconds": 3.016769416979514,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 14446,
+          "context_bytes_judge": 7129,
+          "accounted_output_tokens_generation": 127,
+          "accounted_output_tokens_judge": 175,
+          "finish_reasons": [
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "a2-holdout-003",
+          "strategy": "agent",
+          "repeat": 1,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 5,
+          "judge_requests": 1,
+          "rag_calls": 2,
+          "retrieval_calls": 2,
+          "tool_calls": 2,
+          "llm_calls": 5,
+          "input_tokens": 8526,
+          "cached_input_tokens": 2560,
+          "output_tokens": 363,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 2311,
+            "cached_input_tokens": 0,
+            "output_tokens": 183
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 10.419,
+          "judge_duration_seconds": 3.184,
+          "total_duration_seconds": 13.603,
+          "first_model_event_seconds": 1.213280790951103,
+          "final_answer_first_token_seconds": 9.436385790933855,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 37517,
+          "context_bytes_judge": 9722,
+          "accounted_output_tokens_generation": 363,
+          "accounted_output_tokens_judge": 183,
+          "finish_reasons": [
+            "tool_calls",
+            "stop",
+            "tool_calls",
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "a2-holdout-003",
+          "strategy": "fixed",
+          "repeat": 2,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 2,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 2,
+          "input_tokens": 3306,
+          "cached_input_tokens": 3072,
+          "output_tokens": 127,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1655,
+            "cached_input_tokens": 0,
+            "output_tokens": 185
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 3.145,
+          "judge_duration_seconds": 3.298,
+          "total_duration_seconds": 6.443,
+          "first_model_event_seconds": 1.1997905420139432,
+          "final_answer_first_token_seconds": 2.663453792105429,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 14446,
+          "context_bytes_judge": 7129,
+          "accounted_output_tokens_generation": 127,
+          "accounted_output_tokens_judge": 185,
+          "finish_reasons": [
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "a2-holdout-003",
+          "strategy": "agent",
+          "repeat": 2,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 5,
+          "judge_requests": 1,
+          "rag_calls": 2,
+          "retrieval_calls": 2,
+          "tool_calls": 2,
+          "llm_calls": 5,
+          "input_tokens": 8687,
+          "cached_input_tokens": 3584,
+          "output_tokens": 398,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 2370,
+            "cached_input_tokens": 0,
+            "output_tokens": 224
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 10.26,
+          "judge_duration_seconds": 3.671,
+          "total_duration_seconds": 13.931,
+          "first_model_event_seconds": 0.9625648750225082,
+          "final_answer_first_token_seconds": 9.208588875015266,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 37963,
+          "context_bytes_judge": 9797,
+          "accounted_output_tokens_generation": 398,
+          "accounted_output_tokens_judge": 224,
+          "finish_reasons": [
+            "tool_calls",
+            "stop",
+            "tool_calls",
+            "stop",
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200,
+            200,
+            200,
+            200,
+            200
+          ]
+        },
+        {
+          "id": "a2-holdout-003",
+          "strategy": "rag",
+          "repeat": 2,
+          "case_type": "multi_source",
+          "passed": true,
+          "completed": true,
+          "failure_stage": null,
+          "termination_reason": "final_answer",
+          "source_coverage": 1.0,
+          "source_coverage_pass": true,
+          "model_requests": 1,
+          "judge_requests": 1,
+          "rag_calls": 1,
+          "retrieval_calls": 1,
+          "tool_calls": 0,
+          "llm_calls": 1,
+          "input_tokens": 1650,
+          "cached_input_tokens": 1536,
+          "output_tokens": 64,
+          "judge_usage": {
+            "llm_calls": 1,
+            "input_tokens": 1656,
+            "cached_input_tokens": 1536,
+            "output_tokens": 160
+          },
+          "cost": null,
+          "judge_cost": null,
+          "execution_duration_seconds": 1.686,
+          "judge_duration_seconds": 2.489,
+          "total_duration_seconds": 4.175,
+          "first_model_event_seconds": 1.2410978330299258,
+          "final_answer_first_token_seconds": 1.2414553749840707,
+          "diagnosis_candidates": [],
+          "budget_violation": null,
+          "judge_scores": {
+            "relevance_score": 5,
+            "completeness_score": 5,
+            "groundedness_score": 5,
+            "format_score": 5
+          },
+          "error_type": null,
+          "context_bytes_generation": 7230,
+          "context_bytes_judge": 7129,
+          "accounted_output_tokens_generation": 64,
+          "accounted_output_tokens_judge": 160,
+          "finish_reasons": [
+            "stop",
+            "stop"
+          ],
+          "http_statuses": [
+            200,
+            200
+          ]
+        }
+      ]
+    }
+  },
+  "index_snapshots": {
+    "a2_index_before.json": {
+      "collection": "documents",
+      "points_count": 22387,
+      "scrolled_count": 22387,
+      "payload_ids_sha256": "797c5401e77ca7b57d6a65eda1095666a6dd61594976314668dfd827e0931b2c",
+      "vectors_configuration": {
+        "size": 1024,
+        "distance": "Cosine"
+      },
+      "limitation": "Payload and IDs fingerprint only; vector values are not exported or hashed."
+    },
+    "a2_index_after_baseline.json": {
+      "collection": "documents",
+      "points_count": 22387,
+      "scrolled_count": 22387,
+      "payload_ids_sha256": "797c5401e77ca7b57d6a65eda1095666a6dd61594976314668dfd827e0931b2c",
+      "vectors_configuration": {
+        "size": 1024,
+        "distance": "Cosine"
+      },
+      "limitation": "Payload and IDs fingerprint only; vector values are not exported or hashed."
+    },
+    "a2_index_after_development.json": {
+      "collection": "documents",
+      "points_count": 22387,
+      "scrolled_count": 22387,
+      "payload_ids_sha256": "797c5401e77ca7b57d6a65eda1095666a6dd61594976314668dfd827e0931b2c",
+      "vectors_configuration": {
+        "size": 1024,
+        "distance": "Cosine"
+      },
+      "limitation": "Payload and IDs fingerprint only; vector values are not exported or hashed."
+    },
+    "a2_index_after_validation.json": {
+      "collection": "documents",
+      "points_count": 22387,
+      "scrolled_count": 22387,
+      "payload_ids_sha256": "797c5401e77ca7b57d6a65eda1095666a6dd61594976314668dfd827e0931b2c",
+      "vectors_configuration": {
+        "size": 1024,
+        "distance": "Cosine"
+      },
+      "limitation": "Payload and IDs fingerprint only; vector values are not exported or hashed."
+    }
+  },
+  "static_evidence_reviews": {
+    "baseline": {
+      "reviewer": "coding_assistant_static_evidence_review",
+      "run_id": "20261025-082518-939344",
+      "scope": "18 saved final answers and original snippets; no external model, retrieval, or expert human review",
+      "automatic_judge_passed": 18,
+      "automatic_scores_unchanged": true,
+      "rows_with_concerns": [
+        {
+          "id": "lora_qlora_compare",
+          "strategy": "rag",
+          "repeat": 1,
+          "concerns": [
+            "source_conflict_missing_qualification"
+          ]
+        },
+        {
+          "id": "lora_qlora_compare",
+          "strategy": "rag",
+          "repeat": 2,
+          "concerns": [
+            "source_conflict_missing_qualification"
+          ]
+        },
+        {
+          "id": "lora_qlora_compare",
+          "strategy": "fixed",
+          "repeat": 1,
+          "concerns": [
+            "source_conflict_missing_qualification"
+          ]
+        },
+        {
+          "id": "lora_qlora_compare",
+          "strategy": "fixed",
+          "repeat": 2,
+          "concerns": [
+            "source_conflict_missing_qualification",
+            "benchmark_scope_widening"
+          ]
+        },
+        {
+          "id": "lora_qlora_compare",
+          "strategy": "agent",
+          "repeat": 1,
+          "concerns": [
+            "unsupported_hardware_class"
+          ]
+        },
+        {
+          "id": "lora_qlora_compare",
+          "strategy": "agent",
+          "repeat": 2,
+          "concerns": [
+            "source_conflict_missing_qualification",
+            "unsupported_hardware_class"
+          ]
+        }
+      ],
+      "evidence": "All six rows contain abstract [2], limitation [4] page15, and scoped MMLU result [6]. Five omit the 33B/65B caveat; both Agent rows add consumer GPU not in saved snippets.",
+      "operational_findings": {
+        "retrieval_errors": 0,
+        "budget_violations": 0,
+        "length_finishes": 0,
+        "repeated_identical_queries": 0
+      },
+      "unimplemented_performance_opportunity": {
+        "fixed_unused_generation_calls": 8,
+        "input_tokens": 11392,
+        "output_tokens": 1589,
+        "context_bytes": 51688
+      },
+      "selected_single_change": "Shared system-prompt policy to preserve specific caveats and comparison qualifiers; fixed workflow and scoring unchanged."
+    },
+    "development": {
+      "reviewer": "coding_assistant_static_evidence_review",
+      "run_id": "20261025-083510-697314",
+      "automatic_passed": 17,
+      "total": 18,
+      "automatic_scores_unchanged": true,
+      "lora_explicit_scale_caveat": {
+        "baseline_completed_answers": 6,
+        "baseline_included": 1,
+        "after_completed_answers": 5,
+        "after_included": 4,
+        "direct_rag_baseline": 0,
+        "direct_rag_after": 2,
+        "direct_rag_repeats": 2
+      },
+      "residual_findings": [
+        {
+          "id": "lora_qlora_compare",
+          "strategy": "fixed",
+          "repeat": 2,
+          "concern": "explicit_scale_caveat_still_missing"
+        },
+        {
+          "id": "lora_qlora_compare",
+          "strategies": [
+            "rag",
+            "fixed",
+            "agent"
+          ],
+          "concern": "four_completed_answers_place_a_broad_claim_before_correct_caveat;not_fully_resolved"
+        },
+        {
+          "id": "qdrant_usage",
+          "strategy": "agent",
+          "repeat": 1,
+          "concern": "speed_and_memory_effects_not_supported_by_cited_feature_heading"
+        },
+        {
+          "id": "qdrant_usage",
+          "strategy": "rag",
+          "repeat": 1,
+          "concern": "Cloud_fact_supported_elsewhere_but_citation_also_points_to_Edge"
+        },
+        {
+          "id": "langchain_llamaindex_comparison",
+          "strategy": "agent",
+          "repeat": 2,
+          "concern": "minor_feature_attribution_and_citation_granularity"
+        }
+      ],
+      "budget_failure": {
+        "id": "lora_qlora_compare",
+        "strategy": "agent",
+        "repeat": 1,
+        "calls": 6,
+        "tool_decisions": 3,
+        "tool_internal_generations": 3,
+        "judge_called": false,
+        "cause_observed": "No remaining call for final synthesis; first retrieval already contained needed snippets. Additional questions overlapped but were not identical. No causal claim that policy forced further retrieval."
+      },
+      "decision": "Retain shared policy for caveat improvement and direct RAG 6/6 completion; no second change; no preference for Agent established. Frozen configuration committed before holdout content opened.",
+      "limitations": "Static coding-assistant review, not human expert validation; caveat inclusion does not prove whole-answer correctness."
+    },
+    "validation": {
+      "reviewer": "coding_assistant_static_evidence_review",
+      "run_id": "20261025-084115-605489",
+      "rows_reviewed": 18,
+      "clear_counterexamples_to_automatic_pass": 0,
+      "core_facts_supported": 18,
+      "expected_sources_verified_from_actual_snippets": 18,
+      "operational_failures": 0,
+      "remaining_limitations": [
+        {
+          "case": "a2-holdout-002",
+          "rows": [
+            "rag/2",
+            "agent/1",
+            "agent/2"
+          ],
+          "finding": "300ms/epoch statement omits relative-to-pure-PyTorch comparison baseline; mild scope imprecision, not invented value"
+        },
+        {
+          "case": "a2-holdout-003",
+          "finding": "Question requests endpoint while QA template forbids URLs; all six answered requested endpoint correctly. Instruction collision remains, no tuning/re-run."
+        }
+      ],
+      "no_post_validation_tuning": true,
+      "human_expert_validation": false
+    }
+  }
+}
