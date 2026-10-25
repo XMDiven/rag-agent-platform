@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from types import SimpleNamespace
 
 import pytest
+from langchain_core.runnables import RunnableLambda
 
 from rag_app.evaluation.judge_schema import AnswerJudgeResult
 
@@ -134,6 +135,10 @@ def test_evaluate_case_judges_agent_answer_once_and_sanitizes_sources() -> None:
             "format_score",
         ],
         "answer": "RAG grounds answers with retrieved context.",
+        "judge_evidence": (
+            "[1]\nsource: data/raw/rag.md\nsection_path: Introduction\n"
+            "snippet: RAG combines retrieval and generation."
+        ),
         "sources": [
             {
                 "source": "data/raw/rag.md",
@@ -185,6 +190,7 @@ def test_evaluate_case_isolates_agent_error_without_persisting_message() -> None
     assert result["failure_stage"] == "agent"
     assert result["error"] == {"type": "RuntimeError"}
     assert result["judge"] is None
+    assert result["judge_evidence"] is None
     assert result["agent_duration_seconds"] == 1.0
     assert result["judge_duration_seconds"] == 0.0
     assert "agent-secret" not in json.dumps(result)
@@ -213,6 +219,7 @@ def test_evaluate_case_skips_judge_for_empty_answer() -> None:
     assert result["error"] is None
     assert result["judge"] is None
     assert result["answer"] == "   "
+    assert result["judge_evidence"] is None
 
 
 def test_evaluate_case_isolates_judge_error_without_persisting_message() -> None:
@@ -232,6 +239,10 @@ def test_evaluate_case_isolates_judge_error_without_persisting_message() -> None
     assert result["failure_stage"] == "judge"
     assert result["error"] == {"type": "ValueError"}
     assert result["judge"] is None
+    assert result["judge_evidence"] == (
+        "[1]\nsource: data/raw/rag.md\nsection_path: Introduction\n"
+        "snippet: RAG combines retrieval and generation."
+    )
     assert result["sources"] == [
         {
             "source": "data/raw/rag.md",
@@ -609,6 +620,7 @@ def test_input_validation_case_is_not_judged_for_answer_quality() -> None:
     assert result["judge_applicable"] is False
     assert result["passed"] is None
     assert result["failure_stage"] is None
+    assert result["judge_evidence"] is None
 
 
 def test_pass_rate_excludes_cases_that_are_not_judged() -> None:
@@ -658,6 +670,60 @@ def direct_case() -> AgentEvalCase:
         requires_sources=False,
         max_steps=4,
     )
+
+
+@pytest.mark.parametrize("task_type", ["retrieval", "summary", "direct"])
+def test_report_preserves_evidence_sent_to_judge_model(task_type, tmp_path) -> None:
+    case = {
+        "retrieval": eval_case,
+        "summary": summary_case,
+        "direct": direct_case,
+    }[task_type]()
+    output = agent_result()
+    if task_type == "direct":
+        output.tool_result.output["sources"] = []
+    else:
+        output.tool_result.output["sources"].append(
+            {
+                "source": "data/raw/second.md",
+                "section_path": "补充证据",
+                "snippet": "第二段原文。\n保留换行和引用顺序。",
+                "internal_token": "not-evidence",
+            }
+        )
+    prompts = []
+
+    def fake_model(prompt):
+        prompts.append(prompt.to_messages()[-1].content)
+        return passing_judge_result().model_dump_json()
+
+    result = evaluate_case(
+        case,
+        judge_llm=RunnableLambda(fake_model),
+        run_agent_fn=lambda question: output,
+    )
+    assert len(prompts) == 1
+    evidence = prompts[0].split("\n\nRetrieved evidence:\n", 1)[1]
+    assert result["judge_evidence"] == evidence
+    if task_type == "retrieval":
+        assert evidence == (
+            "[1]\nsource: data/raw/rag.md\nsection_path: Introduction\n"
+            "snippet: RAG combines retrieval and generation.\n\n"
+            "[2]\nsource: data/raw/second.md\nsection_path: 补充证据\n"
+            "snippet: 第二段原文。\n保留换行和引用顺序。"
+        )
+    elif task_type == "summary":
+        assert evidence == (
+            "[1]\nsource: user_input\nsection_path: question\n"
+            "snippet: 请总结这段文字：RAG 先检索，再生成。"
+        )
+    else:
+        assert evidence == "No retrieved evidence."
+    assert "not-evidence" not in evidence
+
+    report = {"run_id": "offline-evidence", "cases": [result]}
+    saved = json.loads(write_report(report, output_dir=tmp_path).read_text())
+    assert saved["cases"][0]["judge_evidence"] == evidence
 
 
 def test_direct_case_passes_without_a_groundedness_score() -> None:

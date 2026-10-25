@@ -2,6 +2,7 @@ import json
 from dataclasses import dataclass
 from typing import Any, cast
 
+import pytest
 from langchain_core.messages import AIMessage, ToolMessage
 from langchain_openai import ChatOpenAI
 
@@ -480,3 +481,64 @@ def test_source_numbering_continues_across_tool_calls() -> None:
     assert first_payload["sources"] == ["[1] a.md", "[2] b.md"]
     assert next_index == 3
     assert second_payload["sources"] == ["[3] c.md"]
+
+
+@pytest.mark.parametrize("max_steps", [2, 4])
+def test_final_model_receives_original_evidence_with_global_citations(max_steps) -> None:
+    sources = [
+        {"source": "langchain.md", "section_path": "interfaces", "snippet": "LangChain provides model interfaces."},
+        {"source": "llamaindex.md", "section_path": "data", "snippet": "LlamaIndex indexes user data."},
+        {"source": "llamaindex.md", "section_path": "use cases", "snippet": "LlamaIndex supports multimodal applications.\nOriginal second line."},
+    ]
+    responses = [
+        tool_call_message(call_id="compare", name="question_decompose_tool"),
+        tool_call_message(call_id="followup"),
+        AIMessage(content="Answer with citations [1][2][3]."),
+    ]
+    model = FakeModel(responses)
+    outputs = iter([sources[:2], sources[2:]])
+
+    def execute(name, args):
+        return ToolResult(
+            tool_name=name,
+            status="success",
+            output={"answer": "Generated summary [1].", "sources": next(outputs)},
+            attempts=[],
+        )
+
+    result = run_agent_loop("Compare frameworks", cast(ChatOpenAI, model), execute, max_steps=max_steps)
+    tool_messages = [m for m in model.invocations[-1].messages if isinstance(m, ToolMessage)]
+    payloads = [json.loads(str(m.content)) for m in tool_messages]
+    assert payloads[0]["evidence"] == [
+        {"citation": "[1]", **sources[0]},
+        {"citation": "[2]", **sources[1]},
+    ]
+    assert payloads[1]["evidence"] == [{"citation": "[3]", **sources[2]}]
+    assert payloads[1]["sources"] == ["[3] llamaindex.md"]
+    assert result.sources == sources
+    assert model.invocations[-1].tool_choice == ("none" if max_steps == 2 else "auto")
+
+
+def test_evidence_numbering_keeps_missing_source_slots_without_copying_metadata() -> None:
+    result = ToolResult(
+        tool_name="retrieval_tool",
+        status="success",
+        output={
+            "sources": [
+                "invalid source entry",
+                {},
+                {"source": "valid.md", "section_path": "intro", "snippet": "Original evidence.", "internal_token": "private"},
+                {"source": "", "snippet": "Evidence without a file name."},
+            ]
+        },
+        attempts=[],
+    )
+
+    payload = compact_tool_payload(result, 5)
+    assert payload["sources"] == ["[5] unknown", "[6] valid.md", "[7] unknown"]
+    assert payload["evidence"] == [
+        {"citation": "[6]", "source": "valid.md", "section_path": "intro", "snippet": "Original evidence."},
+        {"citation": "[7]", "source": "unknown", "section_path": "", "snippet": "Evidence without a file name."},
+    ]
+    assert count_tool_sources(result) == 3
+    assert "internal_token" not in json.dumps(payload)

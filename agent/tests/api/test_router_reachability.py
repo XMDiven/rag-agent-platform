@@ -231,3 +231,39 @@ def test_stream_loop_passes_summary_to_next_model_round(
     }
     assert model.tool_choices == ["auto", "auto"]
     assert finetuned_router_calls == []
+
+
+def test_http_stream_passes_original_evidence_to_final_model(
+    monkeypatch,
+    make_streaming_llm,
+) -> None:
+    source = {
+        "source": "llamaindex.md",
+        "section_path": "use cases",
+        "snippet": "LlamaIndex supports document question answering.",
+    }
+    model = make_streaming_llm([
+        [AIMessageChunk(content="", tool_call_chunks=[{
+            "name": "retrieval_tool",
+            "args": json.dumps({"question": "LlamaIndex use cases"}),
+            "id": "retrieve_evidence",
+            "index": 0,
+        }])],
+        [AIMessageChunk(content="Document question answering [1].")],
+    ])
+    monkeypatch.setattr("agent_app.streaming_service.get_client", lambda: model)
+    monkeypatch.setattr(
+        "agent_app.orchestration.executor.run_retrieval_tool",
+        lambda question: {"answer": "Generated summary.", "sources": [source]},
+    )
+
+    response = TestClient(app).post("/agent/run/stream", json={"question": "LlamaIndex use cases"})
+    assert response.status_code == 200
+    events = [json.loads(line) for line in response.text.splitlines()]
+    assert [event["type"] for event in events] == ["step", "answer_delta", "sources", "done"]
+    assert events[2]["data"]["sources"] == [source]
+    message = model.invocations[1][-1]
+    assert isinstance(message, ToolMessage)
+    payload = json.loads(str(message.content))
+    assert payload["evidence"] == [{"citation": "[1]", **source}]
+    assert payload["sources"] == ["[1] llamaindex.md"]

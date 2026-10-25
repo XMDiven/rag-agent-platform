@@ -123,8 +123,8 @@ def compact_source_labels(sources: Any, start_index: int = 1) -> list[str]:
     next_index = start_index
 
     for source in sources:
-        if isinstance(source, dict) and source.get("source"):
-            labels.append(f"[{next_index}] {source['source']}")
+        if isinstance(source, dict):
+            labels.append(f"[{next_index}] {source.get('source') or 'unknown'}")
             next_index += 1
 
     return labels
@@ -167,6 +167,25 @@ def compact_tool_payload(
         output.get("sources"),
         start_index,
     )
+
+    sources = output.get("sources")
+    source_entries = (
+        [source for source in sources if isinstance(source, dict)]
+        if isinstance(sources, list)
+        else []
+    )
+    evidence = [
+        {
+            "citation": f"[{index}]",
+            "source": source.get("source") or "unknown",
+            "section_path": source.get("section_path") or "",
+            "snippet": source["snippet"],
+        }
+        for index, source in enumerate(source_entries, start=start_index)
+        if isinstance(source.get("snippet"), str) and source["snippet"].strip()
+    ]
+    if evidence:
+        payload["evidence"] = evidence
 
     if tool_result.tool_name == "question_decompose_tool":
         sub_results = output.get("sub_results")

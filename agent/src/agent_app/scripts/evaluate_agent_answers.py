@@ -20,7 +20,7 @@ from agent_app.scripts.evaluate_agent import (
 )
 from agent_app.service import run_agent
 from rag_app.config import config
-from rag_app.evaluation.answer_judge import judge_answer
+from rag_app.evaluation.answer_judge import format_evidence, judge_answer
 from rag_app.evaluation.judge_schema import (
     PASSING_SCORE_THRESHOLD,
     AnswerJudgeResult,
@@ -143,6 +143,7 @@ def evaluate_case(
             "tools": [],
             "step_count": 0,
             "judge": None,
+            "judge_evidence": None,
             "judge_applicable": True,
             "passed": False,
             "failure_stage": "agent",
@@ -166,6 +167,7 @@ def evaluate_case(
         "output_tokens": usage.output_tokens,
         "answer": answer,
         "sources": sanitize_sources(sources),
+        "judge_evidence": None,
         "termination_reason": agent_result.termination_reason,
         "tools": extract_tool_names(agent_result),
         "step_count": len(agent_result.steps),
@@ -199,10 +201,12 @@ def evaluate_case(
 
     judge_started_at = timer()
     try:
+        judge_sources = build_judge_sources(case, sources)
+        common_result["judge_evidence"] = format_evidence(judge_sources)
         judge_result = judge_fn(
             question=case.question,
             answer=answer,
-            sources=build_judge_sources(case, sources),
+            sources=judge_sources,
             llm=judge_llm,
         )
     except Exception as error:

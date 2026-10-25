@@ -50,6 +50,8 @@ uv run python -m rag_app.scripts.benchmark_latency
 
 ## 约定
 
+- 已有 LangChain / LlamaIndex 比较题的人工证据与回答标准见 [`datasets/comparison_case_annotations.md`](datasets/comparison_case_annotations.md)。它关联原有 RAG 和 Agent case；当前 runner 不自动读取这些标注。
+
 - 新报告放进对应主题子目录；带日期的实验用 `<主题>_<YYYY-MM-DD>.md`（如 `baseline_2026-06-05.md`）。
 - `runs/` 是可重新生成的产物，仅保留有代表性/被报告引用的运行；不必把每次运行都长期留存。
 - 报告里的数字以最近一次实跑为准，引用具体 run 文件时写明路径，便于复核。
