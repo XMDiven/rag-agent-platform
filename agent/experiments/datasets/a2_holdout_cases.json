@@ -1,0 +1,28 @@
+[
+  {
+    "id": "a2-holdout-001",
+    "question": "Docker Docs 的 Manuals 说明覆盖了使用 Docker 产品的哪几个环节？请按原文列出。",
+    "expected_source_contains": [
+      "docker-docs"
+    ],
+    "match": "any"
+  },
+  {
+    "id": "a2-holdout-002",
+    "question": "PyTorch 和 PyTorch Lightning 分别如何描述自身在深度学习中的核心能力？请依据各自 README 概括。",
+    "expected_source_contains": [
+      "05-pytorch-",
+      "06-pytorch-lightning-"
+    ],
+    "match": "all"
+  },
+  {
+    "id": "a2-holdout-003",
+    "question": "请从 README 的聊天 API 描述中提取两组信息：Ollama 的本地请求地址和非流式设置；FastChat 的 API 兼容对象及其支持的两种客户端调用方式。",
+    "expected_source_contains": [
+      "09-ollama-",
+      "08-fastchat-"
+    ],
+    "match": "all"
+  }
+]

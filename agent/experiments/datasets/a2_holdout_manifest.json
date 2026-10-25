@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-25",
+  "case_count": 3,
+  "cases_file": "a2_holdout_cases.json",
+  "annotations_file": "a2_holdout_annotations.json",
+  "cases_sha256": "4714c6d58a3770d2ec50c0446d2ebf7b943d2c771a53a4174f989ee5c429aeb2",
+  "annotations_sha256": "f211e3bff532e5f04ff38e512d69c1afa1505a80063ccfcecb3d7275abb31487",
+  "source_hashes": {
+    "rag/data/raw/docker-docs.md": "219ea8359311aa4fdf1aa008969519cfef6afd737a5e72a8d30184959b02a06b",
+    "rag/data/raw/05-pytorch-README.md": "51a5d8c921a82a36ea72a26f86f8a9334ee8268f499e5a7ad74c5005f98ee0d9",
+    "rag/data/raw/06-pytorch-lightning-README.md": "f541b10615741058e0756d242d5c9835366a9a7776646b3d747a3fed147994a3",
+    "rag/data/raw/09-ollama-README.md": "5d0db6dde80f969f2e9bdb4724529c1590df0bda84d43d75921cebcf5edb3311",
+    "rag/data/raw/08-fastchat-README.md": "fba2bace33da09a922bfb8f2f49463f958c7cecfdb77a98a07c04e758a09b694"
+  },
+  "excluded_development_topics": [
+    "Qdrant",
+    "LangChain",
+    "LlamaIndex",
+    "LoRA",
+    "QLoRA"
+  ],
+  "freeze_purpose": "A2.5 独立冻结验证。必须先完成开发集对照和预算代码审查并锁定最终配置，之后才打开题目与标注并进行验证；不得使用本组题或验证结果继续调参。仅 3 条样本用于有限证据核验，不支持总体性能或统计显著性结论。",
+  "curation_constraints": {
+    "source_scope": "existing local Markdown only",
+    "development_results_read": false,
+    "development_reference_answers_read": false,
+    "tuning_details_read": false,
+    "retrieval_executed": false,
+    "external_model_or_api_called": false
+  }
+}

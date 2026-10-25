@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-25",
+  "source_hashes": {
+    "rag/data/raw/docker-docs.md": "219ea8359311aa4fdf1aa008969519cfef6afd737a5e72a8d30184959b02a06b",
+    "rag/data/raw/05-pytorch-README.md": "51a5d8c921a82a36ea72a26f86f8a9334ee8268f499e5a7ad74c5005f98ee0d9",
+    "rag/data/raw/06-pytorch-lightning-README.md": "f541b10615741058e0756d242d5c9835366a9a7776646b3d747a3fed147994a3",
+    "rag/data/raw/09-ollama-README.md": "5d0db6dde80f969f2e9bdb4724529c1590df0bda84d43d75921cebcf5edb3311",
+    "rag/data/raw/08-fastchat-README.md": "fba2bace33da09a922bfb8f2f49463f958c7cecfdb77a98a07c04e758a09b694"
+  },
+  "partition_policy": "来源/主题组整体保留给冻结验证；不将同源同主题变体补入开发集。策划者未读取开发题、运行结果、对照答案或调参内容。",
+  "cases": [
+    {
+      "id": "a2-holdout-001",
+      "case_type": "single_source_simple",
+      "topic_group": "docker_manual_scope",
+      "evidence": [
+        {
+          "source": "rag/data/raw/docker-docs.md",
+          "line_start": 5,
+          "line_end": 7,
+          "excerpt": "### Manuals\n\nInstall, set up, configure, and use Docker products.",
+          "source_sha256": "219ea8359311aa4fdf1aa008969519cfef6afd737a5e72a8d30184959b02a06b"
+        }
+      ],
+      "acceptable_conclusions": [
+        "手册覆盖 Docker 产品的安装、设置、配置和使用；允许忠实的中文翻译。"
+      ],
+      "unsupported_conclusions": [
+        "具体安装命令、平台兼容要求或容器编排能力；该摘录没有这些细节。"
+      ],
+      "manual_source_sufficiency_check": "pass"
+    },
+    {
+      "id": "a2-holdout-002",
+      "case_type": "cross_source_multi_evidence",
+      "topic_group": "pytorch_training_capabilities",
+      "evidence": [
+        {
+          "source": "rag/data/raw/05-pytorch-README.md",
+          "line_start": 5,
+          "line_end": 7,
+          "excerpt": "PyTorch is a Python package that provides two high-level features:\n- Tensor computation (like NumPy) with strong GPU acceleration\n- Deep neural networks built on a tape-based autograd system",
+          "source_sha256": "51a5d8c921a82a36ea72a26f86f8a9334ee8268f499e5a7ad74c5005f98ee0d9"
+        },
+        {
+          "source": "rag/data/raw/06-pytorch-lightning-README.md",
+          "line_start": 59,
+          "line_end": 60,
+          "excerpt": "# Why PyTorch Lightning?   \nTraining models in plain PyTorch requires writing and maintaining a lot of repetitive engineering code. Handling backpropagation, mixed precision, multi-GPU, and distributed training is error-prone and often reimplemented for every project. PyTorch Lightning organizes PyTorch code to automate this infrastructure while keeping full control over your model logic. You write the science. Lightning handles the engineering, and scales from CPU to multi-node GPUs without changing your core code. PyTorch experts can still opt into [expert-level control](#lightning-fabric-expert-control).   ",
+          "source_sha256": "f541b10615741058e0756d242d5c9835366a9a7776646b3d747a3fed147994a3"
+        }
+      ],
+      "acceptable_conclusions": [
+        "PyTorch 两项高层能力是带有强 GPU 加速的张量计算，以及基于 tape-based autograd 系统构建深度神经网络。",
+        "PyTorch Lightning 组织 PyTorch 代码，自动处理反向传播、混合精度、多 GPU 和分布式训练等重复工程，同时保留模型逻辑控制权。"
+      ],
+      "unsupported_conclusions": [
+        "根据两份摘录推断谁的训练速度或精度更高。",
+        "声称 Lightning 替代 PyTorch 底层张量/自动微分，或必然减少特定比例的代码。",
+        "加入两份引用未说明的服务集成分工。"
+      ],
+      "manual_source_sufficiency_check": "pass"
+    },
+    {
+      "id": "a2-holdout-003",
+      "case_type": "cross_source_multi_evidence",
+      "topic_group": "ollama_fastchat_chat_api",
+      "evidence": [
+        {
+          "source": "rag/data/raw/09-ollama-README.md",
+          "line_start": 90,
+          "line_end": 103,
+          "excerpt": "## REST API\n\nOllama has a REST API for running and managing models.\n\n```\ncurl http://localhost:11434/api/chat -d '{\n  \"model\": \"gemma3\",\n  \"messages\": [{\n    \"role\": \"user\",\n    \"content\": \"Why is the sky blue?\"\n  }],\n  \"stream\": false\n}'\n```",
+          "source_sha256": "5d0db6dde80f969f2e9bdb4724529c1590df0bda84d43d75921cebcf5edb3311"
+        },
+        {
+          "source": "rag/data/raw/08-fastchat-README.md",
+          "line_start": 282,
+          "line_end": 285,
+          "excerpt": "## API\n### OpenAI-Compatible RESTful APIs & SDK\nFastChat provides OpenAI-compatible APIs for its supported models, so you can use FastChat as a local drop-in replacement for OpenAI APIs.\nThe FastChat server is compatible with both [openai-python](https://github.com/openai/openai-python) library and cURL commands.",
+          "source_sha256": "fba2bace33da09a922bfb8f2f49463f958c7cecfdb77a98a07c04e758a09b694"
+        }
+      ],
+      "acceptable_conclusions": [
+        "Ollama 示例向 http://localhost:11434/api/chat 发出请求，并以 stream: false 请求非流式响应。",
+        "FastChat 为其支持的模型提供 OpenAI-compatible APIs；服务器兼容 openai-python 库和 cURL 命令。"
+      ],
+      "unsupported_conclusions": [
+        "声称 Ollama 该摘录中的 /api/chat 端点就是 OpenAI-compatible 端点。",
+        "声称两者的模型输出质量、吞吐或延迟优劣。",
+        "补充未在引用中给出的 FastChat 监听地址、端口、鉴权策略或版本保证。"
+      ],
+      "manual_source_sufficiency_check": "pass"
+    }
+  ]
+}
