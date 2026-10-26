@@ -22,7 +22,7 @@ analyze_question -> 多步 loop（模型决策 -> 工具执行 -> 结果回灌�
 - 提供 12-case 离线评测集和评测 runner，检查工具轨迹、结束原因、来源约束与延迟
 - 提供独立 Agent LLM-as-Judge runner，评价最终答案的相关性、完整性、证据支撑与格式
 - 单步路径使用 `AgentState` 保存 question、analysis、plan、tool_result 和 trace；多步路径记录逐轮 `steps` 和聚合来源
-- Agent 层记录工具执行成功或失败；RAG 检索与生成重试由 RAG 服务内部处理
+- Agent 层记录工具执行成功或失败；问答 HTTP 请求中的 RAG 检索、生成与 SDK 自动重试关闭，内部工具和最终回答共用请求预算，CLI 保留原有行为。配置与边界见 [问答请求预算](../docs/request-budgets.md)
 - 通过 FastAPI 暴露兼容的一次性 JSON 接口 `POST /agent/run`
 - 通过 `POST /agent/run/stream` 逐行输出版本化 NDJSON 事件；模型最终回答使用真实 token 流
 - 提供 `GET /health` 健康检查接口
