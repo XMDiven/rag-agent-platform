@@ -2,6 +2,8 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
+from rag_app.infrastructure.request_budget import BudgetExceeded, check_request_budget
+
 from rag_app.config import config
 
 from agent_app.orchestration.finetuned_router import (
@@ -54,10 +56,14 @@ def _select_tool(question: str) -> "ToolSelection":
     must never surface to the caller: this backend is optional and the LLM path
     is the behaviour the platform's own tests cover.
     """
+    check_request_budget()
     if config.ROUTER_BACKEND == "finetuned":
         try:
             return select_tool_with_finetuned_router(question)
+        except BudgetExceeded:
+            raise
         except Exception as exc:
+            check_request_budget()
             logger.warning(
                 "agent.router_backend degrade backend=finetuned error_type=%s",
                 type(exc).__name__,
@@ -67,12 +73,17 @@ def _select_tool(question: str) -> "ToolSelection":
 
 
 def plan_tool(question_type: str, question: str = "") -> AgentPlan:
+    check_request_budget()
     if question_type == "empty":
         return plan_tool_by_rules(question_type=question_type, question=question)
 
     try:
         selection = _select_tool(question)
+        check_request_budget()
+    except BudgetExceeded:
+        raise
     except Exception as exc:
+        check_request_budget()
         logger.warning(
             "agent.tool_selection fallback question_type=%s error_type=%s",
             question_type,

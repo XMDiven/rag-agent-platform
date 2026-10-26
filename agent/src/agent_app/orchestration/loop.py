@@ -12,7 +12,8 @@ from langchain_core.messages import (
 )
 from langchain_openai import ChatOpenAI
 
-from agent_app.orchestration.executor import ToolResult
+from agent_app.orchestration.executor import ToolResult, tool_model_calls
+from rag_app.infrastructure.request_budget import BudgetExceeded, check_request_budget, get_request_budget
 from agent_app.prompts import AGENT_LOOP_SYSTEM_PROMPT
 from agent_app.tools import list_tools
 
@@ -28,6 +29,27 @@ _SKIPPED_TOOL_PAYLOAD = {
     "status": "skipped",
     "reason": "only the first tool call per round is executed",
 }
+
+
+def requires_final_answer() -> bool:
+    budget = get_request_budget()
+    return budget is not None and not budget.can_start_tool(1)
+
+
+def skip_tool_for_budget(messages, tool_calls) -> bool:
+    budget = get_request_budget()
+    if budget is None:
+        return False
+    first = tool_calls[0]
+    if budget.can_start_tool(tool_model_calls(str(first['name']), first.get('args') or {})):
+        return False
+    # Native tool calling requires an acknowledgment for every returned ID.
+    for call in tool_calls:
+        messages.append(ToolMessage(
+            content=json.dumps({'status': 'skipped', 'reason': 'reserved capacity for final answer'}),
+            tool_call_id=str(call['id']),
+        ))
+    return True
 
 
 @dataclass(frozen=True)
@@ -246,8 +268,16 @@ def run_agent_loop(
         tool_choice="auto",
     )
 
+    budget_final = False
+    final_round = max_steps + 1
     for round_index in range(1, max_steps + 1):
+        check_request_budget()
+        if requires_final_answer():
+            budget_final = True
+            final_round = round_index
+            break
         ai_message: AIMessage = tool_calling_llm.invoke(messages)
+        check_request_budget()
         messages.append(ai_message)
 
         tool_calls = getattr(ai_message, "tool_calls", None) or []
@@ -268,13 +298,22 @@ def run_agent_loop(
                 termination_reason="final_answer",
             )
 
+        if skip_tool_for_budget(messages, tool_calls):
+            budget_final = True
+            final_round = round_index + 1
+            break
+
         tool_call = tool_calls[0]
         tool_name = str(tool_call["name"])
         tool_args = tool_call.get("args") or {}
 
         try:
             tool_result = execute_tool(tool_name, tool_args)
+            check_request_budget()
+        except BudgetExceeded:
+            raise
         except Exception as error:
+            check_request_budget()
             tool_result = build_failed_tool_result(
                 tool_name=tool_name,
                 error=error,
@@ -319,20 +358,25 @@ def run_agent_loop(
             )
 
     try:
+        check_request_budget()
         final_message = llm.bind_tools(build_loop_tools(), tool_choice="none").invoke(messages)
+        check_request_budget()
         final_answer = extract_message_text(final_message)
+    except BudgetExceeded:
+        raise
     except Exception:
+        check_request_budget()
         final_answer = ""
 
     if final_answer:
-        termination_reason: TerminationReason = "max_steps"
+        termination_reason: TerminationReason = "final_answer" if budget_final else "max_steps"
     else:
         termination_reason = "failed"
         final_answer = _FALLBACK_ANSWER
 
     steps.append(
         {
-            "round": max_steps + 1,
+            "round": final_round,
             "status": "forced_final_answer",
             "tool_name": None,
         }

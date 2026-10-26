@@ -17,6 +17,12 @@ def encode_stream_event(event: dict[str, Any]) -> str:
     return json.dumps(event, ensure_ascii=False) + "\n"
 
 
+def encode_budget_failure(code: str) -> bytes:
+    return (encode_stream_event({"type": "error", "error_type": "BudgetExceeded",
+                                 "code": code, "message": "请求超过执行预算，请缩小问题后重试。"})
+            + encode_stream_event({"type": "done", "status": "failed"})).encode()
+
+
 def stream_response_events(
     question: str,
     resources: AppResources,

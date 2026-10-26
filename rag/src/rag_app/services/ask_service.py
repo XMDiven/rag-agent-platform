@@ -1,4 +1,7 @@
 import logging
+from rag_app.infrastructure.request_budget import (
+    BudgetExceeded, check_request_budget, get_request_budget,
+)
 
 from collections.abc import Iterator
 from time import perf_counter
@@ -182,11 +185,13 @@ def retrieve_documents_with_retry(
     fetch_k: int | None = None,
     lambda_mult: float | None = None,
 ) -> list[Document]:
-    max_attempts = config.MAX_RETRIEVAL_RETRY + 1
+    check_request_budget()
+    max_attempts = 1 if get_request_budget() is not None else config.MAX_RETRIEVAL_RETRY + 1
     last_error: Exception | None = None
     last_retrieval_duration_seconds = 0.0
 
     for attempt in range(1, max_attempts + 1):
+        check_request_budget()
         retrieval_start = perf_counter()
 
         try:
@@ -213,7 +218,11 @@ def retrieve_documents_with_retry(
                 retriever_kwargs["vector_store"] = resources.vector_store
                 retriever = get_retriever(**retriever_kwargs)
             documents = retriever.invoke(retrieval_plan.retrieval_query)
+            check_request_budget()
+        except BudgetExceeded:
+            raise
         except Exception as exc:
+            check_request_budget()
             last_error = exc
             last_retrieval_duration_seconds = perf_counter() - retrieval_start
 
@@ -311,6 +320,7 @@ def ask_question(
     lambda_mult: float | None = None,
     answer_cache: RedisAnswerCache | None = None,
 ) -> dict[str, Any]:
+    check_request_budget()
     trace: list[dict[str, Any]] = []
     analysis = analyze_query(question)
 
@@ -378,6 +388,7 @@ def ask_question(
             analysis.normalized_question,
             cache_options,
         )
+        check_request_budget()
         trace.append(
             build_trace_item(
                 step="answer_cache",
@@ -408,11 +419,12 @@ def ask_question(
             "trace": trace,
         }
 
-    max_attempts = config.MAX_GENERATION_RETRY + 1
+    max_attempts = 1 if get_request_budget() is not None else config.MAX_GENERATION_RETRY + 1
     last_error: Exception | None = None
     last_generation_duration_seconds: float = 0.0
 
     for attempt in range(1, max_attempts + 1):
+        check_request_budget()
         generation_start = perf_counter()
         try:
             context = format_context(documents)
@@ -424,6 +436,7 @@ def ask_question(
                 prompt=prompt,
                 llm=llm,
             )
+            check_request_budget()
 
             generation_duration_seconds = perf_counter() - generation_start
 
@@ -455,6 +468,7 @@ def ask_question(
                 "trace": trace,
             }
             if active_cache is not None:
+                check_request_budget()
                 active_cache.set_answer(
                     analysis.normalized_question,
                     cache_options,
@@ -464,9 +478,13 @@ def ask_question(
                     },
                     expected_version=cache_lookup.version,
                 )
+            check_request_budget()
             return response
 
+        except BudgetExceeded:
+            raise
         except Exception as exc:
+            check_request_budget()
             last_error = exc
             last_generation_duration_seconds = perf_counter() - generation_start
 
@@ -533,6 +551,7 @@ def stream_ask_question(
     fetch_k: int | None = None,
     lambda_mult: float | None = None,
 ) -> Iterator[dict[str, Any]]:
+    check_request_budget()
     trace: list[dict[str, Any]] = []
     analysis = analyze_query(question)
 
@@ -605,6 +624,7 @@ def stream_ask_question(
         return
 
     try:
+        check_request_budget()
         context = format_context(documents)
         llm = resources.llm_client if resources is not None else get_client()
         prompt = get_qa_prompt()
@@ -615,11 +635,13 @@ def stream_ask_question(
             prompt=prompt,
             llm=llm,
         ):
+            check_request_budget()
             yield {
                 "type": "answer_delta",
                 "content": chunk,
             }
 
+        check_request_budget()
         trace.append(
             build_trace_item(
                 step="generate_answer",
@@ -633,7 +655,10 @@ def stream_ask_question(
         yield {"type": "done"}
         return
 
+    except BudgetExceeded:
+        raise
     except Exception as exc:
+        check_request_budget()
         trace.append(
             build_trace_item(
                 step="generate_answer",

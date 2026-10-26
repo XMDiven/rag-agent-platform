@@ -8,6 +8,7 @@ from typing import Any, Literal, Protocol
 from redis import Redis
 
 from rag_app.config import config
+from rag_app.infrastructure.request_budget import BudgetExceeded, check_request_budget
 
 logger = logging.getLogger(__name__)
 
@@ -133,7 +134,9 @@ class RedisAnswerCache:
         *,
         expected_version: int | None = None,
     ) -> bool:
+        check_request_budget()
         current_version = self.get_index_version()
+        check_request_budget()
         if current_version is None:
             return False
         if (
@@ -152,9 +155,13 @@ class RedisAnswerCache:
         )
         value = json.dumps(response, ensure_ascii=False, separators=(",", ":"))
         try:
+            check_request_budget()
             self.client.set(key, value, ex=self.ttl_seconds)
             return True
+        except BudgetExceeded:
+            raise
         except Exception as exc:
+            check_request_budget()
             logger.warning(
                 "answer_cache.set unavailable error_type=%s",
                 type(exc).__name__,

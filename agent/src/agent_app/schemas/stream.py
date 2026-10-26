@@ -26,6 +26,12 @@ class ErrorData(BaseModel):
         "agent_stream_failed",
         "mixed_model_output",
         "empty_model_output",
+        "task_timeout",
+        "model_calls_exhausted",
+        "output_tokens_exhausted",
+        "context_budget_exhausted",
+        "request_cancelled",
+        "request_finished",
     ]
     message: str
 

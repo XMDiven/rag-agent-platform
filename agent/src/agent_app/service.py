@@ -3,6 +3,8 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any
 
+from rag_app.infrastructure.request_budget import BudgetExceeded, check_request_budget
+
 from agent_app.tools import get_tool
 from rag_app.infrastructure.llm_client import get_client
 from rag_app.retrieval.query_analyzer import analyze_query, QueryAnalysis
@@ -37,7 +39,7 @@ def build_analysis_trace(analysis: QueryAnalysis) -> dict[str, Any]:
 
 
 def run_agent_once(question: str , analysis: QueryAnalysis) -> AgentRunResult:
-
+    check_request_budget()
     plan = plan_tool(
         question_type=analysis.question_type,
         question=question,
@@ -56,6 +58,7 @@ def run_agent_once(question: str , analysis: QueryAnalysis) -> AgentRunResult:
         plan=plan,
         tool_input=tool_input,
     )
+    check_request_budget()
 
     plan_detail: dict[str, Any] = {
         "tool_name": plan.tool.name,
@@ -118,13 +121,19 @@ def try_run_loop(
     analysis: QueryAnalysis,
 ) -> LoopResult | None:
     try:
-        return run_agent_loop(
+        check_request_budget()
+        result = run_agent_loop(
             question=question,
             llm=get_client(),
             execute_tool=run_tool,
             max_steps=AGENT_MAX_STEPS,
         )
+        check_request_budget()
+        return result
+    except BudgetExceeded:
+        raise
     except Exception as exc:
+        check_request_budget()
         logger.warning(
             "agent.loop fallback question_type=%s error_type=%s",
             analysis.question_type,
@@ -206,6 +215,7 @@ def adapt_loop_result(
 
 
 def run_agent(question: str) ->AgentRunResult:
+    check_request_budget()
     analysis = analyze_query(question)
 
     if should_skip_loop(analysis):
@@ -214,6 +224,7 @@ def run_agent(question: str) ->AgentRunResult:
     loop_result = try_run_loop(question, analysis)
 
     if loop_result is None:
+        check_request_budget()
         return run_agent_once(question ,  analysis)
 
     return adapt_loop_result(analysis, loop_result)

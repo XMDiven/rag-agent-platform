@@ -20,7 +20,10 @@ from agent_app.orchestration.loop import (
     collect_tool_sources,
     compact_tool_payload,
     count_tool_sources,
+    requires_final_answer,
+    skip_tool_for_budget,
 )
+from rag_app.infrastructure.request_budget import BudgetExceeded, check_request_budget
 from agent_app.prompts import AGENT_LOOP_SYSTEM_PROMPT
 from agent_app.schemas.stream import (
     AgentStreamEvent,
@@ -67,11 +70,17 @@ def stream_agent_loop(
         tool_choice="auto",
     )
 
+    budget_final = False
     for round_index in range(1, max_steps + 1):
+        check_request_budget()
+        if requires_final_answer():
+            budget_final = True
+            break
         combined: AIMessageChunk | None = None
         mode: OutputMode | None = None
 
         for chunk in tool_calling_llm.stream(messages):
+            check_request_budget()
             combined = chunk if combined is None else combined + chunk
             has_tool_chunk = bool(chunk.tool_call_chunks)
             text = chunk_text(chunk)
@@ -87,6 +96,7 @@ def stream_agent_loop(
                 mode = "answer"
                 yield AnswerDeltaEvent(data=AnswerDeltaData(text=text))
 
+        check_request_budget()
         if combined is None or mode is None:
             raise EmptyModelOutputError
 
@@ -112,6 +122,10 @@ def stream_agent_loop(
         if not tool_calls:
             raise EmptyModelOutputError
 
+        if skip_tool_for_budget(messages, tool_calls):
+            budget_final = True
+            break
+
         tool_call = tool_calls[0]
         tool_name = str(tool_call["name"])
         tool_args = tool_call.get("args") or {}
@@ -119,7 +133,11 @@ def stream_agent_loop(
 
         try:
             tool_result = execute_tool(tool_name, tool_args)
+            check_request_budget()
+        except BudgetExceeded:
+            raise
         except Exception as error:
+            check_request_budget()
             tool_result = build_failed_tool_result(tool_name, error)
 
         tool_results.append(tool_result)
@@ -163,9 +181,11 @@ def stream_agent_loop(
             )
 
     emitted_text = False
+    check_request_budget()
     final_llm = llm.bind_tools(build_loop_tools(), tool_choice="none")
 
     for chunk in final_llm.stream(messages):
+        check_request_budget()
         if chunk.tool_call_chunks:
             raise MixedModelOutputError
 
@@ -174,6 +194,7 @@ def stream_agent_loop(
             emitted_text = True
             yield AnswerDeltaEvent(data=AnswerDeltaData(text=text))
 
+    check_request_budget()
     if not emitted_text:
         yield AnswerDeltaEvent(data=AnswerDeltaData(text=_FALLBACK_ANSWER))
 
@@ -182,7 +203,7 @@ def stream_agent_loop(
     )
     yield DoneEvent(
         data=DoneData(
-            termination_reason="max_steps" if emitted_text else "failed",
+            termination_reason=("final_answer" if budget_final else "max_steps") if emitted_text else "failed",
             selected_tool=selected_tool,
             tool_status="success" if emitted_text else "failed",
         )

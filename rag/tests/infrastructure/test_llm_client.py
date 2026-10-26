@@ -1,5 +1,8 @@
 from rag_app.config.config import Settings
 from rag_app.infrastructure import llm_client
+from rag_app.infrastructure.request_budget import RequestBudget, request_budget_scope
+from rag_app.infrastructure.model_transport import ModelClients, model_clients_scope
+import pytest
 
 
 def test_get_client_passes_thinking_config_to_chat_openai(monkeypatch) -> None:
@@ -73,3 +76,25 @@ def test_get_client_enables_streaming_usage_and_the_usage_callback(monkeypatch) 
     assert [type(cb).__name__ for cb in captured_kwargs["callbacks"]] == [
         "TokenUsageCallback"
     ]
+
+
+def test_app_owned_clients_disable_all_sdk_retries(monkeypatch):
+    captured = {}
+    monkeypatch.setattr(llm_client, 'ChatOpenAI', lambda **kw: captured.update(kw))
+    monkeypatch.setattr(llm_client.config, 'settings', Settings(
+        _env_file=None, llm_base_url='https://offline.invalid',
+        llm_model_id='offline', openai_api_key='offline',
+    ))
+    clients = ModelClients(object(), object())
+    with model_clients_scope(clients):
+        llm_client.get_client()
+    assert captured['http_client'] is clients.sync_client
+    assert captured['http_async_client'] is clients.async_client
+    assert captured['max_retries'] == 0
+    assert captured['http_socket_options'] == ()
+    assert 'temperature' not in captured
+
+
+def test_protected_factory_cannot_silently_use_unguarded_client():
+    with request_budget_scope(RequestBudget()), pytest.raises(RuntimeError, match='model clients'):
+        llm_client.get_client()

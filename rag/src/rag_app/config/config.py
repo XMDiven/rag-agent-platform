@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field
 
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[3]
 DATA_DIR: Path = PROJECT_ROOT / "data"
@@ -50,6 +51,12 @@ class Settings(BaseSettings):
     # SDK 默认重试 2 次，最坏耗时是超时时长的 3 倍；这里收紧到 1 次，
     # 且 ask_service 自身还有 MAX_GENERATION_RETRY 一层，两者会叠乘。
     llm_max_retries: int = 1
+    request_timeout_seconds: float = Field(default=90.0, gt=0)
+    request_max_model_calls: int = Field(default=6, gt=0)
+    request_max_output_tokens: int = Field(default=4096, gt=0)
+    request_max_tokens_per_call: int = Field(default=1024, gt=0)
+    request_max_context_bytes: int = Field(default=120000, gt=0)
+    request_max_context_bytes_per_call: int = Field(default=32000, gt=0)
     # 单价按「每百万 token」配置，默认 0：不写死可能过期的价格，
     # 未配置时只统计 token 数，不产出会被误引用的金额。
     llm_input_price_per_million: float = 0.0

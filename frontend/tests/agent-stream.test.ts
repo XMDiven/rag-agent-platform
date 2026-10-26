@@ -47,6 +47,17 @@ test("parses a valid answer event", () => {
   assert.deepEqual(parseAgentEvent(JSON.stringify(answerEvent)), answerEvent);
 });
 
+test("accepts budget failures and ends with a failed result", async () => {
+  for (const code of ["task_timeout", "model_calls_exhausted", "output_tokens_exhausted", "context_budget_exhausted"]) {
+    const error = {version: 1, type: "error", data: {code, message: "请求超过执行预算"}};
+    const done = {...doneEvent, data: {...doneEvent.data, termination_reason: "failed", tool_status: "failed"}};
+    assert.deepEqual(parseAgentEvent(JSON.stringify(error)), error);
+    const events: AgentStreamEvent[] = [];
+    await readAgentStream(byteStream([encoder.encode(line(error) + line(done))]), (event) => events.push(event));
+    assert.deepEqual(events.map((event) => event.type), ["error", "done"]);
+  }
+});
+
 test("rejects unsupported versions and malformed events", () => {
   assert.throws(
     () =>

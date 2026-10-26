@@ -21,6 +21,7 @@ from typing import Any
 
 from agent_app.orchestration.tool_selector import ToolSelection
 from agent_app.tools import get_tool
+from rag_app.infrastructure.request_budget import check_request_budget, get_request_budget
 
 KNOWLEDGE_TOOL_NAMES = ("retrieval_tool", "summary_tool", "question_decompose_tool")
 
@@ -28,14 +29,28 @@ DEFAULT_TIMEOUT_SECONDS = 30.0
 
 
 def _post_json(url: str, payload: dict[str, Any]) -> dict[str, Any]:
+    check_request_budget()
+    budget = get_request_budget()
+    timeout = DEFAULT_TIMEOUT_SECONDS
+    if budget is not None:
+        # This optional local service does not report provider token usage.
+        # Retain the full reservation rather than inventing an actual count.
+        budget.reserve(payload)
+        timeout = min(timeout, budget.check())
     request = urllib.request.Request(
         url,
         data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
         headers={"Content-Type": "application/json"},
         method="POST",
     )
-    with urllib.request.urlopen(request, timeout=DEFAULT_TIMEOUT_SECONDS) as response:
-        return json.loads(response.read().decode("utf-8"))
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            result = json.loads(response.read().decode("utf-8"))
+        check_request_budget()
+        return result
+    except Exception:
+        check_request_budget()
+        raise
 
 
 def select_tool_with_finetuned_router(

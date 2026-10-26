@@ -13,7 +13,9 @@ from agent_app.orchestration.executor import run_tool
 from agent_app.orchestration.loop import (
     _FALLBACK_ANSWER, _SKIPPED_TOOL_PAYLOAD, build_failed_tool_result,
     build_loop_tools, collect_tool_sources, compact_tool_payload, count_tool_sources,
+    requires_final_answer, skip_tool_for_budget,
 )
+from rag_app.infrastructure.request_budget import BudgetExceeded, check_request_budget
 from agent_app.orchestration.streaming import EmptyModelOutputError, MixedModelOutputError, chunk_text
 from agent_app.prompts import AGENT_LOOP_SYSTEM_PROMPT
 from agent_app.schemas.stream import (
@@ -28,14 +30,18 @@ async def stream_agent_loop_async(question, llm, execute_tool=run_tool, max_step
     next_source_index = 1
     selected_tool = "fallback_tool"
     stop = Event()
+    force_for_budget = False
     try:
         for round_index in range(1, max_steps + 2):
-            forced = round_index > max_steps
+            check_request_budget()
+            budget_final = force_for_budget or requires_final_answer()
+            forced = round_index > max_steps or budget_final
             model = llm.bind_tools(build_loop_tools(), tool_choice="none" if forced else "auto")
             combined = None
             mode = None
             async with aclosing(model.astream(messages)) as stream:
                 async for chunk in stream:
+                    check_request_budget()
                     combined = chunk if combined is None else combined + chunk
                     text = chunk_text(chunk)
                     if chunk.tool_call_chunks:
@@ -48,12 +54,14 @@ async def stream_agent_loop_async(question, llm, execute_tool=run_tool, max_step
                         mode = "answer"
                         yield AnswerDeltaEvent(data=AnswerDeltaData(text=text))
 
+            check_request_budget()
             if forced or mode == "answer":
                 if forced and mode != "answer":
                     yield AnswerDeltaEvent(data=AnswerDeltaData(text=_FALLBACK_ANSWER))
                 yield SourcesEvent(data=SourcesData(sources=collect_tool_sources(results)))
                 yield DoneEvent(data=DoneData(
-                    termination_reason=("failed" if mode != "answer" else "max_steps") if forced else "final_answer",
+                    termination_reason=("failed" if mode != "answer" else
+                                        ("final_answer" if budget_final else "max_steps")) if forced else "final_answer",
                     selected_tool=selected_tool,
                     tool_status="success" if mode == "answer" else "failed",
                 ))
@@ -65,6 +73,9 @@ async def stream_agent_loop_async(question, llm, execute_tool=run_tool, max_step
             calls = getattr(message, "tool_calls", None) or []
             if not calls:
                 raise EmptyModelOutputError
+            if skip_tool_for_budget(messages, calls):
+                force_for_budget = True
+                continue
             call = calls[0]
             selected_tool = str(call["name"])
             args = call.get("args") or {}
@@ -76,9 +87,13 @@ async def stream_agent_loop_async(question, llm, execute_tool=run_tool, max_step
                     result = await anyio.to_thread.run_sync(
                         execute_tool, selected_tool, args, abandon_on_cancel=True,
                     )
+                    check_request_budget()
                 finally:
                     cancel_event.reset(token)
+            except BudgetExceeded:
+                raise
             except Exception as error:
+                check_request_budget()
                 result = build_failed_tool_result(selected_tool, error)
             results.append(result)
             yield StepEvent(data=StepData(

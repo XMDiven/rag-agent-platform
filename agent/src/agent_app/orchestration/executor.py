@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 from typing import Any
+
+from rag_app.infrastructure.request_budget import BudgetExceeded, check_request_budget
 from agent_app.orchestration.cancellation import check_cancelled
 
 from agent_app.orchestration.planner import AgentPlan
@@ -14,6 +16,16 @@ class ToolResult:
     status: str
     output: Any
     attempts: list[dict[str, Any]]
+
+
+def tool_model_calls(tool_name: str, tool_input: dict[str, Any]) -> int:
+    """Conservative model-attempt cost with retries disabled in HTTP scopes."""
+    if tool_name in {"retrieval_tool", "summary_tool"}:
+        return 1
+    if tool_name == "question_decompose_tool":
+        parts = run_question_decompose_tool(str(tool_input.get("question", "")))
+        return len(parts.get("sub_questions", []))
+    return 0  # fallback/unknown tools do not initiate model work
 
 
 def successful_tool_result(tool_name: str, output: Any) -> ToolResult:
@@ -54,6 +66,7 @@ def normalize_output(output: Any) -> dict[str, Any]:
 
 
 def run_decomposed_retrieval(question: str) -> dict[str, Any]:
+    check_cancelled()
     decomposition = run_question_decompose_tool(question)
     sub_questions = decomposition.get("sub_questions", [])
 
@@ -67,6 +80,7 @@ def run_decomposed_retrieval(question: str) -> dict[str, Any]:
             retrieval_output = normalize_output(
                 run_retrieval_tool(str(sub_question))
             )
+            check_cancelled()
             status = "success"
             attempts = [
                 {
@@ -74,7 +88,10 @@ def run_decomposed_retrieval(question: str) -> dict[str, Any]:
                     "status": "success",
                 }
             ]
+        except BudgetExceeded:
+            raise
         except Exception as error:
+            check_request_budget()
             retrieval_output = {
                 "error_type": type(error).__name__,
                 "error": str(error),
@@ -131,7 +148,11 @@ def run_tool(
         question = str((tool_input or {}).get("question", ""))
         try:
             output = run_retrieval_tool(question)
+            check_cancelled()
+        except BudgetExceeded:
+            raise
         except Exception as error:
+            check_request_budget()
             return ToolResult(
                 tool_name=tool_name,
                 status="failed",
@@ -182,7 +203,11 @@ def run_tool(
 
         try:
             output = run_summary_tool(text)
+            check_cancelled()
+        except BudgetExceeded:
+            raise
         except Exception as error:
+            check_request_budget()
             return ToolResult(
                 tool_name=tool_name,
                 status="failed",

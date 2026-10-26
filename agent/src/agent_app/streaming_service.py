@@ -2,6 +2,8 @@ import logging
 from collections.abc import Callable, Iterator
 from typing import Any
 
+from rag_app.infrastructure.request_budget import BudgetExceeded, check_request_budget
+
 from rag_app.infrastructure.llm_client import get_client
 from rag_app.retrieval.query_analyzer import analyze_query
 
@@ -31,6 +33,12 @@ from agent_app.service import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def encode_budget_failure(code: str) -> bytes:
+    return ''.join(encode_event(event) for event in _failure_events(
+        code=code, message="请求超过执行预算，请缩小问题后重试。",
+    )).encode()
 
 
 def _result_output(result: AgentRunResult) -> dict[str, Any]:
@@ -118,7 +126,10 @@ def stream_agent_events(
 ) -> Iterator[AgentStreamEvent]:
     try:
         analysis = analyze_fn(question)
+    except BudgetExceeded:
+        raise
     except Exception as error:
+        check_request_budget()
         logger.warning(
             "agent.stream analysis failed error_type=%s",
             type(error).__name__,
@@ -131,7 +142,10 @@ def stream_agent_events(
             yield from _events_from_single_result(
                 run_once_fn(question, analysis)
             )
+        except BudgetExceeded:
+            raise
         except Exception as error:
+            check_request_budget()
             logger.warning(
                 "agent.stream fallback failed error_type=%s",
                 type(error).__name__,
@@ -158,7 +172,10 @@ def stream_agent_events(
             message="模型返回了不兼容的混合流，请重试",
             selected_tool=selected_tool,
         )
+    except BudgetExceeded:
+        raise
     except Exception as error:
+        check_request_budget()
         logger.warning(
             "agent.stream failed error_type=%s",
             type(error).__name__,
@@ -171,7 +188,10 @@ def stream_agent_events(
             yield from _events_from_single_result(
                 run_once_fn(question, analysis)
             )
+        except BudgetExceeded:
+            raise
         except Exception as fallback_error:
+            check_request_budget()
             logger.warning(
                 "agent.stream fallback failed error_type=%s",
                 type(fallback_error).__name__,
@@ -200,7 +220,10 @@ async def stream_agent_ndjson_async(question: str):
     except MixedModelOutputError:
         for event in _failure_events(code="mixed_model_output", message="模型返回了不兼容的混合流，请重试"):
             yield encode_event(event)
+    except BudgetExceeded:
+        raise
     except Exception as error:
+        check_request_budget()
         logger.warning("agent.stream failed error_type=%s", type(error).__name__)
         for event in _failure_events():
             yield encode_event(event)

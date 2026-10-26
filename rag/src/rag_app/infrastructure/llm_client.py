@@ -2,9 +2,15 @@ from langchain_openai import ChatOpenAI
 
 from rag_app.config import config
 from rag_app.infrastructure.token_usage import TokenUsageCallback
+from rag_app.infrastructure.model_transport import get_model_clients
+from rag_app.infrastructure.request_budget import get_request_budget, check_request_budget
 
 
 def get_client() -> ChatOpenAI:
+    check_request_budget()
+    clients = get_model_clients()
+    if get_request_budget() is not None and clients is None:
+        raise RuntimeError("protected request requires application-owned model clients")
     base_url = config.settings.llm_base_url
     model = config.settings.llm_model_id
     api_key = config.settings.llm_api_key
@@ -40,6 +46,14 @@ def get_client() -> ChatOpenAI:
                 "type": thinking_type,
             },
         }
+
+    if clients is not None:
+        client_kwargs.update(
+            http_client=clients.sync_client,
+            http_async_client=clients.async_client,
+            max_retries=0,
+            http_socket_options=(),
+        )
 
     client = ChatOpenAI(**client_kwargs)
 
