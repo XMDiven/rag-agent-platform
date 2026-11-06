@@ -15,7 +15,7 @@ from agent_app.app.routers.run import router as run_router
 from agent_app.app.routers.tools import router as tools_router
 from agent_app.streaming_service import encode_budget_failure
 from rag_app.infrastructure.model_transport import model_clients
-from rag_app.infrastructure.request_budget_middleware import RequestBudgetMiddleware
+from rag_app.infrastructure.request_budget_middleware import RequestBudgetMiddleware, configured_request_limiter
 
 configure_request_logging(level=logging.INFO)
 
@@ -23,9 +23,11 @@ configure_request_logging(level=logging.INFO)
 async def lifespan(app: FastAPI):
     async with model_clients() as clients:
         app.state.model_clients = clients
+        limiter = app.state.request_limiter = configured_request_limiter()
         try:
             yield
         finally:
+            limiter.close()
             del app.state.model_clients
 
 

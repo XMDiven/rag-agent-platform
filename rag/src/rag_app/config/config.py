@@ -57,6 +57,9 @@ class Settings(BaseSettings):
     request_max_tokens_per_call: int = Field(default=1024, gt=0)
     request_max_context_bytes: int = Field(default=120000, gt=0)
     request_max_context_bytes_per_call: int = Field(default=32000, gt=0)
+    request_max_concurrent: int = Field(default=4, gt=0)
+    request_max_waiting: int = Field(default=16, ge=0)
+    request_queue_timeout_seconds: float = Field(default=5.0, gt=0)
     # 单价按「每百万 token」配置，默认 0：不写死可能过期的价格，
     # 未配置时只统计 token 数，不产出会被误引用的金额。
     llm_input_price_per_million: float = 0.0

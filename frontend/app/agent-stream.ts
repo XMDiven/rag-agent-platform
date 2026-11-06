@@ -133,6 +133,9 @@ export function parseAgentEvent(line: string): AgentStreamEvent {
           "context_budget_exhausted",
           "request_cancelled",
           "request_finished",
+          "queue_full",
+          "queue_timeout",
+          "service_unavailable",
         ]) ||
         !isNonEmptyString(data.message)
       ) {
@@ -203,6 +206,7 @@ export async function readAgentErrorMessage(response: Response): Promise<string>
   try {
     const body: unknown = await response.json();
     if (isRecord(body) && isNonEmptyString(body.error)) return body.error;
+    if (isRecord(body) && isRecord(body.error) && isNonEmptyString(body.error.message)) return body.error.message;
   } catch {
     // 上游可能返回非 JSON 响应体，此时回退到状态码文案。
   }

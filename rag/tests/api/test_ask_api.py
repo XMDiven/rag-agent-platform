@@ -1,5 +1,5 @@
 import json
-import inspect
+import asyncio
 from unittest.mock import Mock
 
 import pytest
@@ -13,8 +13,19 @@ def parse_ndjson(text: str) -> list[dict]:
     return [json.loads(line) for line in text.splitlines() if line]
 
 
-def test_ask_route_handler_is_sync() -> None:
-    assert not inspect.iscoroutinefunction(ask_router.ask)
+def test_ask_business_runs_in_a_tracked_worker(client, monkeypatch) -> None:
+    from rag_app.infrastructure.request_concurrency import get_request_work
+    observed = []
+
+    def business(question, **kwargs):
+        with pytest.raises(RuntimeError, match='no running event loop'):
+            asyncio.get_running_loop()
+        observed.append(get_request_work().snapshot()['workers'])
+        return {'answer': 'offline', 'sources': [], 'trace': []}
+
+    monkeypatch.setattr(ask_router, 'ask_question', business)
+    assert client.post('/ask', json={'question': '问题'}).status_code == 200
+    assert observed == [1]
 
 
 def test_ask_returns_answer_and_sources(

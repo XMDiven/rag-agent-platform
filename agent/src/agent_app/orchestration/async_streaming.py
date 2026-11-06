@@ -16,6 +16,7 @@ from agent_app.orchestration.loop import (
     requires_final_answer, skip_tool_for_budget,
 )
 from rag_app.infrastructure.request_budget import BudgetExceeded, check_request_budget
+from rag_app.infrastructure.tracked_work import run_sync_tracked
 from agent_app.orchestration.streaming import EmptyModelOutputError, MixedModelOutputError, chunk_text
 from agent_app.prompts import AGENT_LOOP_SYSTEM_PROMPT
 from agent_app.schemas.stream import (
@@ -84,9 +85,7 @@ async def stream_agent_loop_async(question, llm, execute_tool=run_tool, max_step
                 # Context propagation lets decomposed tools skip remaining work.
                 token = cancel_event.set(stop)
                 try:
-                    result = await anyio.to_thread.run_sync(
-                        execute_tool, selected_tool, args, abandon_on_cancel=True,
-                    )
+                    result = await run_sync_tracked(execute_tool, selected_tool, args)
                     check_request_budget()
                 finally:
                     cancel_event.reset(token)

@@ -7,12 +7,15 @@ from agent_app.schemas.run import AgentRunRequest, AgentRunResponse
 from agent_app.service import run_agent
 from agent_app.streaming_service import stream_agent_ndjson_async as stream_agent_ndjson
 from agent_app.orchestration.async_streaming import stream_until_disconnect
+from rag_app.infrastructure.request_concurrency import admit_request
+from rag_app.infrastructure.tracked_work import run_sync_tracked
 
 router = APIRouter()
 
 
 @router.post("/agent/run/stream")
-def stream_agent_endpoint(request: AgentRunRequest, http_request: Request) -> StreamingResponse:
+async def stream_agent_endpoint(request: AgentRunRequest, http_request: Request) -> StreamingResponse:
+    await admit_request()
     return StreamingResponse(
         stream_until_disconnect(http_request, stream_agent_ndjson(request.question)),
         media_type="application/x-ndjson",
@@ -57,8 +60,9 @@ def extract_sources(tool_output: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 @router.post("/agent/run", response_model=AgentRunResponse)
-def run_agent_endpoint(request: AgentRunRequest) -> AgentRunResponse:
-    result = run_agent(request.question)
+async def run_agent_endpoint(request: AgentRunRequest) -> AgentRunResponse:
+    await admit_request()
+    result = await run_sync_tracked(run_agent, request.question)
 
     tool_output = normalize_tool_output(result.tool_result.output)
 

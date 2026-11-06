@@ -16,7 +16,7 @@ from rag_app.infrastructure.request_context import (
 )
 from rag_app.infrastructure.resources import create_app_resources
 from rag_app.infrastructure.model_transport import model_clients, model_clients_scope
-from rag_app.infrastructure.request_budget_middleware import RequestBudgetMiddleware
+from rag_app.infrastructure.request_budget_middleware import RequestBudgetMiddleware, configured_request_limiter
 
 configure_request_logging(level=logging.INFO)
 
@@ -25,11 +25,13 @@ configure_request_logging(level=logging.INFO)
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     async with model_clients() as clients:
         app.state.model_clients = clients
-        with model_clients_scope(clients):
-            app.state.resources = create_app_resources()
+        limiter = app.state.request_limiter = configured_request_limiter()
         try:
+            with model_clients_scope(clients):
+                app.state.resources = create_app_resources()
             yield
         finally:
+            limiter.close()
             del app.state.model_clients
 
 

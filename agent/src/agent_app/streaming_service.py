@@ -2,7 +2,7 @@ import logging
 from collections.abc import Callable, Iterator
 from typing import Any
 
-from rag_app.infrastructure.request_budget import BudgetExceeded, check_request_budget
+from rag_app.infrastructure.request_budget import BudgetExceeded, check_request_budget, request_failure_message
 
 from rag_app.infrastructure.llm_client import get_client
 from rag_app.retrieval.query_analyzer import analyze_query
@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 def encode_budget_failure(code: str) -> bytes:
     return ''.join(encode_event(event) for event in _failure_events(
-        code=code, message="请求超过执行预算，请缩小问题后重试。",
+        code=code, message=request_failure_message(code),
     )).encode()
 
 

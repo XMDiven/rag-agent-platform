@@ -32,6 +32,9 @@ class ErrorData(BaseModel):
         "context_budget_exhausted",
         "request_cancelled",
         "request_finished",
+        "queue_full",
+        "queue_timeout",
+        "service_unavailable",
     ]
     message: str
 

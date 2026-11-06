@@ -15,6 +15,16 @@ class BudgetExceeded(RuntimeError):
         super().__init__(code)
 
 
+def request_failure_message(code: str) -> str:
+    if code == 'queue_full':
+        return '服务繁忙，等待队列已满，请稍后重试。'
+    if code == 'queue_timeout':
+        return '等待执行名额超时，请稍后重试。'
+    if code == 'service_unavailable':
+        return '服务正在关闭，请稍后重试。'
+    return '请求超过执行预算，请缩小问题后重试。'
+
+
 @dataclass(frozen=True)
 class _Limits:
     timeout_seconds: float = 90

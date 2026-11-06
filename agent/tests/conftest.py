@@ -4,6 +4,14 @@ import pytest
 from langchain_core.messages import AIMessage, AIMessageChunk
 
 
+@pytest.fixture(autouse=True)
+def isolate_application_admission(monkeypatch):
+    # Legacy API/evaluator tests intentionally omit lifespan. Keep each test's
+    # application state separate from a preceding test's completed shutdown.
+    from agent_app.app.main import app
+    monkeypatch.delattr(app.state, 'request_limiter', raising=False)
+
+
 class FakeChatModel:
     """Offline stand-in for ChatOpenAI used to drive the agent loop in tests.
 

@@ -48,7 +48,7 @@ test("parses a valid answer event", () => {
 });
 
 test("accepts budget failures and ends with a failed result", async () => {
-  for (const code of ["task_timeout", "model_calls_exhausted", "output_tokens_exhausted", "context_budget_exhausted"]) {
+  for (const code of ["task_timeout", "model_calls_exhausted", "output_tokens_exhausted", "context_budget_exhausted", "queue_full", "queue_timeout", "service_unavailable"]) {
     const error = {version: 1, type: "error", data: {code, message: "请求超过执行预算"}};
     const done = {...doneEvent, data: {...doneEvent.data, termination_reason: "failed", tool_status: "failed"}};
     assert.deepEqual(parseAgentEvent(JSON.stringify(error)), error);
@@ -56,6 +56,11 @@ test("accepts budget failures and ends with a failed result", async () => {
     await readAgentStream(byteStream([encoder.encode(line(error) + line(done))]), (event) => events.push(event));
     assert.deepEqual(events.map((event) => event.type), ["error", "done"]);
   }
+});
+
+test("reads the structured admission error message before streaming starts", async () => {
+  const response = Response.json({error: {code: "queue_full", message: "服务繁忙，请稍后重试。"}}, {status: 503});
+  assert.equal(await readAgentErrorMessage(response), "服务繁忙，请稍后重试。");
 });
 
 test("rejects unsupported versions and malformed events", () => {

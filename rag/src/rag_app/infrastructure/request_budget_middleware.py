@@ -8,8 +8,9 @@ from typing import Callable
 
 from rag_app.infrastructure.model_transport import model_clients_scope
 from rag_app.infrastructure.request_budget import (
-    BudgetExceeded, RequestBudget, request_budget_scope,
+    BudgetExceeded, RequestBudget, request_budget_scope, request_failure_message,
 )
+from rag_app.infrastructure.request_concurrency import RequestLimiter, RequestWork, request_work_scope
 
 
 _pending_tasks: set[asyncio.Task] = set()
@@ -27,6 +28,14 @@ def configured_request_budget():
         max_context_bytes=settings.request_max_context_bytes,
         max_request_context_bytes=settings.request_max_context_bytes_per_call,
     )
+
+
+def configured_request_limiter():
+    from rag_app.config.config import settings
+
+    return RequestLimiter(max_active=settings.request_max_concurrent,
+                          max_waiting=settings.request_max_waiting,
+                          wait_timeout_seconds=settings.request_queue_timeout_seconds)
 
 
 def _release_task(task):
@@ -54,6 +63,7 @@ class RequestBudgetMiddleware:
         self.paths = paths
         self.stream_error = stream_error
         self.budget_factory = budget_factory or configured_request_budget
+        self._fallback_limiter = None
 
     async def __call__(self, scope, receive, send):
         if (scope['type'] != 'http' or scope.get('method') != 'POST'
@@ -62,6 +72,15 @@ class RequestBudgetMiddleware:
             return
 
         budget = self.budget_factory()
+        app = scope.get('app')
+        limiter = getattr(getattr(app, 'state', None), 'request_limiter', None)
+        if limiter is None:
+            # Existing in-process callers may omit lifespan. Production startup
+            # supplies a fresh limiter; a closed lifespan limiter is never replaced.
+            if self._fallback_limiter is None:
+                self._fallback_limiter = configured_request_limiter()
+            limiter = self._fallback_limiter
+        work = RequestWork(limiter)
         disconnected = asyncio.Event()
         queue = asyncio.Queue(maxsize=1)
         active = True
@@ -142,6 +161,7 @@ class RequestBudgetMiddleware:
         async def execute():
             with ExitStack() as stack:
                 stack.enter_context(request_budget_scope(budget))
+                stack.enter_context(request_work_scope(work))
                 app = scope.get('app')
                 clients = getattr(getattr(app, 'state', None), 'model_clients', None)
                 if clients is not None:
@@ -151,6 +171,7 @@ class RequestBudgetMiddleware:
 
         receiver = asyncio.create_task(pump_receive())
         app_task = asyncio.create_task(execute())
+        app_task.add_done_callback(lambda task: work.app_finished())
         disconnect_task = asyncio.create_task(disconnected.wait())
         error = None
 
@@ -190,7 +211,7 @@ class RequestBudgetMiddleware:
                                   delivery_deadline - monotonic())
                 return  # A started JSON response cannot be replaced safely.
             payload = json.dumps({'error': {'code': failure.code,
-                                           'message': '请求超过执行预算，请缩小问题后重试。'}},
+                                           'message': request_failure_message(failure.code)}},
                                  ensure_ascii=False).encode()
             if await deliver({'type': 'http.response.start',
                               'status': 504 if failure.code == 'task_timeout' else 503,
@@ -246,6 +267,7 @@ class RequestBudgetMiddleware:
         finally:
             active = False
             budget.stop('request_finished')
+            work.response_finished()
             _cancel_task(app_task)
             receiver.cancel()
             disconnect_task.cancel()
