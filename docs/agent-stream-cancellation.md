@@ -9,6 +9,12 @@ Cancellation is not treated as a failure requiring fallback generation.
 Synchronous tools run in a worker with a request-scoped cooperative cancellation
 event. Disconnect stops waiting for that worker; decomposed retrieval checks the
 event before each sub-question so remaining sub-questions are skipped.
+The worker is registered before dispatch and retains its question's concurrency
+permit until the actual thread exits. HTTP/app completion and response cleanup
+must also finish before that permit is returned. RAG synchronous streaming uses
+one tracked producer and a bounded channel; cancelling the reader closes the
+channel and the producer closes its iterator in its own thread. See
+[request budgets and concurrency](request-budgets.md) for queue limits and scope.
 An already-running synchronous retrieval/generation cannot be forcibly stopped:
 it finishes or hits its existing upstream timeout. Closing a model connection also
 does not guarantee that a provider immediately stops computation or billing.

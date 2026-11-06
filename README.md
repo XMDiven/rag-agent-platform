@@ -67,6 +67,8 @@ flowchart TD
 
 四个问答接口已接入请求预算：默认 90 秒、最多 6 次模型 HTTP 尝试、累计 4096 输出 token、每次最多 1024。Agent 内部工具共用预算，并为最终回答保留容量；预算失败不会转入同步降级。配置、错误协议和取消边界见 [`docs/request-budgets.md`](docs/request-budgets.md)。
 
+同一应用进程默认最多执行 4 个问答、等待 16 个，排队最多 5 秒。请求取消或超时后，仍在运行的本地同步工作继续占有名额，直到工作和响应清理结束。多个 worker 的限制会相加；连接关闭后供应商是否继续计算仍不可观测。
+
 ## 子项目
 
 | 子项目 | 状态 | 说明 |
@@ -87,10 +89,10 @@ flowchart TD
 
 ## 可复现工程数据
 
-- **自动化测试**：2026-10-26 根目录 Python 测试 478 项、前端 Node 测试 27 项通过；前端 ESLint、TypeScript 检查和 Next.js production build 同日通过。请求预算的离线验证范围见 [说明](docs/request-budgets.md)。
+- **自动化测试**：2026-11-06 根目录 Python 测试 518 项、前端 Node 测试 28 项通过；前端 ESLint、TypeScript 检查和 Next.js production build 同日通过。请求预算与并发控制的离线验证范围见 [说明](docs/request-budgets.md)。
 - **Redis 精确缓存**：5 次相同问题实测为 1 次 miss + 4 次 hit，miss 5915.14 ms、hit P50 3.495 ms、命中率 80%，重复请求延迟下降 99.94%；Redis 停机时请求仍通过 fail-open 路径返回。详见 [`rag/experiments/reports/cache/redis_exact_cache_2026-08-05.md`](rag/experiments/reports/cache/redis_exact_cache_2026-08-05.md)。
 - **历史流式基线（2026-08-03）**：旧的进程内同步执行路径上，12 条 golden case 全部满足事件协议并正常结束，未出现 reasoning 与 answer 混流；平均首事件 7.796 s、平均首答案 11.683 s。该数据不包含 HTTP、BFF 和浏览器开销，也不是当前异步接口的新基线。当前流式评测已通过 HTTP 访问 `/agent/run/stream`；运行方法见 [`agent/experiments/README.md`](agent/experiments/README.md)，历史结果见 [`baseline_2026-08-03.md`](agent/experiments/reports/streaming/baseline_2026-08-03.md)。
-- **并发基线**：`/ask` 在并发 1→8 时吞吐从 0.065 提升到 0.427 rps、错误率为 0；结果表明当前并发范围内主要瓶颈是 LLM 生成延迟，而不是线程池。详见 [`agent/experiments/reports/concurrency/baseline_2026-08-04.md`](agent/experiments/reports/concurrency/baseline_2026-08-04.md)。
+- **历史并发基线（未启用本轮准入限制）**：`/ask` 在并发 1→8 时吞吐从 0.065 提升到 0.427 rps、错误率为 0；该次测量范围内主要瓶颈是 LLM 生成延迟，而不是线程池。详见 [`agent/experiments/reports/concurrency/baseline_2026-08-04.md`](agent/experiments/reports/concurrency/baseline_2026-08-04.md)，不将这份历史数据视作当前限制下的新吞吐量。
 
 当前没有证据、因此不应写进简历的能力：
 
@@ -103,7 +105,7 @@ flowchart TD
 
 - 当前没有长期运行的公网部署，也没有认证、限流或租户隔离；它是本地工程演示，不是生产 SaaS。
 - 当前没有 `/metrics` 指标端点或集中式告警，聚合分析仍依赖带 request-id 的日志和离线报告。
-- 多步 Agent 的延迟与 token 消耗明显高于单次 RAG；问答 HTTP 请求已有总预算并关闭自动重试，尚未限制同时执行的任务数。已开始的同步线程和远端计算不能被强制终止。
+- 多步 Agent 的延迟与 token 消耗明显高于单次 RAG；问答 HTTP 请求已有总预算、并发与排队限制，并关闭自动重试。已开始的同步线程和远端计算不能被强制终止，本地线程仍运行时继续占用执行名额。
 - 上传接口适合可信本地环境，尚未增加文件大小限制、恶意文件扫描或异步任务队列。
 - LLM-as-Judge 只作为内部回归信号；多来源回答仍有采样波动，不能把单次通过率解释为稳定质量。
 
