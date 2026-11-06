@@ -1,0 +1,18 @@
+# Question concurrency and local work ownership
+
+The user approved the architecture in chat and requested execution. Implement roadmap A3.3 and the local-work accounting of A3.4 together; no additional design approval or real model experiment is needed.
+
+## Contract
+
+- Each application lifespan owns a fresh process-local limiter, default active=4, waiting=16, queue timeout=5 seconds. Positive active/timeout and nonnegative waiting are configurable. Different application workers have separate limits; these add together. No database, distributed lock, load balancer, daily quota or new dependency.
+- The existing full-response request budget begins before parsing/admission, so queue time consumes the same total deadline. Admission occurs after FastAPI parses/validates the body, before any question business work or streaming headers. This also lets the existing bounded receive pump observe disconnects without buffering request bodies in another middleware.
+- Overflow and queue timeout return safe HTTP 503 JSON (`queue_full` / `queue_timeout`). Existing total deadline remains 504 `task_timeout`. Closed service rejects admission with `service_unavailable`. Preserve request-id/CORS and stream protocol. A queued streaming request fails before headers. Once a stream has started, existing budget error/done handling applies.
+- One admitted question consumes one permit across all nested Agent tools and model calls. A per-request work record inherits through ContextVar. Release once only after response supervision ends, app task/cleanup ends AND every tracked local worker finishes. Cancelling a waiter does not mean its synchronous worker has ended.
+- Explicitly track the two synchronous JSON route business calls, RAG synchronous stream production, and Agent asynchronous loop's synchronous tool calls. Use async route adapters; never globally monkeypatch AnyIO, FastAPI or the model SDK. Other routes/CLI retain their behavior.
+- Worker registration occurs before dispatch; cancellation before actual start must either withdraw safely or keep ownership until a guarded wrapper starts and exits. A late wrapper checks the sticky budget before invoking business code. Exceptions, worker start/finish races and repeated finish notifications cannot leak or double-release permits.
+- RAG streaming stays incremental with a bounded in-memory channel. The synchronous iterator is created/advanced/closed under worker ownership; cancellation closes the receiver and stops further iteration. Never close a running generator from a different thread. A blocked model call keeps the permit until its local wrapper/iterator cleanup completes.
+- This tracks local execution and local model stream cleanup. Provider computation after socket close cannot be observed or forcibly stopped; do not claim a global provider concurrency cap. Shutdown closes admission; this change is not a durable task queue or an indefinite shutdown drain.
+
+## Verification
+
+Use Event-controlled fake work, local ASGI and ChatOpenAI with MockTransport only. Twenty simultaneous questions with limit four must never exceed four active tasks. Verify queue bound/timeout, queued disconnect/removal, permit handoff cancellation races, exceptions, zero-waiting configuration, repeat app lifespans, whole-response holding, all four actual routes, abandoned sync JSON/RAG-stream/Agent-tool work, and late cache/model/subquestion prevention. Keep all existing budget/cancellation tests passing. Run full Python regression; frontend parser tests, lint/build if touched. Commit/push in the existing authorized workflow after independent spec and quality review.
